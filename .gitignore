@@ -1,0 +1,67 @@
+# Byte-compiled / C extensions
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+env.bak/
+*.env
+.env.*
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-*
+*.code-workspace
+
+# Tests / caches
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints
+notebooks/*
+!notebooks/.gitkeep
+
+# Logs and databases
+*.log
+logs/
+*.sqlite3
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python packaging
+*.egg
+*.whl
+
+# Compiled extensions
+*.so
+*.pyd
+
+# Local credentials / secrets
+credentials.json
+secrets.json
+
+# Large data / model artifacts (untrack by default)
+data/*
+!data/.gitkeep
+models/*
+!models/.gitkeep
+checkpoints/*
+*.ckpt
+
+# Optional: ignore outputs from tools
+coverage.xml
+htmlcov/
