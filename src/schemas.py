@@ -23,7 +23,7 @@ class ChunkMetadata(BaseModel):
 
 class ChunkDocument(BaseModel):
     text: str
-    metadata: Optional[ChunkMetadata] = None
+    metadata: ChunkMetadata
 
 
 #
