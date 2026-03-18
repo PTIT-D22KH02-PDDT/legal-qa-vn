@@ -33,7 +33,7 @@ class RetrieveResult:
     section_id: str              # VD: "phan_5.chuong_xxv.dieu_663.khoan_1"
     section_display: str         # VD: "Khoản 1 Điều 663 Chương XXV Phần 5"
     text: str                    # Nội dung
-    similarity_score: float      # Score từ ChromaDB (0-1, 1 là tương tự nhất, 0 là không tương tự)
+    distance: float              # Distance từ ChromaDB
     section_type: str            # VD: "khoan", "dieu"
     metadata: Dict[str, Any]     # Metadata từ ChromaDB
 
@@ -102,33 +102,20 @@ class RetrievalService:
             section_id = chroma_result.chunk_id
             section_type = self._extract_section_type(section_id)
             
-            # Chuyển distance thành similarity score
-            # ChromaDB trả về distance, cần convert thành similarity
-            # Với cosine distance: similarity = 1 - distance
-            # Nhưng có thể distance này nằm trong [0, 2] hoặc [-1, 1] tùy metric
-            similarity_score = self._normalize_score(chroma_result.distance)
+            # Trả về distance từ ChromaDB
+            distance = chroma_result.distance
             
             result = RetrieveResult(
                 section_id=section_id,
                 section_display=decode_section_id(section_id),
                 text=chroma_result.text,
-                similarity_score=similarity_score,
+                distance=distance,
                 section_type=section_type,
                 metadata=chroma_result.metadata
             )
             results.append(result)
         
         return results
-
-    def _normalize_score(self, distance: float) -> float:
-        """
-        Normalize ChromaDB distance thành similarity score [0, 1]
-        ChromaDB với cosine: distance trong [0, 2], 0 = giống nhất
-        """
-        # Với cosine distance: similarity = 1 - distance
-        # Clamp vào [0, 1]
-        similarity = max(0.0, min(1.0, 1.0 - distance))
-        return similarity
 
     def retrieve(
         self,
@@ -164,11 +151,11 @@ class RetrievalService:
         if request.score_threshold:
             results = [
                 r for r in results 
-                if r.similarity_score >= request.score_threshold
+                if r.distance >= request.score_threshold
             ]
         
-        # 6. Sort theo similarity score (giảm dần)
-        results.sort(key=lambda r: r.similarity_score, reverse=True)
+        # 6. Sort theo distance (tăng dần - distance nhỏ nhất sẽ ở trên)
+        results.sort(key=lambda r: r.distance)
         
         return results
 
@@ -252,7 +239,7 @@ def main():
     retrieval_service = RetrievalService(
         chroma_store=chroma_store,
         embedding_model=embedding_model,
-        collection_name=COLLECTION_NAME
+        collection_name=COLLECTION_NAME,
     )
     
     # Kiểm tra collection có dữ liệu không
@@ -316,7 +303,7 @@ def main():
             print(f"{i}. {result.section_display}")
             print(f"   - Section ID: {result.section_id}")
             print(f"   - Loai: {result.section_type}")
-            print(f"   - Do tuong tu: {result.similarity_score:.4f}")
+            print(f"   - Distance: {result.distance:.4f}")
             print(f"   - Noi dung: {result.text[:150]}")
             if len(result.text) > 150:
                 print("      ...")
@@ -331,7 +318,7 @@ def debug_collection():
     chroma_config = ChromaConfig(
         collection_name=COLLECTION_NAME,
         persist_directory=str(CHROMA_DB_DIR),
-        distance_metric="cosine",
+        distance_metric="ip",
     )
     chroma_store = ChromaStore(config=chroma_config)
     
