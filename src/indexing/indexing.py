@@ -98,6 +98,10 @@ def process_document(
         chunks = chunker.chunk(text)
         tqdm.write(f'Generated {len(chunks)} chunks')
 
+        # print chunk
+        with open('debug_chunks.json', 'w', encoding='utf-8') as f:
+            json.dump([chunk.model_dump() for chunk in chunks], f, ensure_ascii=False, indent=4)
+
         # 3. Embedding
         tqdm.write('Generating embeddings')
         embedding_model = OnnxEmbeddingModel(
@@ -114,7 +118,6 @@ def process_document(
             ChromaConfig(**kwargs.get('store_params', {}))
         )
         vector_store_pipeline = VectorStorePipeline(
-            chunks=chunks,
             embeddings=embeddings
         )
         vector_store_pipeline.run(chroma_store)
@@ -132,6 +135,15 @@ def process_document(
 
     except Exception as e:
         tqdm.write(f"Error processing document: {e}")
+        return {
+            'success': False,
+            'message': str(e)
+        }
+    return {
+        'success': True,
+        'message': 'Document processed and stored successfully.',
+        'collection': chroma_store.config.collection_name
+    }
 
 if __name__ == "__main__":
     process_document(
