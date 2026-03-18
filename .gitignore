@@ -65,3 +65,6 @@ checkpoints/*
 # Optional: ignore outputs from tools
 coverage.xml
 htmlcov/
+
+.temp
+chroma_db
