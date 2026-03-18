@@ -99,8 +99,8 @@ def process_document(
         tqdm.write(f'Generated {len(chunks)} chunks')
 
         # print chunk
-        with open('debug_chunks.json', 'w', encoding='utf-8') as f:
-            json.dump([chunk.model_dump() for chunk in chunks], f, ensure_ascii=False, indent=4)
+        # with open('debug_chunks.json', 'w', encoding='utf-8') as f:
+        #     json.dump([chunk.model_dump() for chunk in chunks], f, ensure_ascii=False, indent=4)
 
         # 3. Embedding
         tqdm.write('Generating embeddings')
