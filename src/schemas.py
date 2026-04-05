@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional, Any, Literal
 from pydantic import BaseModel, Field, model_validator, ConfigDict
-
+from enum import Enum
 
 
 class HierarchicalChunkInput(BaseModel):
@@ -10,30 +10,59 @@ class HierarchicalChunkInput(BaseModel):
         description="Raw JSON đầu vào dùng cho hierarchical chunker."
     )
 
+class RelationType(str, Enum):
+    # Pho bien
+    huong_dan_thi_hanh = "huong_dan_thi_hanh"  # NĐ/TT/NQ hướng dẫn Luật
+    sua_doi_bo_sung    = "sua_doi_bo_sung"      # sửa một phần VB khác
+    thay_the           = "thay_the"             # thay thế toàn bộ VB cũ
+    bai_bo             = "bai_bo"               # bãi bỏ hoàn toàn VB cũ
+    dinh_chi_hieu_luc  = "dinh_chi_hieu_luc"   # tạm đình chỉ
 
-class ChunkMetadata(BaseModel):
-    """Metadata cho 1 chunk.
-    section_id dung de truy vet vi tri chunk trong cau truc van ban.
-    Hien tai voi hierarchical chunker, format thuc te la: "<section.id>"
-    vi du: "dieu_6.diem_2".
-    """
+    # Đặc thù Nghị quyết
+    tam_thoi_ap_dung   = "tam_thoi_ap_dung"    # thí điểm cơ chế chưa có trong Luật
+    giai_thich         = "giai_thich"           # QH giải thích chính thức điều khoản Luật
 
-    section_id: str
+    # Chung
+    lien_quan          = "lien_quan"            # tham chiếu nhau, không trực tiếp
+    #Quan he giua cac dieu/khoan trong van ban
+    tham_chieu         = "tham_chieu"
+class DocumentRelation(BaseModel):
+    id : int=None
+    entity_start:str=None
+    entity_end:str=None
+    relation_type:RelationType=None
+    description : Optional[str]=None
+
+class DocumentMetadata(BaseModel):
+    document_id: Optional[int] = None
+    so_hieu:str=""
+    ten_van_ban:str=""
+    loai:str=""
+    co_quan_ban_hanh:str=""
+    ngay_ban_hanh:str=""
+    ngay_co_hieu_luc:str=""
+    file_path:str=""
+    md_path:str=""
+    so_dieu:int=0
 
 
-class ChunkDocument(BaseModel):
-    text: str
-    metadata: ChunkMetadata
+class TypeChunk(str, Enum):
+    phan="phan"
+    chuong="chuong"
+    muc="muc"
+    dieu="dieu"
+    khoan="khoan"
+    diem="diem"
 
+class DocumentNode(BaseModel):
+    id: str=""
+    type:str=None
+    parent_id:Optional[str]=None
+    tittle:Optional[str]=None
+    content:Optional[str]=None
+    full_text:str|None=None
+    reference:Optional[List[str]]=None
 
-#
-class ChunkDocumentForHierarchical(BaseModel):
-    """Chunk output cho hierarchical gom metadata + tieu de + noi dung + ref."""
-
-    metadata: ChunkMetadata
-    tieu_de: Optional[str] = None
-    noi_dung: Optional[str] = None
-    ref: List[str] = Field(default_factory=list)
 
 
 class EmbeddingRequest(BaseModel):

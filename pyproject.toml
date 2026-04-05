@@ -24,6 +24,7 @@ dependencies = [
     "any2md>=0.6.0",
     "pypandoc>=1.16.2",
     "tqdm>=4.67.3",
+    "pywin32>=311",
 ]
 
 [tool.setuptools.packages.find]
