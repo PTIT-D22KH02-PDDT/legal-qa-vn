@@ -68,3 +68,7 @@ htmlcov/
 
 .temp
 chroma_db
+chunk/
+json/
+mark_down/
+models/

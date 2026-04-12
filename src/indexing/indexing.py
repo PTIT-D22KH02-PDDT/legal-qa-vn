@@ -1,6 +1,3 @@
-import sys
-import os
-import subprocess
 from pathlib import Path
 import json
 from tqdm import tqdm
@@ -9,7 +6,7 @@ from tkinter import Tk, filedialog
 ROOT_DIR = Path(__file__).resolve().parents[2]
 CHROMA_DB_DIR = ROOT_DIR / "chroma_db"
 COLLECTION_NAME = "legal_documents"
-EMBEDDING_MODEL_DIR = ROOT_DIR / "models" / "Vietnamese_Embedding_v2"
+EMBEDDING_MODEL_DIR = ROOT_DIR / "models" / "vietnamese-embedding"
 
 def select_file():
     root = Tk()
@@ -62,9 +59,7 @@ def process_document(
             'collection': collection_name (nếu success)
         }
     """
-    from src.core.ingestion.extractor import extract_file
     from src.core.chunker.factory import create_chunker
-    from src.core.chunker.hierarchical import build_json_tree
     from src.core.embedding.embedding import EmbeddingPipeline
     from src.core.embedding.onnx_embedding import OnnxEmbeddingModel
     from src.core.vector_store.chroma_store import ChromaStore
@@ -73,16 +68,16 @@ def process_document(
     
     try:
         # 1. Ingestion
-        tqdm.write(f'Start process document: {file_path}')
-        tqdm.write('Extracting text from document')
-        if not file_path:
-            raise ValueError("No file selected. Please select a file to process.")
-        if os.path.exists(file_path):
-            text = extract_file(file_path)
-        else:            
-            raise FileNotFoundError(f"File not found: {file_path}")
+        # tqdm.write(f'Start process document: {file_path}')
+        # tqdm.write('Extracting text from document')
+        # if not file_path:
+        #     raise ValueError("No file selected. Please select a file to process.")
+        # if os.path.exists(file_path):
+        #     text = extract_file(file_path)
+        # else:            
+        #     raise FileNotFoundError(f"File not found: {file_path}")
 
-        # 2. Chunking
+        # 1. Chunking
         chunker_params = kwargs.get('chunker_params', {}).copy()
         chunking_strategy = chunker_params.pop('strategy', 'fixed_size')
 
@@ -91,11 +86,12 @@ def process_document(
             strategy=chunking_strategy,
             **chunker_params
         )
+        # if chunking_strategy == 'hierarchical':
+        #     text = parser.build_json_tree(text)  # Chuyển raw text thành cấu trúc JSON nếu dùng hierarchical chunker
 
-        if chunking_strategy == 'hierarchical':
-            text = build_json_tree(text)  # Chuyển raw text thành cấu trúc JSON nếu dùng hierarchical chunker
-
-        chunks = chunker.chunk(text)
+        # chunks = chunker.chunk(text)
+        results=chunker.create_document_node(file_path=file_path)
+        chunks=results[1]
         tqdm.write(f'Generated {len(chunks)} chunks')
 
         # 3. Embedding
@@ -131,11 +127,14 @@ def process_document(
 
 
     except Exception as e:
+        import traceback
         tqdm.write(f"Error processing document: {e}")
+        tqdm.write(traceback.format_exc())
 
 if __name__ == "__main__":
+    file_path=r"C:\Users\LAPTOP HP\Downloads\data_raw_law\giao_thong\luat\luat duong bo moi.doc"
     process_document(
-        file_path=select_file(),
+        file_path=file_path,
         chunker_params={
             'strategy': 'hierarchical',
         },

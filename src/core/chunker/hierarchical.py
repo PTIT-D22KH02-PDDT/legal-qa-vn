@@ -5,10 +5,8 @@ from typing import Dict, Any, List
 from src.schemas import DocumentNode, HierarchicalChunkInput
 from src.core.chunker.extract_metadata import Extractor
 from pathlib import Path
-class ParseDocumentNode:
-    def __init__(self, extractor : Extractor):
-        self.extractor = extractor
-
+extractor=Extractor()
+class HierarchicalChunker:
     def chunk(
             self,
             data:  HierarchicalChunkInput |Dict[str, Any] | List[Dict[str, Any]],
@@ -106,10 +104,10 @@ class ParseDocumentNode:
         text = str(value).strip()
         return text or None
     def create_document_node(self, file_path : str):
-        # result=self.extractor.process_batch(file_paths=[file_path])
-        result=self.extractor.process_document(file_path=file_path)
+        # result=extractor.process_batch(file_paths=[file_path])
+        result=extractor.process_document(file_path=file_path)
         chunks=self.chunk(data=result.tree)
-        parent_dir=Path(__file__).resolve().parent.parent.parent
+        parent_dir=Path(__file__).resolve().parents[3]
         json_path=parent_dir / "chunk"
         json_path.mkdir(parents=True, exist_ok=True)
         json_file_path=json_path/(result.metadata.so_hieu+".jsonl")
@@ -123,7 +121,7 @@ class ParseDocumentNode:
             'metadata': result.metadata.model_dump(),
             'chunks': [c.model_dump() if hasattr(c, 'model_dump') else c for c in chunks]
         }
-        with open(json_file_path, "a", encoding="utf-8") as f:
+        with open(json_file_path, "w", encoding="utf-8") as f:
             # Chuyển dict thành chuỗi JSON và thêm dấu xuống dòng \n cho đúng định dạng jsonl
             line = json.dumps(data, ensure_ascii=False)
             f.write(line + "\n")

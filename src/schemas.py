@@ -68,11 +68,13 @@ class DocumentNode(BaseModel):
 class EmbeddingRequest(BaseModel):
     """Một đơn vị chunk cần embedding, hoặc truy vấn của người dùng"""
     chunk_id: str | None = None  # Duy nhất, lấy từ ChunkMetadata.section_id hoặc tự tạo khi khởi tạo
+    num_chunk: Optional[int] = None  # Số thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
     text: str
 
 class EmbeddingResult(BaseModel):
     """Kết quả embed 1 chunk"""
     chunk_id: str | None = None
+    num_chunk: Optional[int] = None  # Số thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
     text: str
     vector: List[float]     # Vector embedding
     token_count: Optional[int] = None   # Số token của chunk để kiểm tra có vượt giới hạn mô hình hay không
@@ -94,6 +96,7 @@ class ChromaConfig(BaseModel):
 class ChromaUpsertRequest(BaseModel):
     """Dữ liệu cần upsert vào ChromaDB"""
     chunk_id: str
+    num_chunk: Optional[int] = None  # Số thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
     vector: List[float]         # Lấy từ EmbeddingResult.vector
     text: str                   # Lấy từ ChunkDocument.text
     metadata: Dict[str, Any]    # Lấy từ ChunkMetadata tương ứng và có thể thêm thông tin khác nếu cần

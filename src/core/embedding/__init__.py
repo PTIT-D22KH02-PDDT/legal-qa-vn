@@ -4,6 +4,10 @@ dictionary = {
     'dieu': 'Điều',
     'khoan': 'Khoản',
     'diem': 'Điểm',
+    'chuong': 'Chương',
+    'phan': 'Phần',
+    'muc': 'Mục',
+    
 }
 
 def decode_section_id(chunk_id: str) -> str:
@@ -11,14 +15,16 @@ def decode_section_id(chunk_id: str) -> str:
     Chuyển đổi chunk_id về dạng dễ hiểu. Ví dụ: "dieu_6.diem_2" -> "Điểm 2 điều 6"
     """
     try:
-
         levels = chunk_id.strip().split('.')
     
     except Exception as e:
         raise ValueError(f"Invalid chunk_id format: {chunk_id}. Error: {e}")
     
     result = []
-    for level in levels:
+    for level in levels[1:]:
+        # Handle case when level doesn't contain '_'
+        if '_' not in level:
+            continue
         le, index = level.split('_', 1)
         index = '.'.join(index.split('_'))
         if le in dictionary:

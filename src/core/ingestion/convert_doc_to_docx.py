@@ -1,6 +1,6 @@
 import sys
+import os
 from pathlib import Path
-import pypandoc
 if sys.platform=="win32":
     import win32com.client
 
@@ -38,4 +38,3 @@ def convert_doc_to_docx(doc_path: Path, output_dir:Path):
         # 5. THOÁT ỨNG DỤNG VÀ GIẢI PHÓNG BỘ NHỚ
         word.Quit()
         del word  # Xóa biến để Python giải phóng COM object ngay lập tức
-

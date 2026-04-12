@@ -3,8 +3,8 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 import tempfile
-from src.core.ingestion.extractor import extract_file
 from src.schemas import DocumentMetadata,HierarchicalChunkInput
+from src.core.ingestion.extractor import extract_file
 from src.core.chunker.legal_parser import ParseLegal
 from src.core.ingestion.convert_doc_to_docx import convert_doc_to_docx
 from typing import Union,Dict,Any,List
@@ -294,32 +294,48 @@ class Extractor:
             tmp_dir = Path(tmpdir)
 
             # Bước 1
+            print(f"[DEBUG] Bước 1: Convert .doc → .docx (nếu cần)")
             if doc_path.suffix.lower() == ".doc":
+                print(f"[DEBUG] Đang convert {doc_path.name} từ .doc sang .docx...")
                 docx_path = convert_doc_to_docx(doc_path, tmp_dir)
+                print(f"[DEBUG] Convert xong: {docx_path}")
             else:
                 docx_path = doc_path
+                print(f"[DEBUG] File đã là .docx, skip convert")
             
             # Bước 2
+            print(f"[DEBUG] Bước 2: Extract text từ docx...")
             current_file=Path(__file__).resolve()
-            parent_dir=current_file.parent.parent.parent
+            parent_dir=current_file.parents[3]
             output_dir = parent_dir / "mark_down"
             output_dir.mkdir(parents=True, exist_ok=True)
             md_path=output_dir / (doc_path.stem + ".md")
+            print(f"[DEBUG] Đang extract file: {docx_path}")
             md_text=extract_file(docx_path)
+            print(f"[DEBUG] Extract thành công, lưu vào {md_path}")
             with open(str(md_path), "w", encoding="utf-8") as f:
                 f.write(md_text)
                 f.close()
+            
             # Bước 3
+            print(f"[DEBUG] Bước 3: Extract metadata...")
             result.metadata = self._extract_metadata_doc(
                 md_text=md_text,
                 file_path=str(doc_path),
                 md_path=str(md_path),
             )
-            # Bước 5
+            print(f"[DEBUG] Metadata: so_hieu={result.metadata.so_hieu}, ten_van_ban={result.metadata.ten_van_ban}")
+            
+            # Bước 4
+            print(f"[DEBUG] Bước 4: Build JSON tree...")
             tree = self.parser.build_json_tree(doc_id=result.metadata.so_hieu, text=md_text)
+            print(f"[DEBUG] Tree xong, có {len(tree)} nodes")
+            
             json_path = parent_dir / "json"
             json_path.mkdir(parents=True, exist_ok=True)
             json_file_path = json_path / (result.metadata.so_hieu + ".jsonl")
+            
+            print(f"[DEBUG] Bước 5: Lưu JSON vào {json_file_path}")
             data = {
                 'metadata': result.metadata.model_dump(),
                 'tree': tree,
@@ -329,6 +345,7 @@ class Extractor:
                 # Chuyển dict thành chuỗi JSON và thêm dấu xuống dòng \n cho đúng định dạng jsonl
                 line = json.dumps(data, ensure_ascii=False)
                 f.write(line + "\n")
+            print(f"[DEBUG] Hoàn thành!")
         return result
 
     def process_batch(self, file_paths: list[str]) -> list[ProcessResult]:
@@ -344,3 +361,8 @@ class Extractor:
                 print(f"{Path(fp).name}: {e}")
                 results.append(ProcessResult())
         return results
+
+# if __name__ == "__main__":
+#     current_file=Path(__file__).resolve()
+#     parent_dir=current_file.parents[3]
+#     print(parent_dir)

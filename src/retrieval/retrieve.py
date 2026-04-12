@@ -9,9 +9,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[2]
 CHROMA_DB_DIR = ROOT_DIR / "chroma_db"
 COLLECTION_NAME = "legal_documents"
-EMBEDDING_MODEL_DIR = ROOT_DIR / "models" / "Vietnamese_Embedding_v2"
-
-
+EMBEDDING_MODEL_DIR = ROOT_DIR / "models" / "vietnamese-embedding"
 
 class RetrieveQuestionRequest(BaseModel):
     """Yêu cầu retrieve với query là điều khoản hoặc câu hỏi pháp lý"""

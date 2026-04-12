@@ -391,7 +391,7 @@ class ParseLegal:
                 tree.append(phan_node)
             #Case 2 : Xu ly các van ban ma tu mo dau->chuong->điều.
             elif ptype=='heading' and pid=='chuong':
-                chuong_id = f"{phan_id}.chuong_{draw}"
+                chuong_id = f"{doc_id}.chuong_{praw}"
                 i += 1
                 chuong_con = []
                 chuong_tieu_de = ""
@@ -462,7 +462,7 @@ class ParseLegal:
                 # Build Chuong node
                 chuong_node = {
                     'type_id': chuong_id,
-                    'parent_id': phan_id,
+                    'parent_id': doc_id,
                     "type": "chuong",
                     'tittle': chuong_tieu_de,
                     "content": ". ".join(chuong_content),
