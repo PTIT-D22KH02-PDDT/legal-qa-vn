@@ -38,7 +38,9 @@ class FixedSizeChunker:
         for idx, piece in enumerate(tqdm(pieces, desc="Splitting text", total=len(pieces))):
             if piece.strip():
                 result.append(DocumentNode(
-                    text=piece,
-                    metadata=ChunkMetadata(section_id=f'chunk_{idx}')
+                    id=f"chunk_{idx}",
+                    type="chunk",
+                    content=piece,
+                    full_text=piece,
                 ))
         return result
