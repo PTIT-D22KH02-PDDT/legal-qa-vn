@@ -25,23 +25,18 @@ def extract_file(path):
         return extract_docx_text(str(file_path))
     
     elif ext == ".doc":
-        try:
-            from doc2docx import convert
-            docx_path = file_path.with_suffix('.docx')
-            convert(str(file_path), str(docx_path))
-        except Exception as e:
-            raise ValueError(f"Không thể chuyển đổi .doc sang .docx: {e}")
-        
+        from tempfile import TemporaryDirectory
+        from doc2docx import convert
         from src.indexing.ingestion.docx_extractor import extract_docx_text
-        
-        text = extract_docx_text(str(docx_path))
 
-        try:
-            docx_path.unlink()
-        except Exception as e:
-            pass
+        with TemporaryDirectory() as tmp_dir:
+            temp_docx = Path(tmp_dir) / f"{file_path.stem}.docx"
+            try:
+                convert(str(file_path), str(temp_docx))
+            except Exception as err:
+                raise ValueError(f"Không thể chuyển đổi .doc sang .docx: {err}") from err
 
-        return text  
+            return extract_docx_text(str(temp_docx))
 
     else:
         raise ValueError(

@@ -49,7 +49,7 @@ class Extractor:
             x = m.group(1)
             s = re.sub(r"[^a-zA-Z0-9đĐ\-]+", "_", x)
             return s.lower().strip('_')
-            return m.group(1).strip().rstrip(".")
+            # return m.group(1).strip().rstrip(".")
         # Fallback: pattern số hiệu đứng độc lập
         m = re.search(r"\b(\d+/\d{4}/[\w\-]+)\b", text[:3000])
         if m:

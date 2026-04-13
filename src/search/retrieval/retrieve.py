@@ -133,7 +133,7 @@ class RetrievalService:
         if request.score_threshold:
             results = [
                 r for r in results 
-                if r.distance >= request.score_threshold
+                if r.distance <= request.score_threshold
             ]
         
         # 6. Sort theo distance (tăng dần - distance nhỏ nhất sẽ ở trên)

@@ -1,7 +1,5 @@
-# DocumentMetadata, DocumentRelation, DocumentNode
-
 from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 from .enums import RelationType
 
 class DocumentMetadata(BaseModel):
@@ -17,17 +15,17 @@ class DocumentMetadata(BaseModel):
     so_dieu:int=0
 
 class DocumentRelation(BaseModel):
-    id : int=None
-    entity_start:str=None
-    entity_end:str=None
-    relation_type:RelationType=None
+    id : Optional[int]=None
+    entity_start: Optional[str]=None
+    entity_end: Optional[str]=None
+    relation_type: Optional[RelationType]=None
     description : Optional[str]=None
 
 class DocumentNode(BaseModel):
-    id: str=""
-    type:str=None
+    id: Optional[str]=None
+    type:Optional[str]=None
     parent_id:Optional[str]=None
     title:Optional[str]=None
     content:Optional[str]=None
-    full_text:str|None=None
+    full_text:Optional[str]=None
     reference:Optional[List[str]]=None

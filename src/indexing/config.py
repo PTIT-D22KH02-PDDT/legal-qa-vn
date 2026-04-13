@@ -21,6 +21,8 @@ class IndexingConfig(BaseConfig):
         """Get chunker parameters."""
         chunking_config = self.config.get('chunking', {})
         params = chunking_config.get('params', {})
+        if not isinstance(params, dict):
+            raise ValueError("Chunker params should be a dictionary")
         return {
             'strategy': chunking_config.get('strategy', 'fixed_size'),
             **params
