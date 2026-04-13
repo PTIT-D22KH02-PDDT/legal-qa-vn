@@ -25,7 +25,7 @@ class OnnxEmbeddingModel:
         self,
         model_dir: str,
         pooling: Literal["auto", "cls", "mean", "none"] = "auto",
-        max_length: int = 2048,       # Mỗi model có max_length khác nhau, truyền vào khi khởi tạo
+        max_length: int = 256,       # Vietnamese-embedding model trained with max_length=256
         normalize: bool = False,      # Một số model đã normalize sẵn, set False để tránh normalize 2 lần
         onnx_path: str = None
     ):
@@ -163,6 +163,7 @@ class OnnxEmbeddingModel:
                     results.append(
                         EmbeddingResult(
                             chunk_id=requests[i + j].chunk_id,
+                            num_chunk=requests[i + j].num_chunk if hasattr(requests[i + j], 'num_chunk') else None,
                             text=requests[i + j].text,
                             vector=emb[j].astype(float).tolist(),
                             token_count=int(tokenized['attention_mask'][j].sum())

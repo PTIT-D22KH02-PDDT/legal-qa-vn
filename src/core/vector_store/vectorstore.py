@@ -1,6 +1,6 @@
 from typing import List, Callable
 from pydantic import BaseModel
-from src.schemas import ChunkDocument, EmbeddingResult, ChromaUpsertRequest
+from src.schemas import EmbeddingResult, ChromaUpsertRequest
 from src.core.vector_store.chroma_store import ChromaStore
 
 class VectorStorePipeline(BaseModel):
@@ -18,7 +18,7 @@ class VectorStorePipeline(BaseModel):
                     chunk_id=embedding.chunk_id,
                     text=embedding.text,
                     vector=embedding.vector,
-                    metadata={"section_id": embedding.chunk_id} # Có thể thêm thông tin khác nếu cần
+                    metadata={"section_id": embedding.chunk_id, "num_chunk": embedding.num_chunk} # Có thể thêm thông tin khác nếu cần
                 )
             )
         return requests

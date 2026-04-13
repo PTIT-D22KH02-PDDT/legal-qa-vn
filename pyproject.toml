@@ -20,10 +20,11 @@ dependencies = [
     "torch>=2.10.0",
     "pydantic>=2.10.0",
     "chromadb>=1.5.2",
-    "sentence-transformers>=5.2.3",
     "any2md>=0.6.0",
     "pypandoc>=1.16.2",
     "tqdm>=4.67.3",
+    "pywin32>=311",
+    "langchain-core>=1.2.19",
 ]
 
 [tool.setuptools.packages.find]

@@ -11,8 +11,6 @@ CHROMA_DB_DIR = ROOT_DIR / "chroma_db"
 COLLECTION_NAME = "legal_documents"
 EMBEDDING_MODEL_DIR = ROOT_DIR / "models" / "Vietnamese_Embedding_v2"
 
-
-
 class RetrieveQuestionRequest(BaseModel):
     """Yêu cầu retrieve với query là điều khoản hoặc câu hỏi pháp lý"""
     query: str = Field(..., description="Câu truy vấn (ví dụ: 'điều khoản về hợp đồng')")
