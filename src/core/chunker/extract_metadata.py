@@ -326,16 +326,20 @@ class Extractor:
                 file_path=str(doc_path),
                 md_path=str(md_path),
             )
+            doc_id = result.metadata.so_hieu or doc_path.stem
+            if not doc_id:
+                raise ValueError(f"Không tạo được document id cho {doc_path}")
+            result.metadata.so_hieu = doc_id
             print(f"[DEBUG] Metadata: so_hieu={result.metadata.so_hieu}, ten_van_ban={result.metadata.ten_van_ban}")
             
             # Bước 4
             print(f"[DEBUG] Bước 4: Build JSON tree...")
-            tree = self.parser.build_json_tree(doc_id=result.metadata.so_hieu, text=md_text)
+            tree = self.parser.build_json_tree(doc_id=doc_id, text=md_text)
             print(f"[DEBUG] Tree xong, có {len(tree)} nodes")
             
             json_path = parent_dir / "json"
             json_path.mkdir(parents=True, exist_ok=True)
-            json_file_path = json_path / (result.metadata.so_hieu + ".jsonl")
+            json_file_path = json_path / f"{doc_id}.jsonl"
             
             print(f"[DEBUG] Bước 5: Lưu JSON vào {json_file_path}")
             data = {
