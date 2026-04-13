@@ -433,7 +433,7 @@ class ParseLegal:
                                 muc_con.append(dieu_node)
                                 i = dieu_node["_end_idx"]
                             else:
-                                if dtype == "text":
+                                if ftype == "text":
                                     muc_content.append(fline)
                                 i += 1
 
