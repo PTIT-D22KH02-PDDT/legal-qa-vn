@@ -1,154 +1,160 @@
 from pathlib import Path
-import json
 from tqdm import tqdm
 from tkinter import Tk, filedialog
 
-ROOT_DIR = Path(__file__).resolve().parents[2]
-CHROMA_DB_DIR = ROOT_DIR / "chroma_db"
-COLLECTION_NAME = "legal_documents"
-EMBEDDING_MODEL_DIR = ROOT_DIR / "models" / "Vietnamese_Embedding_v2"
-def select_file():
-    root = Tk()
-    root.withdraw()
-    root.attributes('-topmost', True)
-    root.update()
 
+def select_file_dialog() -> str:
+    """
+    Mở tkinter dialog để chọn file PDF/DOCX.
+    
+    Returns:
+        str: Đường dẫn file được chọn
+        
+    Raises:
+        ValueError: Nếu không chọn file
+    """
+    root = Tk()
+    root.withdraw()  # Ẩn window chính
+    root.attributes('-topmost', True)  # Đặt window luôn ở trên
+    
     file_path = filedialog.askopenfilename(
-        title='Chọn file',
+        title="Chọn file tài liệu (PDF/DOCX)",
         filetypes=[
-            ('Documents', '*.pdf *.docx'),
-            ('PDF', '*.pdf'),
-            ('Word', '*.docx'),
-            ('All files', '*.*')
+            ("Supported Files", "*.pdf *.docx *.doc"),
+            ("PDF Files", "*.pdf"),
+            ("Word Files", "*.docx *.doc"),
+            ("All Files", "*.*")
         ]
     )
+    
     root.destroy()
-    return file_path if file_path else None
+    
+    if not file_path:
+        raise ValueError("Không có file được chọn")
+    
+    return file_path
+
 
 def process_document(
     file_path: str,
+    config=None,
     **kwargs
-):
+) -> dict:
     """
-    Pipeline chính để xử lý tài liệu từ file -> text -> chunk -> embedding.
+    Pipeline chính để xử lý tài liệu: ingestion → parsing → chunking → embedding → vector store.
 
     Args:
-        file_path: Đường dẫn file pdf/docx
-        **kwargs: Tham số riêng của chunking strategy, embedding model và vector database
-               
-                 chunker_params: {
-                    strategy: 'fixed_size'
-                    ... các tham số tùy strategy
-                }
-                embedding_params: {
-                    model_dir: str (đường dẫn đến thư mục chứa model ONNX và tokenizer)
-                    ... các tham số tùy mô hình
-                }
-                store_params: {
-                    collection_name: str,
-                    is_persist: bool,
-                    distance_metric: str
-                    ...
-                }
-    
+        file_path (str): Đường dẫn file pdf/docx
+        config: IndexingConfig object (nếu None, sẽ load từ configs/indexing_config.yaml)
+        **kwargs: Tham số bổ sung (sẽ override config từ file)
+            - chunker_params: {'strategy': 'fixed_size' | 'hierarchical', ...}
+            - embedding_params: {'model_dir': str, 'max_length': int, ...}
+            - store_params: {'collection_name': str, 'is_persist': bool, ...}
+
     Returns:
         dict: {
-            'success': True/False, 
-            'message': '...',
-            'collection': collection_name (nếu success)
+            'success': bool,
+            'message': str,
+            'collection': str (tên collection nếu success),
+            'chunks_count': int,
+            'embeddings_count': int
         }
     """
-    from src.core.chunker.factory import create_chunker
-    from src.core.embedding.embedding import EmbeddingPipeline
-    from src.core.embedding.onnx_embedding import OnnxEmbeddingModel
-    from src.core.vector_store.chroma_store import ChromaStore
-    from src.core.vector_store.vectorstore import VectorStorePipeline
-    from src.schemas import ChromaConfig
-    
-    try:
-        # 1. Ingestion
-        # tqdm.write(f'Start process document: {file_path}')
-        # tqdm.write('Extracting text from document')
-        # if not file_path:
-        #     raise ValueError("No file selected. Please select a file to process.")
-        # if os.path.exists(file_path):
-        #     text = extract_file(file_path)
-        # else:            
-        #     raise FileNotFoundError(f"File not found: {file_path}")
+    from src.indexing.config import IndexingConfig
+    from src.indexing.chunker import create_chunker
+    from src.indexing.embedding import EmbeddingPipeline, OnnxEmbeddingModel
+    from src.indexing.vector_store import ChromaStore, VectorStorePipeline, ChromaConfig
 
-        # 1. Chunking
-        chunker_params = kwargs.get('chunker_params', {}).copy()
+    try:
+        # Load config từ file nếu chưa được truyền vào
+        if config is None:
+            config = IndexingConfig.get_default_config()
+        
+        # Get parameters từ config, có thể override bởi kwargs
+        chunker_params = {**config.get_chunker_params(), **kwargs.get('chunker_params', {})}
+        embedding_params = {**config.get_embedding_params(), **kwargs.get('embedding_params', {})}
+        store_params = {**config.get_store_params(), **kwargs.get('store_params', {})}
+        
+        # Step 1: Chunking (includes ingestion & parsing)
         chunking_strategy = chunker_params.pop('strategy', 'fixed_size')
 
-        tqdm.write(f'Chunking with strategy: {chunking_strategy}')
-        chunker = create_chunker(
-            strategy=chunking_strategy,
-            **chunker_params
-        )
-        # if chunking_strategy == 'hierarchical':
-        #     text = parser.build_json_tree(text)  # Chuyển raw text thành cấu trúc JSON nếu dùng hierarchical chunker
+        tqdm.write(f'[1/4] Chunking with strategy: {chunking_strategy}')
+        chunker = create_chunker(strategy=chunking_strategy, **chunker_params)
+        tree, chunks = chunker.create_document_node(file_path=file_path)
+        chunks_count = len(chunks)
+        tqdm.write(f'      Generated {chunks_count} chunks')
 
-        # chunks = chunker.chunk(text)
-        results=chunker.create_document_node(file_path=file_path)
-        chunks=results[1]
-        tqdm.write(f'Generated {len(chunks)} chunks')
-
-        # print chunk
-        # with open('debug_chunks.json', 'w', encoding='utf-8') as f:
-        #     json.dump([chunk.model_dump() for chunk in chunks], f, ensure_ascii=False, indent=4)
-
-        # 3. Embedding
-        tqdm.write('Generating embeddings')
-        embedding_model = OnnxEmbeddingModel(
-            **kwargs.get('embedding_params', {})
-        )
-
+        # Step 2: Embedding
+        tqdm.write(f'[2/4] Generating embeddings')
+        # Extract batch_size for embedding before passing to OnnxEmbeddingModel
+        batch_size = embedding_params.get('batch_size', 32)
+        onnx_params = {k: v for k, v in embedding_params.items() if k != 'batch_size'}
+        embedding_model = OnnxEmbeddingModel(**onnx_params)
         embedding_pipeline = EmbeddingPipeline(chunk_documents=chunks)
-        embeddings = embedding_pipeline.run(embedding_model.embed)
-        
-        tqdm.write(f'Generated {len(embeddings)} embeddings')
+        embeddings = embedding_pipeline.run(lambda reqs: embedding_model.embed(reqs, batch_size=batch_size))
+        embeddings_count = len(embeddings)
+        tqdm.write(f'      Generated {embeddings_count} embeddings')
 
-        # 4. Vector Store
-        chroma_store = ChromaStore(
-            ChromaConfig(**kwargs.get('store_params', {}))
-        )
-        vector_store_pipeline = VectorStorePipeline(
-            embeddings=embeddings
-        )
+        # Step 3: Vector Store
+        tqdm.write(f'[3/4] Storing in ChromaDB')
+        chroma_config = ChromaConfig(**store_params)
+        chroma_store = ChromaStore(chroma_config)
+        vector_store_pipeline = VectorStorePipeline(embeddings=embeddings)
         vector_store_pipeline.run(chroma_store)
-        tqdm.write(f'Upserted chunks into vector store: {chroma_store.config.collection_name}')
+        tqdm.write(f'      Upserted to collection: {chroma_config.collection_name}')
 
-        # Test showing all documents in collection
-        # Uncomment block này để test nội dung collection sau khi upsert
-        results = chroma_store.collection.get(include=['documents', 'metadatas'])
-        with open('debug_chroma_collection.json', 'w', encoding='utf-8') as f:
-            json.dump(results, f, ensure_ascii=False, indent=4)
-        tqdm.write('Chroma collection content saved to debug_chroma_collection.json')
+        tqdm.write(f'[4/4] Pipeline completed successfully')
         
-        tqdm.write('Finish processing document (input -> ... -> store)')
-
+        return {
+            'success': True,
+            'message': 'Document processed successfully',
+            'collection': chroma_config.collection_name,
+            'chunks_count': chunks_count,
+            'embeddings_count': embeddings_count
+        }
 
     except Exception as e:
         import traceback
-        tqdm.write(f"Error processing document: {e}")
+        error_msg = f"Error processing document: {str(e)}"
+        tqdm.write(f"[ERROR] {error_msg}")
         tqdm.write(traceback.format_exc())
-
-if __name__ == "__main__":
-    file_path=r"C:\Users\LAPTOP HP\Downloads\data_raw_law\giao_thong\luat\luat duong bo moi.doc"
-    process_document(
-        file_path=file_path,
-        chunker_params={
-            'strategy': 'hierarchical',
-        },
-        embedding_params={
-            'model_dir': str(EMBEDDING_MODEL_DIR),
-            'max_length': 128,
-        },
-        store_params={
-            'collection_name': COLLECTION_NAME,
-            'is_persist': True,
-            'persist_directory': str(CHROMA_DB_DIR),
-            'distance_metric': 'ip'
+        
+        return {
+            'success': False,
+            'message': error_msg,
+            'collection': None,
+            'chunks_count': 0,
+            'embeddings_count': 0
         }
 
-    )
+if __name__ == "__main__":
+    from src.indexing.config import IndexingConfig
+    
+    try:
+        # Mở file picker dialog
+        file_path = select_file_dialog()
+        print(f"Đã chọn file: {file_path}\n")
+        
+        # Load config từ file
+        config = IndexingConfig.get_default_config()
+        
+        # Chạy pipeline
+        result = process_document(file_path=file_path, config=config)
+        
+        print("\n" + "=" * 70)
+        print("PIPELINE RESULT")
+        print("=" * 70)
+        print(f"Status: {'SUCCESS' if result['success'] else 'FAILED'}")
+        print(f"Message: {result['message']}")
+        if result['success']:
+            print(f"Collection: {result['collection']}")
+            print(f"Chunks: {result['chunks_count']}")
+            print(f"Embeddings: {result['embeddings_count']}")
+        print("=" * 70)
+        
+    except ValueError as e:
+        print(f"[ERROR] {e}")
+    except Exception as e:
+        import traceback
+        print(f"[ERROR] Unexpected error: {e}")
+        traceback.print_exc()

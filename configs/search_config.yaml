@@ -1,0 +1,35 @@
+pipeline:
+  retrieval:
+    default_top_k: 10
+    score_threshold: null
+    default_filter_types: null
+  
+  rerank:
+    enabled: true
+    top_k: 5
+    use_cross_encoder: true
+
+chunking:
+  strategy: 'hierarchical'
+  params:
+    max_chunk_size: 512
+    min_chunk_size: 50
+  
+embedding:
+  model_dir: null
+  pooling: 'auto'
+  max_length: 256
+  normalize: false
+  batch_size: 32
+
+vector_store:
+  collection_name: 'legal_documents'
+  is_persist: true
+  distance_metric: 'ip'
+
+reranker:
+  model_dir: 'models/mmarco-mMiniLMv2-L12-H384-v1'
+  device: 'cpu'
+  batch_size: 32
+  normalize_scores: true
+  max_length: 512

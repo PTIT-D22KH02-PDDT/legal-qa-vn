@@ -1,0 +1,13 @@
+embedding:
+  model_dir: null
+  max_length: 256
+  batch_size: 32
+
+vector_store:
+  collection_name: 'legal_documents'
+  distance_metric: 'ip'
+
+retrieval:
+  default_top_k: 5
+  score_threshold: null
+  default_filter_types: null

@@ -1,0 +1,6 @@
+reranker:
+  model_dir: 'models/mmarco-mMiniLMv2-L12-H384-v1'
+  device: 'cpu'
+  batch_size: 32
+  normalize_scores: true
+  max_length: 512

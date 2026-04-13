@@ -1,0 +1,18 @@
+chunking:
+  strategy: 'hierarchical'
+
+embedding:
+  model_dir: null  # null = dùng mặc định
+  pooling: 'auto'
+  max_length: 256
+  normalize: false
+  batch_size: 32
+
+vector_store:
+  collection_name: 'legal_documents'
+  is_persist: true
+  distance_metric: 'ip'
+
+# logging:
+#   verbose: true
+#   show_progress: true
