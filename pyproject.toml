@@ -4,4 +4,28 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "pdfplumber",
+    "pymupdf",
+    "pypdf",
+    "python-docx",
+    "docling",
+    "langchain-text-splitters>=0.3.9",
+    "onnxruntime>=1.14.0",
+    "onnxruntime-gpu>=1.24.2",
+    "transformers>=4.40.0",
+    "sentencepiece",
+    "safetensors",
+    "numpy",
+    "torch>=2.10.0",
+    "pydantic>=2.10.0",
+    "chromadb>=1.5.2",
+    "any2md>=0.6.0",
+    "pypandoc>=1.16.2",
+    "tqdm>=4.67.3",
+    "pywin32>=311",
+    "langchain-core>=1.2.19",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]

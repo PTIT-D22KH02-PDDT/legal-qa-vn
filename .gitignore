@@ -65,3 +65,10 @@ checkpoints/*
 # Optional: ignore outputs from tools
 coverage.xml
 htmlcov/
+
+.temp
+chroma_db
+chunk/
+json/
+mark_down/
+models/
