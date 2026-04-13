@@ -299,7 +299,7 @@ class ParseLegal:
                                     "parent_id": chuong_id,
                                     'type': "muc",
                                     "tittle": muc_tieu_de,
-                                    "cotent": ". ".join(muc_content),
+                                    "content": ". ".join(muc_content),
                                     "ref":self.extract_refs(". ".join(muc_content), {'muc_id': muc_id, 'chuong_id': chuong_id, 'phan_id': phan_id}),
                                     "con": muc_con
                                 }
@@ -360,7 +360,7 @@ class ParseLegal:
                             "parent_id": phan_id,
                             'type': "muc",
                             "tittle": muc_tieu_de,
-                            "cotent": ". ".join(muc_content),
+                            "content": ". ".join(muc_content),
                             "ref": self.extract_refs(". ".join(muc_content), {'muc_id': muc_id, 'phan_id': phan_id}),
                             "con": muc_con
                         }
@@ -442,7 +442,7 @@ class ParseLegal:
                             "parent_id": chuong_id,
                             'type': "muc",
                             "tittle": muc_tieu_de,
-                            "cotent": ". ".join(muc_content),
+                            "content": ". ".join(muc_content),
                             "ref": self.extract_refs(". ".join(muc_content), {'muc_id': muc_id, 'chuong_id': chuong_id}),
                             "con": muc_con
                         }
