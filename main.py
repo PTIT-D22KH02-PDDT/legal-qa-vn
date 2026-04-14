@@ -133,11 +133,12 @@ def handle_search_local():
         chroma_config = ChromaConfig(
             collection_name=pipeline_config.get_vector_store_params()['collection_name'],
             persist_directory=str(pipeline_config.chroma_db_dir),
+            is_persist=True
         )
         chroma_store = ChromaStore(config=chroma_config)
         
         embedding_model = OnnxEmbeddingModel(
-            **pipeline_config.get_embedding_model_dir()
+            model_dir=pipeline_config.get_embedding_model_dir()
         )
         
         # Create pipeline
@@ -178,6 +179,7 @@ def handle_search_remote():
         chroma_config = ChromaConfig(
             collection_name=pipeline_config.get_vector_store_params()['collection_name'],
             persist_directory=str(pipeline_config.chroma_db_dir),
+            is_persist=True
         )
         chroma_store = ChromaStore(config=chroma_config)
         
@@ -222,11 +224,12 @@ def handle_rag_pipeline():
         chroma_config = ChromaConfig(
             collection_name=pipeline_config.get_vector_store_params()['collection_name'],
             persist_directory=str(pipeline_config.chroma_db_dir),
+            is_persist=True
         )
         chroma_store = ChromaStore(config=chroma_config)
         
         embedding_model = OnnxEmbeddingModel(
-            **pipeline_config.get_embedding_model_dir()
+            model_dir=pipeline_config.get_embedding_model_dir()
         )
         
         search_pipeline = SearchPipeline(
