@@ -13,6 +13,11 @@ def select_file_dialog() -> str:
     Raises:
         ValueError: Nếu không chọn file
     """
+ROOT_DIR = Path(__file__).resolve().parents[2]
+CHROMA_DB_DIR = ROOT_DIR / "chroma_db"
+COLLECTION_NAME = "legal_documents"
+EMBEDDING_MODEL_DIR = ROOT_DIR / "models" / "vietnamese-embedding"
+def select_file():
     root = Tk()
     root.withdraw()  # Ẩn window chính
     root.attributes('-topmost', True)  # Đặt window luôn ở trên

@@ -22,6 +22,9 @@ COLLECTION_NAME = _store_params['collection_name']
 CHROMA_DB_DIR = _store_params['persist_directory']
 EMBEDDING_MODEL_DIR = _config.get_embedding_params()['model_dir']
 
+# Chỉ retrieve các leaf nodes (có nội dung thực tế)
+# Bỏ qua các container nodes (Phần, Chương, Mục)
+LEAF_NODE_TYPES = ['dieu', 'khoan', 'diem']
 
 class RetrievalService:
     """Service chính để retrieve điều khoản từ ChromaDB"""
@@ -44,7 +47,12 @@ class RetrievalService:
 
     def _embed_query(self, query: str) -> List[float]:
         """Embed query thành vector"""
-        embedding_request = create_embedding_request(query)
+        embedding_request = EmbeddingRequest(
+            chunk_id=None,
+            num_chunk=0,
+            text=query,
+            metadata={}  # Query không có metadata
+        )
         result = self.embedding_model.embed([embedding_request])
         if not result:
             raise ValueError(f"Failed to embed query: {query}")
@@ -99,6 +107,64 @@ class RetrievalService:
         
         return results
 
+    def _apply_reranking(
+        self,
+        query: str,
+        results: List[RetrieveResult],
+        top_k: int
+    ) -> List[RetrieveResult]:
+        """
+        Áp dụng reranking để sắp xếp lại kết quả
+        
+        Args:
+            query: Câu truy vấn gốc
+            results: Danh sách kết quả từ ChromaDB
+            top_k: Số lượng kết quả cuối cùng muốn lấy
+            
+        Returns:
+            Danh sách kết quả đã được rerank
+        """
+        if not self.reranker or not self.reranker.is_initialized:
+            # Nếu không có reranker, return nguyên bản kết quả
+            return results[:top_k]
+        
+        try:
+            # Convert RetrieveResult sang ChromaQueryResult để pass vào reranker
+            chroma_results = [
+                ChromaQueryResult(
+                    chunk_id=r.section_id,
+                    text=r.text,
+                    metadata=r.metadata,
+                    distance=r.distance
+                ) for r in results
+            ]
+            
+            # Rerank
+            reranked = self.reranker.rerank(
+                query=query,
+                documents=chroma_results,
+                top_k=top_k
+            )
+            
+            # Convert lại thành RetrieveResult
+            reranked_results = [
+                RetrieveResult(
+                    section_id=r.chunk_id,
+                    section_display=decode_section_id(r.chunk_id),
+                    text=r.text,
+                    distance=r.distance,
+                    section_type=self._extract_section_type(r.chunk_id),
+                    metadata=r.metadata,
+                    score_rerank=r.score_rerank
+                ) for r in reranked
+            ]
+            
+            return reranked_results
+        except Exception as e:
+            import logging
+            logging.warning(f"Reranking failed, returning original results: {e}")
+            return results[:top_k]
+
     def retrieve(
         self,
         request: RetrieveQuestionRequest
@@ -116,12 +182,15 @@ class RetrievalService:
         query_vector = self._embed_query(request.query)
         
         # 2. Build filter metadata nếu cần
-        filter_metadata = self._build_filter_metadata(request.filter_by_type)
+        # Nếu không chỉ định filter_by_type, tự động filter chỉ lấy leaf nodes
+        filter_by_type = request.filter_by_type or LEAF_NODE_TYPES
+        filter_metadata = self._build_filter_metadata(filter_by_type)
         
-        # 3. Query ChromaDB
+        # 3. Query ChromaDB - lấy nhiều hơn top_k để có đủ sau khi rerank
+        top_k_search = request.top_k * 2 if self.reranker and self.reranker.is_initialized else request.top_k
         chroma_request = ChromaQueryRequest(
             query_vector=query_vector,
-            top_k=request.top_k,
+            top_k=top_k_search,
             filter=filter_metadata
         )
         chroma_results = self.chroma_store.query(chroma_request)
@@ -129,15 +198,31 @@ class RetrievalService:
         # 4. Process results
         results = self._process_chroma_results(chroma_results)
         
-        # 5. Filter theo score threshold nếu cần
+        # 5. Apply reranking nếu có reranker
+        if self.reranker and self.reranker.is_initialized:
+            results = self._apply_reranking(
+                query=request.query,
+                results=results,
+                top_k=request.top_k
+            )
+        else:
+            # Nếu không có reranker, chỉ lấy top_k kết quả
+            results = results[:request.top_k]
+        
+        # 6. Filter theo score threshold nếu cần
         if request.score_threshold:
             results = [
                 r for r in results 
-                if r.distance <= request.score_threshold
+                if r.distance >= request.score_threshold
             ]
         
-        # 6. Sort theo distance (tăng dần - distance nhỏ nhất sẽ ở trên)
-        results.sort(key=lambda r: r.distance)
+        # 7. Sort theo score
+        # Nếu có reranking, sort theo score_rerank (cao hơn tốt)
+        # Nếu không, sort theo distance (thấp hơn tốt)
+        if self.reranker and self.reranker.is_initialized and results and results[0].score_rerank is not None:
+            results.sort(key=lambda r: r.score_rerank if r.score_rerank is not None else float('-inf'), reverse=True)
+        else:
+            results.sort(key=lambda r: r.distance)
         
         return results
 
@@ -193,80 +278,3 @@ class RetrievalService:
             filter_by_type=[section_type],
             score_threshold=score_threshold
         )
-
-
-def main():
-    """Interactive CLI for testing retrieval."""
-    from src.indexing.vector_store.chroma_store import ChromaStore
-    
-    print("\n" + "=" * 80)
-    print("RETRIEVAL SERVICE - Interactive Test")
-    print("=" * 80 + "\n")
-    
-    try:
-        # Initialize
-        print("[*] Initializing...")
-        chroma_config = ChromaConfig(
-            collection_name=COLLECTION_NAME,
-            persist_directory=str(CHROMA_DB_DIR),
-            distance_metric="ip",
-            is_persist=True
-        )
-        chroma_store = ChromaStore(config=chroma_config)
-        embedding_model = OnnxEmbeddingModel(model_dir=str(EMBEDDING_MODEL_DIR))
-        
-        retrieval_service = RetrievalService(
-            chroma_store=chroma_store,
-            embedding_model=embedding_model,
-            collection_name=COLLECTION_NAME,
-        )
-        
-        # Check collection
-        count = chroma_store.collection.count()
-        if count == 0:
-            print(f"[ERROR] Collection '{COLLECTION_NAME}' is empty!")
-            return
-        
-        print(f"[OK] Collection '{COLLECTION_NAME}' has {count} documents\n")
-        
-        while True:
-            try:
-                query = input("Query (or 'exit' to quit): ").strip()
-                if query.lower() in ['exit', 'quit', 'q']:
-                    break
-                if not query:
-                    continue
-                
-                top_k_input = input("Top-k (default 5): ").strip()
-                top_k = int(top_k_input) if top_k_input else 5
-                
-                if top_k < 1 or top_k > 100:
-                    print("Top-k must be between 1 and 100\n")
-                    continue
-                
-                print(f"\nSearching for: '{query}' (top-{top_k})...\n")
-                results = retrieval_service.retrieve_by_query_string(query=query, top_k=top_k)
-                
-                if not results:
-                    print("No results found\n")
-                else:
-                    for i, result in enumerate(results, 1):
-                        print(f"{i}. {result.section_display}")
-                        print(f"   ID: {result.section_id}")
-                        print(f"   Type: {result.section_type}")
-                        print(f"   Distance: {result.distance:.4f}")
-                        print(f"   Text: {result.text[:100]}...\n")
-            
-            except KeyboardInterrupt:
-                break
-            except Exception as e:
-                print(f"Error: {e}\n")
-    
-    except Exception as e:
-        print(f"[ERROR] {e}")
-        import traceback
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    main()

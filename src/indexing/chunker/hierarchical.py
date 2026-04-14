@@ -4,7 +4,7 @@ import json
 from typing import Dict, Any, List
 from pathlib import Path
 from src.core.models import DocumentNode
-from .schemas import HierarchicalChunkInput
+from src.schemas import HierarchicalChunkInput
 from src.indexing.parsing import Extractor
 
 
@@ -105,6 +105,7 @@ class HierarchicalChunker:
         parent_id = node.get("parent_id")
         type_node=node.get("type")
         full_text=node.get("full_text") if (node.get('type')=='khoan' or node.get('type')=="dieu") else None
+        parent_context = node.get("parent_context")
         if not any([title, content, refs]):
             return None
         if not node_id:
@@ -127,6 +128,7 @@ class HierarchicalChunker:
             type=type_node,
             parent_id=parent_id,
             title=title,
+            parent_context=parent_context,
             content=content,
             full_text=full_text,
             reference=refs
