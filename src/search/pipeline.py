@@ -2,19 +2,29 @@
 Search Pipeline - retrieval + re-ranking.
 
 Pipeline kết hợp vector search (retrieval) với cross-encoder re-ranking
+Hỗ trợ cả local models và remote API
 """
 
 from typing import List, Optional, Dict, Any
 from pathlib import Path
+import logging
 
 from .config import PipelineConfig
 from .retrieval import RetrievalService, RetrieveQuestionRequest, RetrieveResult
 from .rerank import CrossEncoderReranker, RankedResult
 import sys
 
+logger = logging.getLogger(__name__)
+
+
 class SearchPipeline:
     """
     Pipeline orchestrate vector search retrieval + cross-encoder re-ranking.
+    
+    Hỗ trợ cả local models và remote API:
+    - Local embedding + local reranker (default)
+    - Remote embedding + remote reranker
+    - Mixed: local embedding + remote reranker, etc.
     
     Workflow:
     1. Vector search (retrieval)
@@ -25,8 +35,9 @@ class SearchPipeline:
     def __init__(
         self,
         chroma_store,
-        embedding_model,
+        embedding_model=None,
         config_path: Optional[str] = None,
+        use_remote_api: bool = False,
     ):
         """
         Khởi tạo search pipeline.
@@ -34,12 +45,31 @@ class SearchPipeline:
         Args:
             chroma_store: ChromaStore instance
             embedding_model: OnnxEmbeddingModel hoặc EmbeddingModel instance
+                            Nếu None và use_remote_api=True, sẽ tạo RemoteEmbeddingModel
             config_path: Đường dẫn tới pipeline config (nếu null dùng mặc định)
+            use_remote_api: Sử dụng remote embedding + reranker từ API (default: False)
         """
+        from src.api import RemoteAPIClient
+        from src.indexing.embedding import RemoteEmbeddingModel
+        from .rerank import RemoteReranker
+        
         self.config = PipelineConfig(config_path)
         self.retrieval_params = self.config.get_retrieval_params()
         self.rerank_params = self.config.get_rerank_params()
         self.reranker_params = self.config.get_reranker_params()
+        self.use_remote_api = use_remote_api
+        
+        # Initialize embedding model
+        if use_remote_api:
+            if embedding_model is None:
+                logger.info("Using remote embedding API")
+                api_client = RemoteAPIClient()
+                embedding_model = RemoteEmbeddingModel(api_client)
+            self.api_client = RemoteAPIClient()
+        else:
+            if embedding_model is None:
+                raise ValueError("embedding_model is required when use_remote_api=False")
+            self.api_client = None
         
         # Initialize retrieval service
         self.retrieval_service = RetrievalService(
@@ -49,17 +79,21 @@ class SearchPipeline:
         
         # Initialize re-ranker nếu enabled
         if self.rerank_params['enabled']:
-            self.reranker = CrossEncoderReranker(
-                model_name=self.reranker_params['model_dir'],
-                device=self.reranker_params['device'],
-                batch_size=self.reranker_params['batch_size'],
-                normalize_scores=self.reranker_params['normalize_scores'],
-                max_length=self.reranker_params['max_length'],
-            )
+            if use_remote_api:
+                logger.info("Using remote reranker API")
+                self.reranker = RemoteReranker(self.api_client)
+            else:
+                self.reranker = CrossEncoderReranker(
+                    model_name=self.reranker_params['model_dir'],
+                    device=self.reranker_params['device'],
+                    batch_size=self.reranker_params['batch_size'],
+                    normalize_scores=self.reranker_params['normalize_scores'],
+                    max_length=self.reranker_params['max_length'],
+                )
         else:
             self.reranker = None
         
-        print("[*] SearchPipeline initialized successfully")
+        logger.info(f"SearchPipeline initialized (use_remote_api={use_remote_api})")
     
     def search(
         self,

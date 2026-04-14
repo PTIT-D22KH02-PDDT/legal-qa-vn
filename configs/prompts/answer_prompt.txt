@@ -1,0 +1,13 @@
+Câu hỏi: {query}
+
+Tài liệu pháp luật liên quan:
+{context}
+
+HƯỚNG DẪN:
+- Trả lời BẰNG TIẾNG VIỆT LÀM CÓ
+- Không được dùng tiếng Trung, tiếng Anh, hay ký tự của ngôn ngữ khác
+- Trả lời ngắn gọn, chính xác dựa vào tài liệu cung cấp
+- Không lặp lại thông tin
+- Nếu không có thông tin, nói rõ là không có
+
+Trả lời:

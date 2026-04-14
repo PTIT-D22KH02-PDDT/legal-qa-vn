@@ -38,6 +38,7 @@ def select_file_dialog() -> str:
 def process_document(
     file_path: str,
     config=None,
+    use_remote_api: bool = False,
     **kwargs
 ) -> dict:
     """
@@ -46,6 +47,7 @@ def process_document(
     Args:
         file_path (str): Đường dẫn file pdf/docx
         config: IndexingConfig object (nếu None, sẽ load từ configs/indexing_config.yaml)
+        use_remote_api (bool): Sử dụng remote embedding API thay vì local model (default: False)
         **kwargs: Tham số bổ sung (sẽ override config từ file)
             - chunker_params: {'strategy': 'fixed_size' | 'hierarchical', ...}
             - embedding_params: {'model_dir': str, 'max_length': int, ...}
@@ -62,8 +64,9 @@ def process_document(
     """
     from src.indexing.config import IndexingConfig
     from src.indexing.chunker import create_chunker
-    from src.indexing.embedding import EmbeddingPipeline, OnnxEmbeddingModel
+    from src.indexing.embedding import EmbeddingPipeline, OnnxEmbeddingModel, RemoteEmbeddingModel
     from src.indexing.vector_store import ChromaStore, VectorStorePipeline, ChromaConfig
+    from src.api import RemoteAPIClient
 
     try:
         # Load config từ file nếu chưa được truyền vào
@@ -86,10 +89,18 @@ def process_document(
 
         # Step 2: Embedding
         tqdm.write(f'[2/4] Generating embeddings')
-        # Extract batch_size for embedding before passing to OnnxEmbeddingModel
         batch_size = embedding_params.get('batch_size', 32)
-        onnx_params = {k: v for k, v in embedding_params.items() if k != 'batch_size'}
-        embedding_model = OnnxEmbeddingModel(**onnx_params)
+        
+        if use_remote_api:
+            # Sử dụng remote embedding API
+            tqdm.write(f'      Using remote embedding API')
+            api_client = RemoteAPIClient()
+            embedding_model = RemoteEmbeddingModel(api_client)
+        else:
+            # Sử dụng local ONNX model
+            onnx_params = {k: v for k, v in embedding_params.items() if k != 'batch_size'}
+            embedding_model = OnnxEmbeddingModel(**onnx_params)
+        
         embedding_pipeline = EmbeddingPipeline(chunk_documents=chunks)
         embeddings = embedding_pipeline.run(lambda reqs: embedding_model.embed(reqs, batch_size=batch_size))
         embeddings_count = len(embeddings)

@@ -61,6 +61,9 @@ def decode_section_id(chunk_id: str) -> str:
         index = '.'.join(index.split('_'))
         if le in SECTION_TYPE_NAMES:
             result.append(f"{SECTION_TYPE_NAMES[le]} {index}")
+        elif le.isdigit():
+            # Handle numeric law codes (e.g., "91" from "91_2015_qh13")
+            result.append(f"Luật {index}")
         else:
             raise ValueError(f"Không nhận diện được loại section {le} trong chunk_id {chunk_id}")
     

@@ -1,0 +1,26 @@
+# RAG Pipeline Configuration
+
+# Search & Retrieval Parameters
+retrieval_top_k: 10              # Số documents lấy từ vector search trước khi rerank
+rerank_top_k: 5                  # Số documents cuối cùng dùng làm context
+use_rerank: true                 # Sử dụng reranking hay không
+
+# Context Formatting
+context_separator: "\n---\n"     # Separator giữa các documents
+max_context_length: 3000         # Max length của context
+
+# Generation Parameters
+max_answer_length: 1000          # Max length của generated answer
+temperature: 0.3                 # Temperature khi generate (0.0-2.0)
+                                 # - Gần 0: Deterministic, ít random
+                                 # - ~1.0: Balanced
+                                 # - > 1.0: Creative, random
+top_k: 30                        # Top-k tokens để xem xét
+top_p: 0.85                      # Top-p nucleus sampling threshold
+
+# Prompt Configuration
+system_prompt_file: "configs/prompts/system_prompt.txt"   # Chứa system prompt
+answer_prompt_file: "configs/prompts/answer_prompt.txt"   # Chứa answer template
+
+# API Settings
+use_remote_api: true             # Sử dụng remote API (embedding, rerank, generate)
