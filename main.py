@@ -179,14 +179,16 @@ def handle_search_remote():
         chroma_config = ChromaConfig(
             collection_name=pipeline_config.get_vector_store_params()['collection_name'],
             persist_directory=str(pipeline_config.chroma_db_dir),
-            is_persist=True
+            is_persist=True,
+            distance_metric='ip'
         )
         chroma_store = ChromaStore(config=chroma_config)
         
-        # Create pipeline (remote APIs)
+        # Create pipeline (remote APIs - must use remote embedding to match indexed embeddings)
+        logger.info("Using remote embedding API...")
         search_pipeline = SearchPipeline(
             chroma_store=chroma_store,
-            embedding_model=None,
+            embedding_model=None,  # Use remote embedding
             use_remote_api=True
         )
         
@@ -204,7 +206,6 @@ def handle_search_remote():
 
 def handle_rag_pipeline():
     """Full RAG: search + generate answer"""
-    from src.indexing.embedding.onnx_embedding import OnnxEmbeddingModel
     from src.indexing.vector_store.chroma_store import ChromaStore, ChromaConfig
     from src.search.pipeline import SearchPipeline
     from src.search.config import PipelineConfig
@@ -219,23 +220,22 @@ def handle_rag_pipeline():
         return
     
     try:
-        # Setup search (local embedding)
+        # Setup search (using remote embedding to match indexed embeddings)
         pipeline_config = PipelineConfig()
         chroma_config = ChromaConfig(
             collection_name=pipeline_config.get_vector_store_params()['collection_name'],
             persist_directory=str(pipeline_config.chroma_db_dir),
-            is_persist=True
+            is_persist=True,
+            distance_metric='ip'
         )
         chroma_store = ChromaStore(config=chroma_config)
         
-        embedding_model = OnnxEmbeddingModel(
-            model_dir=pipeline_config.get_embedding_model_dir()
-        )
-        
+        # Use remote embedding API for search (must match indexed embeddings from mode 2)
+        logger.info("Using remote embedding API...")
         search_pipeline = SearchPipeline(
             chroma_store=chroma_store,
-            embedding_model=embedding_model,
-            use_remote_api=False
+            embedding_model=None,  # Use remote embedding
+            use_remote_api=True
         )
         
         # Setup generate (remote)
@@ -247,8 +247,27 @@ def handle_rag_pipeline():
         search_results = search_pipeline.search(query, top_k=3)
         logger.info(f"  Found {len(search_results)} results")
         
-        # Extract context
-        context = "\n\n".join([str(result) for result in search_results])
+        if not search_results:
+            logger.warning("No documents found")
+            return
+        
+        # Extract context - get document text only
+        context_parts = []
+        for result in search_results:
+            if isinstance(result, dict):
+                # Result is dict format
+                if 'document' in result:
+                    context_parts.append(result['document'])
+                elif 'text' in result:
+                    context_parts.append(result['text'])
+            else:
+                # Result is object
+                if hasattr(result, 'text'):
+                    context_parts.append(result.text)
+                elif hasattr(result, 'document'):
+                    context_parts.append(result.document)
+        
+        context = "\n\n---\n\n".join(context_parts)
         
         # Step 2: Generate answer
         logger.info(f"\n[Step 2] Generating answer...")
