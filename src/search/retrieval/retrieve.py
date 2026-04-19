@@ -9,12 +9,11 @@ from src.indexing.embedding.onnx_embedding import OnnxEmbeddingModel
 from .config import RetrievalConfig
 
 
-_config = RetrievalConfig.get_default_config()
-_store_params = _config.get_store_params()
-
-COLLECTION_NAME = _store_params['collection_name']
-CHROMA_DB_DIR = _store_params['persist_directory']
-EMBEDDING_MODEL_NAME = _config.get_embedding_params()['model_name']
+# _config = RetrievalConfig.get_default_config()
+# _store_params = _config.get_store_params()
+# COLLECTION_NAME = _store_params['collection_name']
+# CHROMA_DB_DIR = _store_params['persist_directory']
+# EMBEDDING_MODEL_DIR = _config.get_embedding_params()['model_dir']
 
 # Chỉ retrieve các leaf nodes (có nội dung thực tế)
 # Bỏ qua các container nodes (Phần, Chương, Mục)
@@ -77,8 +76,16 @@ class RetrievalService:
         Returns:
             List các ChromaQueryResult được sắp xếp theo similarity score
         """
-        # 1. Embed query
-        query_vector = self._embed_query(request.query)
+        # 1. Get query vector - either embed text query or use provided vector
+        if request.query:
+            # Text query provided - embed it
+            query_vector = self._embed_query(request.query)
+        elif request.query_vector:
+            # Vector query provided - use directly
+            query_vector = request.query_vector
+        else:
+            # Validator ensures at least one is provided, but double-check
+            raise ValueError("Either query (text) or query_vector must be provided")
         
         # 2. Build filter metadata nếu cần
         # Nếu không chỉ định filter_by_type, tự động filter chỉ lấy leaf nodes

@@ -56,7 +56,7 @@ class SearchPipeline:
         from src.api import RemoteAPIClient
         from src.indexing.embedding import RemoteEmbeddingModel
         from .rerank import RemoteReranker
-        
+
         self.config = PipelineConfig(config_path)
         self.retrieval_params = self.config.get_retrieval_params()
         self.rerank_params = self.config.get_rerank_params()
@@ -88,10 +88,10 @@ class SearchPipeline:
                 self.reranker = RemoteReranker(self.api_client)
             else:
                 self.reranker = VietnameseReranker(
-                    model_name=self.rerank_params['model_name'],
-                    max_length=self.rerank_params['max_length'],
-                    batch_size=self.rerank_params['batch_size'],
-                    device=self.rerank_params['device']
+                    model_name=self.reranker_params['model_name'],
+                    max_length=self.reranker_params['max_length'],
+                    batch_size=self.reranker_params['batch_size'],
+                    device=self.reranker_params['device']
                 )
                 # Startup reranker (load model)
                 self.reranker.startup()
@@ -170,7 +170,7 @@ class SearchPipeline:
         section_type: str,
         top_k: Optional[int] = None,
         use_rerank: Optional[bool] = None,
-    ) -> List[Any]:
+    ) -> List[ChromaQueryResult]:
         """
         Tìm kiếm với lọc theo section type.
         

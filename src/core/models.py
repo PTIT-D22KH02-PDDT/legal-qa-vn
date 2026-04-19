@@ -2,6 +2,14 @@ from pydantic import BaseModel
 from typing import Optional, List
 from .enums import RelationType
 
+class DocumentRelation(BaseModel):
+    id : int=None
+    entity_start:str=None
+    entity_end:str=None
+    relation_type:RelationType=None
+    description : Optional[str]=None
+
+
 class DocumentMetadata(BaseModel):
     document_id: Optional[int] = None
     so_hieu:str=""
@@ -14,18 +22,12 @@ class DocumentMetadata(BaseModel):
     md_path:str=""
     so_dieu:int=0
 
-class DocumentRelation(BaseModel):
-    id : Optional[int]=None
-    entity_start: Optional[str]=None
-    entity_end: Optional[str]=None
-    relation_type: Optional[RelationType]=None
-    description : Optional[str]=None
-
 class DocumentNode(BaseModel):
-    id: Optional[str]=None
-    type:Optional[str]=None
+    id: str=""
+    type:str=None
     parent_id:Optional[str]=None
+    parent_context:Optional[str]=None
     title:Optional[str]=None
     content:Optional[str]=None
-    full_text:Optional[str]=None
+    full_text:str|None=None
     reference:Optional[List[str]]=None

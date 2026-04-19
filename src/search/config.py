@@ -45,7 +45,7 @@ class PipelineConfig(BaseConfig):
         reranker_config = self.config.get('reranker', {})
 
         return {
-            'model_dir': reranker_config.get('model_name'),
+            'model_name': reranker_config.get('model_name'),
             'device': reranker_config.get('device', 'cpu'),
             'batch_size': reranker_config.get('batch_size', 32),
             'normalize_scores': reranker_config.get('normalize_scores', True),
@@ -68,7 +68,7 @@ class PipelineConfig(BaseConfig):
         model_dir = embedding_config.get('model_dir')
         
         if model_dir is None:
-            return str(self._get_root_dir() / "models" / "vietnamese_embedding")
+            return str(self._get_root_dir() / "models" / "vietnamese-embedding")
         else:
             model_path = Path(model_dir)
             if not model_path.is_absolute():

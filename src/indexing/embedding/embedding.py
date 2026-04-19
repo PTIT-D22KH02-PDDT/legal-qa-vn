@@ -1,15 +1,15 @@
 from typing import List, Callable, Optional, Dict, Any
-from pydantic import BaseModel
-from src.schemas import DocumentNode, EmbeddingRequest, EmbeddingResult
-from src.indexing.embedding import decode_section_id
+from src.core.models import DocumentNode
+from src.schemas import EmbeddingRequest, EmbeddingResult
+from src.indexing.embedding.utils import decode_section_id
 
 EmbeddingFunction = Callable[[List[EmbeddingRequest]], List[EmbeddingResult]]
 
-class EmbeddingPipeline(BaseModel):
+class EmbeddingPipeline:
     """Kết nối chunking module và embedding module và triển khai embedding module """
-    chunk_documents: List[DocumentNode]
     
-    # full_payload: Optional[Dict[str, Any]] = None
+    def __init__(self, chunk_documents: List[DocumentNode]):
+        self.chunk_documents = chunk_documents
 
     def _to_embedding_requests(self) -> List[EmbeddingRequest]:
         if not self.chunk_documents:

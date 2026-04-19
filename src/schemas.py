@@ -121,8 +121,3 @@ class ChromaQueryResult(BaseModel):
     metadata: Optional[dict] = None
     distance: float
     score_rerank: Optional[float] = None  # Điểm số từ reranker (nếu có rerank)
-    
-    # Extended fields cho retrieval display
-    section_id: Optional[str] = None        # VD: "phan_5.chuong_xxv.dieu_663.khoan_1" (same as chunk_id)
-    section_display: Optional[str] = None   # VD: "Khoản 1 Điều 663 Chương XXV Phần 5"
-    section_type: Optional[str] = None      # VD: "khoan", "dieu"
