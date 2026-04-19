@@ -26,11 +26,35 @@ class ChromaUpsertRequest(BaseModel):
     text: str                   
     metadata: dict   # Lấy từ ChunkMetadata tương ứng và có thể thêm thông tin khác nếu cần
 
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, model_validator
+
+
 class ChromaQueryRequest(BaseModel):
-    """Yêu cầu truy vấn từ ChromaDB"""
-    query_vector: List[float]                   # Embeding của câu truy vấn
-    top_k: int = Field(5, gt=0)
-    filter: Optional[Dict[str, Any]] = None     # Bộ lọc theo metadata nếu cần
+    """Query request với cả text và vector queries"""
+    # Text query (high-level, from user)
+    query: Optional[str] = None
+    
+    # Vector query (low-level, for ChromaDB)
+    query_vector: Optional[List[float]] = None
+    
+    # Common parameters
+    top_k: int = Field(5, ge=1, le=100, description="Số lượng kết quả trả về")
+    
+    # Filtering options
+    filter: Optional[Dict[str, Any]] = None  # ChromaDB metadata filter
+    filter_by_type: Optional[List[str]] = None  # Section type filter (dieu, khoan, etc)
+    score_threshold: Optional[float] = Field(
+        None,
+        description="Ngưỡng score tối thiểu (0-1)"
+    )
+    
+    @model_validator(mode='after')
+    def validate_query(self):
+        """At least one of query or query_vector must be provided"""
+        if not self.query and not self.query_vector:
+            raise ValueError('Either query (text) or query_vector must be provided')
+        return self
 
 class ChromaQueryResult(BaseModel):
     """Kết quả trả về từ ChromaDB sau khi truy vấn"""

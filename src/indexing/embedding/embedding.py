@@ -19,23 +19,6 @@ class EmbeddingPipeline(BaseModel):
             for stt, chunk in enumerate(self.chunk_documents[1:]):
                 section_id = chunk.id
                 texts = []
-
-                # if self.full_payload:
-                #     # Duyet cay JSON tao ra context cho chunk hien tai dua vao section_id:
-                #     # Text:
-                #     # Tiêu đề: .....
-                #     # Tiêu đề Đoạn: ........
-                #     # Khoản:...
-                #     #.............
-                #     pass
-
-                # texts.append(f'Mã đoạn: {decode_section_id(section_id)}')
-                # if chunk.title:
-                #     texts.append(f'Tiêu đề: {chunk.title}')
-                # if chunk.content:
-                #     texts.append(f'Nội dung: {chunk.content}')
-                # if chunk.reference:
-                #     texts.append(f'Các viện dẫn: {", ".join(decode_section_id(ref) for ref in chunk.reference)}')
                 if chunk.parent_context:
                     texts.append(f'{chunk.parent_context}')
                 if chunk.title:

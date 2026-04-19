@@ -15,7 +15,7 @@ class BaseConfig:
         """
         self.root_dir = self._get_root_dir()
         self.chroma_db_dir = self.root_dir / "chroma_db"
-        self.embedding_model_dir = self.root_dir / "models" / "Vietnamese_Embedding_v2"
+        self.embedding_model_dir = self.root_dir / "models" / "vietnamese-embedding"
         
         # Load config từ file
         if config_path is None:

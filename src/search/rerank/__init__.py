@@ -1,11 +1,10 @@
-from .cross_encoder import CrossEncoderReranker
+from .base import VietnameseReranker, BaseReranker
 from .remote_reranker import RemoteReranker
-from .schemas import RankedResult
 from .config import RerankerConfig
 
 __all__ = [
-    'CrossEncoderReranker',
+    'VietnameseReranker',
+    'BaseReranker',
     'RemoteReranker',
-    'RankedResult',
     'RerankerConfig',
 ]

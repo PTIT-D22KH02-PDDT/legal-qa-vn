@@ -9,9 +9,13 @@ from typing import List, Optional, Dict, Any
 from pathlib import Path
 import logging
 
+from src.schemas import ChromaQueryResult
+from src.indexing.vector_store import ChromaQueryRequest
+from src.search.rerank.base import VietnameseReranker
+
 from .config import PipelineConfig
-from .retrieval import RetrievalService, RetrieveQuestionRequest, RetrieveResult
-from .rerank import CrossEncoderReranker, RankedResult
+from .retrieval import RetrievalService
+from .rerank import VietnameseReranker
 import sys
 
 logger = logging.getLogger(__name__)
@@ -83,13 +87,14 @@ class SearchPipeline:
                 logger.info("Using remote reranker API")
                 self.reranker = RemoteReranker(self.api_client)
             else:
-                self.reranker = CrossEncoderReranker(
-                    model_name=self.reranker_params['model_dir'],
-                    device=self.reranker_params['device'],
-                    batch_size=self.reranker_params['batch_size'],
-                    normalize_scores=self.reranker_params['normalize_scores'],
-                    max_length=self.reranker_params['max_length'],
+                self.reranker = VietnameseReranker(
+                    model_name=self.rerank_params['model_name'],
+                    max_length=self.rerank_params['max_length'],
+                    batch_size=self.rerank_params['batch_size'],
+                    device=self.rerank_params['device']
                 )
+                # Startup reranker (load model)
+                self.reranker.startup()
         else:
             self.reranker = None
         
@@ -101,7 +106,7 @@ class SearchPipeline:
         top_k: Optional[int] = None,
         filter_by_type: Optional[List[str]] = None,
         use_rerank: Optional[bool] = None,
-    ) -> List[Any]:
+    ) -> List[ChromaQueryResult]:
         """
         Tìm kiếm với retrieval + re-ranking.
         
@@ -112,7 +117,7 @@ class SearchPipeline:
             use_rerank: Sử dụng re-ranking (mặc định từ config)
         
         Returns:
-            List[RankedResult | RetrieveResult] - kết quả cuối cùng
+            List[ChromaQueryResult] - kết quả cuối cùng
         """
         if top_k is None:
             top_k = self.rerank_params['top_k']
@@ -122,7 +127,8 @@ class SearchPipeline:
         
         # Step 1: Vector search (retrieval)
         print(f"\n[Step 1] Vector search: '{query}'")
-        retrieval_top_k = top_k * 2 if use_rerank else top_k
+        # Nếu dùng reranking, lấy nhiều hơn để có đủ sau khi rerank
+        retrieval_top_k = top_k * 2 if use_rerank and self.reranker else top_k
         
         retrieval_results = self.retrieval_service.retrieve_by_query_string(
             query=query,
@@ -134,30 +140,29 @@ class SearchPipeline:
         
         # Step 2: Re-ranking (nếu enabled)
         if use_rerank and self.reranker and retrieval_results:
-            print(f"\n[Step 2] Re-ranking with cross-encoder...")
+            print(f"\n[Step 2] Re-ranking with Vietnamese reranker...")
             
-            # Convert retrieval results to reranker format
-            vector_search_results = {
-                "ids": [r.section_id for r in retrieval_results],
-                "documents": [r.text for r in retrieval_results],
-                "metadatas": [r.metadata for r in retrieval_results],
-                "distances": [r.distance for r in retrieval_results],
-            }
-            
-            # Re-rank
-            reranked_results = self.reranker.rerank_with_vector_search(
-                query=query,
-                vector_search_results=vector_search_results,
-                top_k_rerank=top_k,
-            )
-            
-            print(f"  Re-ranked: {len(reranked_results)} results")
-            return reranked_results
+            try:
+                # Rerank results - sắp xếp lại theo cross-encoder score
+                reranked_results = self.reranker.rerank(
+                    query=query,
+                    documents=retrieval_results,
+                    top_k=top_k,
+                )
+                
+                print(f"  Re-ranked: {len(reranked_results)} results")
+                return reranked_results
+            except Exception as e:
+                print(f"  [WARNING] Reranking failed: {e}, returning retrieval results")
+                return retrieval_results[:top_k]
         else:
-            # Không re-rank, trả về retrieval results
+            # Không re-rank, trả về retrieval results sorted by distance
             if use_rerank:
                 print(f"\n[Step 2] Re-ranking: skipped (no reranker or empty results)")
-            return retrieval_results[:top_k]
+            
+            # Sort by distance (thấp hơn = tương đồng cao hơn)
+            results = sorted(retrieval_results, key=lambda r: r.distance)
+            return results[:top_k]
     
     def search_by_section_type(
         self,
@@ -176,7 +181,7 @@ class SearchPipeline:
             use_rerank: Sử dụng re-ranking
         
         Returns:
-            List[RankedResult | RetrieveResult]
+            List[ChromaQueryResult]
         """
         return self.search(
             query=query,
@@ -292,23 +297,18 @@ def main():
                         print(f"Result #{i}")
                         print(f"{'='*70}")
                         
-                        # Handle both RankedResult and RetrieveResult
-                        if hasattr(result, 'section_id'):  # RetrieveResult
-                            print(f"Section ID: {result.section_id}")
-                            print(f"Text: {result.text[:200]}...")
-                            print(f"Distance: {result.distance:.4f}")
-                            if hasattr(result, 'section_type'):
-                                print(f"Type: {result.section_type}")
-                        else:  # RankedResult
-                            print(f"Document ID: {result.ids}")
-                            print(f"Text: {result.documents[:200]}...")
-                            print(f"Relevance Score: {result.relevance_score:.4f}")
-                            print(f"Vector Distance: {result.distances:.4f}")
-                            print(f"Rank: {result.rank}")
+                        # All results are now ChromaQueryResult with unified fields
+                        print(f"Chunk ID: {result.chunk_id}")
+                        if result.section_display:
+                            print(f"Section: {result.section_display}")
+                        print(f"Text: {result.text[:200]}...")
+                        print(f"Distance: {result.distance:.4f}")
+                        if result.score_rerank is not None:
+                            print(f"Rerank Score: {result.score_rerank:.4f}")
+                        if result.section_type:
+                            print(f"Type: {result.section_type}")
                         
-                        if hasattr(result, 'metadatas') and result.metadatas:
-                            print(f"Metadata: {result.metadatas}")
-                        elif hasattr(result, 'metadata') and result.metadata:
+                        if result.metadata:
                             print(f"Metadata: {result.metadata}")
                         print()
                 else:

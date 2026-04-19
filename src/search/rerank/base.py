@@ -1,8 +1,8 @@
 """Abstract base class for document rerankers."""
 
 from abc import ABC, abstractmethod
-from typing import List,Optional
-from src.schemas import ChromaQueryResult, EmbeddingResult,ChromaQueryRequest 
+from typing import List, Optional
+from src.schemas import ChromaQueryResult 
 class BaseReranker(ABC):
     """
     Abstract base class for document rerankers.
@@ -33,7 +33,7 @@ class BaseReranker(ABC):
     def rerank(
         self,
         query: str,
-        documents: List[ChromaQueryRequest],
+        documents: List[ChromaQueryResult],
         top_k: int,
     ) -> List[ChromaQueryResult]:
         """
@@ -41,7 +41,7 @@ class BaseReranker(ABC):
 
         Args:
             query: The user's query/question.
-            documents: List of documents to rerank.
+            documents: List of ChromaQueryResult documents to rerank.
             top_k: Number of top documents to return.
 
         Returns:
