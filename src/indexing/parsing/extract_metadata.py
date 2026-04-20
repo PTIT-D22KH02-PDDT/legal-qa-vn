@@ -18,23 +18,40 @@ class Extractor:
     # Extractors
 
     def _extract_loai(self, text: str) -> str:
-        header = text[:2000].upper()
-        if "BỘ LUẬT" in header:
-            return "bo_luat"
-        if "LUẬT" in header:
-            return "luat"
-        if "THÔNG TƯ LIÊN TỊCH" in header:
-            return "thong_tu_lien_tich"
-        if "THÔNG TƯ" in header:
-            return "thong_tu"
-        if "NGHỊ ĐỊNH" in header:
-            return "nghi_dinh"
-        if "NGHỊ QUYẾT" in header:
-            return "nghi_quyet"
-        if "QUYẾT ĐỊNH" in header:
-            return "quyet_dinh"
-        if "CHỈ THỊ" in header:
-            return "chi_thi"
+        """
+        Tìm dòng loại VB đầu tiên
+        - Chỉ check dòng SHORT (< 50 ký tự) - vì "NGHỊ ĐỊNH", "BỘ LUẬT", v.v luôn ngắn
+        - Dùng word boundary (\b) để match từ hoàn chỉnh, không substring
+        - Bỏ dòng nội dung dài (> 50 ký tự)
+        """
+        lines = text[:3000].split('\n')
+        
+        # Order matters: kiểm tra chi tiết trước rồi đến chung chung
+        check_order = [
+            (r'\bNGHỊ\s+ĐỊNH\b', "nghi_dinh"),
+            (r'\bNGHỊ\s+QUYẾT\b', "nghi_quyet"),
+            (r'\bTHÔNG\s+TƯ\s+LIÊN\s+TỊCH\b', "thong_tu_lien_tich"),
+            (r'\bTHÔNG\s+TƯ\b', "thong_tu"),
+            (r'\bQUYẾT\s+ĐỊNH\b', "quyet_dinh"),
+            (r'\bCHỈ\s+THỊ\b', "chi_thi"),
+            (r'\bBỘ\s+LUẬT\b', "bo_luat"),
+            (r'\bLUẬT\b', "luat"),
+        ]
+        
+        # Tìm dòng đầu tiên chứa một loại VB
+        for line in lines:
+            line_stripped = line.strip()
+            line_upper = line_stripped.upper()
+            
+            # Bỏ dòng trống hoặc quá dài (dòng nội dung thường dài)
+            if not line_stripped or len(line_stripped) > 50:
+                continue
+            
+            # Kiểm tra từng pattern theo thứ tự ưu tiên
+            for pattern, loai_code in check_order:
+                if re.search(pattern, line_upper):
+                    return loai_code
+        
         return "unknown"
 
     def _extract_so_hieu(self, text: str) -> str:
