@@ -140,7 +140,7 @@ class DocumentRelationshipBuilder:
                     if self.index_documents:
                     # Extract metadata
                     #Pipeline xử lý dữ liệu : chunking-->embedding-->save to DB
-                        result=self._index_document(file_path, doc_info.metadata)
+                        result=self._index_document(file_path)
                         doc_info.metadata = result.get('metadata', {})
                         logger.info(f"Process file {doc_info.file_path.name}: {doc_info.metadata.get('so_hieu')}")
                     doc_files.append(doc_info)

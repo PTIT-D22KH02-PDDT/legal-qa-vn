@@ -11,14 +11,7 @@ class DocumentInfo:
     """Thông tin tài liệu"""
     file_path: Path
     folder_type: FolderType
-    metadata: Optional[DocumentMetadata] = None
-    
-    @property
-    def doc_id(self) -> str:
-        """Lấy document ID từ metadata hoặc filename"""
-        if self.metadata and hasattr(self.metadata, 'so_hieu'):
-            return self.metadata.so_hieu
-        return self.file_path.stem
+    metadata: Optional[dict] = None
 
 class FolderTypeDetector:
     """Phát hiện loại folder từ tên thư mục"""
