@@ -38,6 +38,7 @@ class EmbeddingPipeline:
                         metadata = {
                         'full_text': "\n".join(full_text), 
                         'parent_id': chunk.parent_id,
+                        'reference': chunk.reference,
                         'section_type': chunk.type,  # Dùng cho filter trong retrieval
                         **decode_section_id(section_id).dict()  # Add van_ban, dieu, khoan, etc
                         }

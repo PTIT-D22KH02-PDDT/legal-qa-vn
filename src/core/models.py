@@ -11,7 +11,6 @@ class DocumentRelation(BaseModel):
 
 
 class DocumentMetadata(BaseModel):
-    document_id: Optional[int] = None
     so_hieu:str=""
     ten_van_ban:str=""
     loai:str=""

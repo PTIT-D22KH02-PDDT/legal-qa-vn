@@ -18,4 +18,3 @@ class HierarchicalChunkInput(BaseModel):
 class ProcessResult:
     metadata: DocumentMetadata|None = None
     tree : Union[HierarchicalChunkInput |Dict[str, Any] | List[Dict[str, Any]], None] =None
-    md_text: str = ""

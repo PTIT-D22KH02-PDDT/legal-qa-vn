@@ -204,7 +204,6 @@ class Extractor:
         # Build document tree
         tree = self.parser.build_json_tree(doc_id=doc_id, text=md_text)
         result.tree = tree
-        result.md_text = md_text
         
         return result
 

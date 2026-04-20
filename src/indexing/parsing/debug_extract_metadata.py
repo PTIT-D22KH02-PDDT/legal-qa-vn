@@ -193,7 +193,6 @@ class DebugExtractor:
         print(f"[DEBUG] 3. Build JSON tree...")
         tree = self.parser.build_json_tree(doc_id=doc_id, text=md_text)
         result.tree = tree
-        result.md_text = md_text
         print(f"[DEBUG]    Tree có {len(tree)} root nodes")
 
         # Save JSON
