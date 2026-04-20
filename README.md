@@ -2,12 +2,11 @@
 BT nhóm - Xử lý ngôn ngữ tự nhiên - Xây dựng hệ thống hỏi đáp pháp lý có trích dẫn điều luật cho văn bản quy phạm pháp luật Việt Nam
 
 ## Prerequisites
-- Python 3.11+
-- uv
+- Python 3.10+
+- uv (package manager)
+- Models: `models/vietnamese-embedding/` (ONNX embedding model)
 
 ## Directory structure
-
-Cấu trúc của dự án được tổ chức như sau (giai đoạn indexing):
 
 ```bash
 legal-qa-vn
@@ -16,21 +15,45 @@ legal-qa-vn
 |-- .gitignore
 |-- .python-version
 |-- README.md
-|-- data
-|-- main.py
-|-- docs
-|   |-- setup.md            # Hướng dẫn thiết lập môi trường và cài đặt dependencies
-|-- models                  # Chứa các mô hình được tải về, sử dụng trong project
-|-- notebooks               # Chứa các notebook cần thử nghiệm
-|-- pyproject.toml          # Gồm dependencies và cấu hình dự án
-|-- src                     # Chứa mã nguồn chính của dự án
-|   |-- core                # Chứa các module lõi, không thay đổi nhiều ở các phương pháp triển khai
-|   |   |-- chunking        # Chứa code về chunking
-|   |   |-- embedding       # Chứa code về embedding
-|   |   |-- ingestion       # Chứa code về xử lý đầu vào
-|   |   `-- vector_store    # Chứa code xử lý lưu trữ embedding
-|   |-- pipeline            # Chứa các pipeline cụ thể
-|   `-- schemas.py          # Định nghĩa các schema dùng chung trong dự án
+|-- pyproject.toml                # Dependencies & project config
+|-- legal_documents.db            # SQLite database (tạo sau lần chạy đầu tiên)
+|-- chroma_db/                    # ChromaDB vector store
+|-- configs/
+|   |-- indexing_config.yaml
+|   |-- rag_config.yaml
+|   |-- retrieval_config.yaml
+|   `-- prompts/
+|-- models/
+|   `-- vietnamese-embedding/     # ONNX embedding model (768-dim)
+|-- data/                         # Input documents
+|-- json/                         # Document JSON files
+|-- src/
+|   |-- core/                     # Core modules
+|   |   |-- enums.py              # RelationType, DocumentType enums
+|   |   |-- models.py             # Pydantic models
+|   |   `-- config.py
+|   |-- indexing/
+|   |   |-- indexing.py           # Main indexing pipeline
+|   |   |-- config.py
+|   |   |-- chunker/              # Hierarchical & fixed-size chunkers
+|   |   |-- embedding/            # OnnxEmbeddingModel, embedding logic
+|   |   |-- ingestion/            # PDF/DOCX/text extraction
+|   |   `-- parsing/
+|   |       `-- extract_metadata.py  # Document metadata extraction
+|   |-- search/
+|   |   |-- pipeline.py           # Search + reranking pipeline
+|   |   `-- retrieval/
+|   |-- generate/
+|   |   `-- service.py
+|   |-- rag/
+|   |   `-- pipeline.py           # RAG orchestration
+|   `-- system/
+|       |-- relationship_builder.py   # Auto relationship detection
+|       `-- database/
+|           |-- db.py             # SQLAlchemy ORM models
+|           |-- db_respository.py  # Repository pattern, DB config
+|           |-- db_service.py      # High-level service layer
+|           `-- db_test.py         # Example workflow
 ```
 
 ## Setup
