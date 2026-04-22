@@ -60,6 +60,9 @@ class PipelineConfig(BaseConfig):
             'collection_name': vector_store_config.get('collection_name', 'legal_documents'),
             'is_persist': vector_store_config.get('is_persist', True),
             'distance_metric': vector_store_config.get('distance_metric', 'ip'),
+            'persist_directory': vector_store_config.get('persist_directory') or str(
+                self._get_root_dir() / 'chroma_db'
+            ),
         }
     
     def get_embedding_model_dir(self) -> str:

@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 class ToolRouter:
     """
     Xác định tool nào cần sử dụng dựa trên kết quả phân tích query
-    
     Workflow:
     1. Nhận QueryAnalysisResult từ QueryAnalyzer
     2. Xác định primary tool (tool chính)
@@ -46,10 +45,8 @@ class ToolRouter:
     def route(self, analysis: QueryAnalysisResult) -> List[Tuple[str, Dict[str, Any]]]:
         """
         Route query đến tools phù hợp
-        
         Args:
             analysis: QueryAnalysisResult từ QueryAnalyzer
-        
         Returns:
             List các tuple (tool_name, tool_input) theo thứ tự ưu tiên
         """
@@ -69,13 +66,11 @@ class ToolRouter:
         
         logger.info(f"[Router] Selected tools: {[t[0] for t in tool_calls]}")
         return tool_calls
-    
     def _merge_and_prioritize(
         self, tools_by_type: List[str], tools_by_intent: List[str]
     ) -> List[str]:
         """
         Merge tools từ QueryType và Intent, xóa duplicate, và sắp xếp theo ưu tiên
-        
         Priority order:
         1. Tools từ QueryType (thường là primary)
         2. Tools từ Intent (bổ sung)
@@ -99,7 +94,7 @@ class ToolRouter:
         
         Nếu có multiple extracted_blocks, có thể gọi cùng một tool multiple times
         (1 lần cho mỗi block)
-        
+         
         Returns:
             List các tuple (tool_name, tool_input)
         """
@@ -156,16 +151,23 @@ class ToolRouter:
         self, analysis: QueryAnalysisResult
     ) -> Dict[str, Any]:
         """Build input cho search_document_metadata"""
-        # Lấy document_name từ block đầu tiên (nếu có)
+        # Ưu tiên lấy loại văn bản từ document_types (nếu có)
+        doc_type = None
+        if analysis.document_types:
+            doc_type = analysis.document_types[0]
+        
+        # Fallback: lấy document_name từ block đầu tiên
         doc_name = None
-        if analysis.extracted_blocks:
+        if not doc_type and analysis.extracted_blocks:
             doc_name = analysis.extracted_blocks[0].document_name
         
-        if not doc_name:
+        # Nếu không có gì, skip tool này
+        if not doc_type and not doc_name:
             return None
         
         return {
-            "document_name": doc_name,
+            "doc_type": doc_type,
+            "org_unit": None,
         }
     
     def _build_input_get_specific_article(
@@ -181,10 +183,7 @@ class ToolRouter:
             return None
         
         return {
-            "dieu_number": block.dieu,
-            "khoan_number": block.khoan,
-            "diem_name": block.diem,
-            "document_name": block.document_name,
+            "article_block": block,
         }
     
     def _build_input_find_related_documents(
@@ -205,12 +204,13 @@ class ToolRouter:
         self, analysis: QueryAnalysisResult
     ) -> Dict[str, Any]:
         """Build input cho find_cross_references"""
-        # Lấy dieu từ block đầu tiên
+        # Lấy block đầu tiên
         if not analysis.extracted_blocks or analysis.extracted_blocks[0].dieu is None:
             return None
         
+        block = analysis.extracted_blocks[0]
         return {
-            "article_id": f"dieu_{analysis.extracted_blocks[0].dieu}",
+            "article_block": block,
         }
     
     def should_skip_semantic_search(self, analysis: QueryAnalysisResult) -> bool:

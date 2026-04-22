@@ -1,244 +1,331 @@
 """
-LLM Configuration và Initialization
-
-Cung cấp helper functions để khởi tạo các LLM models khác nhau
+Khởi tạo LLM từ các provider khác nhau
 """
-
 import os
 import logging
-from typing import Optional, Dict
-from langchain_core.language_model import LLM
-
-
+from typing import Optional, Any, List, Dict
+from groq import Groq
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import BaseMessage, AIMessage, HumanMessage, SystemMessage
+from langchain_core.outputs import ChatGeneration, ChatResult
+from pydantic import Field, ConfigDict
 logger = logging.getLogger(__name__)
-
-
 class LLMFactory:
-    """Factory để tạo LLM instances"""
+    """Factory để tạo LLM instances từ các provider"""
+    @staticmethod
+    def create_llm(
+        provider: str = "groq",
+        api_key: Optional[str] = None,
+        model_name: Optional[str] = None,
+        temperature: float = 0.0,
+        timeout: int = 30,
+        base_url: Optional[str] = None,
+    ):
+        """
+        Tạo LLM instance từ provider
+        Args:
+            provider: "groq", "openai", "ollama"
+            api_key: API key (nếu None, lấy từ env)
+            model_name: Model name
+            temperature: Temperature (0-1)
+            timeout: Timeout (giây)
+            base_url: Base URL (cho ollama)
+        Returns:
+            LLM instance (Groq, OpenAI, hoặc Ollama client)
+        """
+        provider = provider.lower()
+        
+        if provider == "groq":
+            return LLMFactory._create_groq(api_key, model_name, temperature, timeout)
+        
+        elif provider == "openai":
+            # return LLMFactory._create_openai(api_key, model_name, temperature, timeout)
+            return None
+        
+        elif provider == "ollama":
+            # return LLMFactory._create_ollama(model_name, base_url, temperature)
+            return None        
+        else:
+            raise ValueError(f"Unknown provider: {provider}")
     
     @staticmethod
-    def create_groq_llm(
-        model_name: str = "mixtral-8x7b-32768",
-        temperature: float = 0.7,
-        max_tokens: int = 2048,
-        api_key: Optional[str] = None,
-    ) -> LLM:
-        """
-        Tạo Groq LLM instance
-        
-        Args:
-            model_name: Model name từ Groq
-            temperature: Temperature (0-1)
-            max_tokens: Max tokens để generate
-            api_key: Groq API key (mặc định từ GROQ_API_KEY env var)
-        
-        Returns:
-            ChatGroq instance
-        """
-        try:
-            from langchain_groq import ChatGroq
-        except ImportError:
-            raise ImportError("Please install langchain-groq: pip install langchain-groq")
-        
+    def _create_groq(api_key: Optional[str]):
+        """Tạo Groq LLM instance"""
         if not api_key:
             api_key = os.getenv("GROQ_API_KEY")
         
         if not api_key:
-            raise ValueError("GROQ_API_KEY not found in environment variables")
+            raise ValueError("GROQ_API_KEY not found in environment")
         
-        logger.info(f"[LLM] Creating Groq LLM: {model_name}")
         
-        return ChatGroq(
-            api_key=api_key,
-            model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        # Groq không nhận model, temperature trong __init__, chỉ api_key
+        return Groq(api_key=api_key)
     
     @staticmethod
-    def create_openai_llm(
-        model_name: str = "gpt-4",
-        temperature: float = 0.7,
-        max_tokens: int = 2048,
-        api_key: Optional[str] = None,
-    ) -> LLM:
-        """
-        Tạo OpenAI LLM instance
+    def ask_groq(llm : Groq, user_prompt: str, system_prompt: Optional[str] = None, model_name: Optional[str] = None,
+                 temperature: float = 0.0, timeout: int = 30):
+        """Gửi prompt đến Groq và nhận response"""
+        if not model_name:
+            model_name = "llama-3.1-8b-instant"
         
-        Args:
-            model_name: Model name từ OpenAI
-            temperature: Temperature (0-1)
-            max_tokens: Max tokens để generate
-            api_key: OpenAI API key (mặc định từ OPENAI_API_KEY env var)
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": user_prompt})
         
-        Returns:
-            ChatOpenAI instance
-        """
-        try:
-            from langchain_openai import ChatOpenAI
-        except ImportError:
-            raise ImportError("Please install langchain-openai: pip install langchain-openai")
-        
-        if not api_key:
-            api_key = os.getenv("OPENAI_API_KEY")
-        
-        if not api_key:
-            raise ValueError("OPENAI_API_KEY not found in environment variables")
-        
-        logger.info(f"[LLM] Creating OpenAI LLM: {model_name}")
-        
-        return ChatOpenAI(
-            api_key=api_key,
-            model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
-    
-    @staticmethod
-    def create_ollama_llm(
-        model_name: str = "llama2",
-        base_url: str = "http://localhost:11434",
-        temperature: float = 0.7,
-    ) -> LLM:
-        """
-        Tạo Ollama LLM instance (local)
-        
-        Args:
-            model_name: Model name từ Ollama
-            base_url: Ollama server URL
-            temperature: Temperature (0-1)
-        
-        Returns:
-            OllamaLLM instance
-        """
-        try:
-            from langchain_ollama import OllamaLLM
-        except ImportError:
-            raise ImportError("Please install langchain-ollama: pip install langchain-ollama")
-        
-        logger.info(f"[LLM] Creating Ollama LLM: {model_name}")
-        
-        return OllamaLLM(
+        response = llm.chat.completions.create(
             model=model_name,
-            base_url=base_url,
+            messages=messages,
             temperature=temperature,
+            max_tokens=1000,
+            timeout=timeout
+        )
+        
+        return response.choices[0].message.content
+
+    # @staticmethod
+    # def _create_openai(api_key: Optional[str], model_name: Optional[str],
+    #                    temperature: float, timeout: int):
+    #     """Tạo OpenAI LLM instance"""
+    #     try:
+    #         from openai import OpenAI
+    #     except ImportError:
+    #         raise ImportError("Please install openai: pip install openai")
+        
+    #     if not api_key:
+    #         api_key = os.getenv("OPENAI_API_KEY")
+        
+    #     if not api_key:
+    #         raise ValueError("OPENAI_API_KEY not found in environment")
+        
+    #     if not model_name:
+    #         model_name = "gpt-3.5-turbo"
+        
+    #     logger.info(f"[LLM] Creating OpenAI LLM: {model_name}")
+        
+    #     return OpenAI(
+    #         api_key=api_key,
+    #         timeout=timeout,
+    #     )
+    
+    # @staticmethod
+    # def _create_ollama(model_name: Optional[str], base_url: Optional[str],
+    #                    temperature: float):
+    #     """Tạo Ollama LLM instance"""
+    #     try:
+    #         from ollama import Client
+    #     except ImportError:
+    #         raise ImportError("Please install ollama: pip install ollama")
+        
+    #     if not base_url:
+    #         base_url = "http://localhost:11434"
+        
+    #     if not model_name:
+    #         model_name = "mistral"
+        
+    #     logger.info(f"[LLM] Creating Ollama LLM: {model_name} at {base_url}")
+        
+    #     return Client(host=base_url)
+
+
+class LLMGroq(BaseChatModel):
+    """
+    LangChain-compatible Groq LLM wrapper - hỗ trợ tool calling via LangChain agents
+    Extends BaseChatModel để hỗ trợ create_tool_calling_agent
+    """
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
+    api_key: Optional[str] = None
+    model_name: str = "llama-3.1-8b-instant"
+    temperature: float = 0.0
+    max_tokens: int = 1000
+    groq_client: Optional[Any] = Field(default=None, exclude=True)
+    tools: Optional[List[Any]] = Field(default=None, exclude=True)
+    
+    def __init__(self, api_key: Optional[str] = None, model_name: str = "llama-3.1-8b-instant", **kwargs):
+        """Khởi tạo LLMGroq"""
+        super().__init__(
+            api_key=api_key or os.getenv("GROQ_API_KEY"),
+            model_name=model_name,
+            **kwargs
         )
     
-    @staticmethod
-    def create_fake_llm() -> LLM:
+    def model_post_init(self, __context: Any) -> None:
+        """Initialize Groq client after Pydantic validation"""
+        if not self.api_key:
+            raise ValueError("GROQ_API_KEY not found in environment or arguments")
+        self.groq_client = Groq(api_key=self.api_key)
+    
+    def bind_tools(self, tools, **kwargs):
         """
-        Tạo Fake LLM instance cho testing
+        Bind tools to LLM for LangChain agent support.
+        
+        Args:
+            tools: List of tools from LangChain
+            **kwargs: Additional arguments
         
         Returns:
-            FakeListLLM instance
+            self (for chaining)
         """
-        from langchain_core.language_model import LLM
-        from langchain_core.outputs import Generation, LLMResult
+        # Store tools for reference
+        self.tools = tools
+        logger.debug(f"[LLMGroq] Bound {len(tools)} tools")
+        return self
+    
+    @property
+    def _llm_type(self) -> str:
+        """Return type of LLM"""
+        return "groq"
+    
+    def _generate(self, messages: List[BaseMessage], stop: Optional[List[str]] = None, **kwargs) -> ChatResult:
+        """Generate response from Groq"""
+        # Convert LangChain messages to Groq format
+        groq_messages = []
+        for msg in messages:
+            if isinstance(msg, HumanMessage):
+                groq_messages.append({"role": "user", "content": msg.content})
+            elif isinstance(msg, AIMessage):
+                groq_messages.append({"role": "assistant", "content": msg.content})
+            elif isinstance(msg, SystemMessage):
+                groq_messages.append({"role": "system", "content": msg.content})
+            else:
+                groq_messages.append({"role": "user", "content": str(msg.content)})
         
-        logger.info("[LLM] Creating Fake LLM for testing")
+        # Call Groq API
+        response = self.groq_client.chat.completions.create(
+            model=self.model_name,
+            messages=groq_messages,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            stop=stop,
+        )
         
-        class FakeLLM(LLM):
-            """Fake LLM cho testing"""
-            
-            @property
-            def _llm_type(self) -> str:
-                return "fake"
-            
-            def _generate(self, prompts, stop=None, **kwargs):
-                return LLMResult(
-                    generations=[[Generation(text=f"Fake response for: {prompts[0][:50]}...")]]
-                )
-        
-        return FakeLLM()
-
-
-class LLMConfig:
-    """Configuration cho LLM"""
-    
-    # Groq models
-    GROQ_MODELS = {
-        "mixtral": "mixtral-8x7b-32768",
-        "llama": "llama-3.3-70b-versatile",
-        "gemma": "gemma2-9b-it",
-    }
-    
-    # OpenAI models
-    OPENAI_MODELS = {
-        "gpt-4": "gpt-4",
-        "gpt-4-turbo": "gpt-4-turbo-preview",
-        "gpt-3.5": "gpt-3.5-turbo",
-    }
-    
-    # Default configs
-    DEFAULT_CONFIGS = {
-        "temperature": 0.7,
-        "max_tokens": 2048,
-    }
-    
-    @classmethod
-    def get_model_info(cls, provider: str = "groq") -> Dict[str, str]:
-        """Lấy danh sách models cho provider"""
-        if provider.lower() == "groq":
-            return cls.GROQ_MODELS
-        elif provider.lower() == "openai":
-            return cls.OPENAI_MODELS
-        else:
-            raise ValueError(f"Unknown provider: {provider}")
-
-
-def create_llm(
-    provider: str = "groq",
-    model: Optional[str] = None,
-    temperature: float = 0.7,
-    max_tokens: int = 2048,
-    **kwargs
-) -> LLM:
-    """
-    Helper function để tạo LLM instance
-    
-    Args:
-        provider: "groq", "openai", "ollama", "fake"
-        model: Model name (nếu None, dùng default)
-        temperature: Temperature
-        max_tokens: Max tokens
-        **kwargs: Additional arguments
-    
-    Returns:
-        LLM instance
-    """
-    provider = provider.lower()
-    
-    if provider == "groq":
-        if model is None:
-            model = LLMConfig.GROQ_MODELS["mixtral"]
-        return LLMFactory.create_groq_llm(
-            model_name=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            **kwargs
+        # Convert response to LangChain format
+        content = response.choices[0].message.content
+        return ChatResult(
+            generations=[ChatGeneration(message=AIMessage(content=content))]
         )
     
-    elif provider == "openai":
-        if model is None:
-            model = "gpt-4"
-        return LLMFactory.create_openai_llm(
-            model_name=model,
+    def ask(self, user_prompt: str, system_prompt: Optional[str] = None,
+            model_name: Optional[str] = None, temperature: Optional[float] = None, timeout: int = 30) -> str:
+        """
+        Simple interface for asking questions (backward compatibility)
+        
+        Args:
+            user_prompt: User's question
+            system_prompt: System instruction
+            model_name: Override model name (default: self.model_name)
+            temperature: Optional temperature override
+            timeout: Timeout (not used with Groq API)
+        
+        Returns:
+            Response text
+        """
+        messages = []
+        if system_prompt:
+            messages.append(SystemMessage(content=system_prompt))
+        messages.append(HumanMessage(content=user_prompt))
+        
+        # Use provided model_name or fall back to instance model_name
+        old_model = self.model_name
+        if model_name:
+            self.model_name = model_name
+        
+        # Use LangChain's invoke if available, fallback to _generate
+        old_temp = self.temperature
+        if temperature is not None:
+            self.temperature = temperature
+        
+        result = self._generate(messages)
+        # Restore old values
+        if temperature is not None:
+            self.temperature = old_temp
+        if model_name:
+            self.model_name = old_model
+        
+        return result.generations[0].message.content
+
+
+# Backward compatibility wrapper
+class LLMGroqLegacy: 
+    """Legacy wrapper - chỉ dùng nếu cần custom ask() behavior"""
+    def __init__(self, api_key: Optional[str] = None):
+        self.llm = LLMFactory._create_groq(api_key)
+    
+    def ask(self, user_prompt: str, system_prompt: Optional[str] = None,
+            model_name: Optional[str] = "llama-3.1-8b-instant", temperature: float = 0.0,
+            timeout: int = 30) -> str:
+        """Gửi prompt đến Groq và nhận response"""
+        if model_name is None:
+            model_name = "llama-3.1-8b-instant"
+        return LLMFactory.ask_groq(
+            llm=self.llm,
+            user_prompt=user_prompt,
+            system_prompt=system_prompt,
+            model_name=model_name,
             temperature=temperature,
-            max_tokens=max_tokens,
-            **kwargs
+            timeout=timeout
         )
+
+def test_groq():
+    """Test LLMGroq wrapper"""
+    print("[TEST] Testing LLMGroq wrapper...")
     
-    elif provider == "ollama":
-        if model is None:
-            model = "llama2"
-        return LLMFactory.create_ollama_llm(
-            model_name=model,
-            temperature=temperature,
-            **kwargs
+    try:
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY not found in environment")
+        
+        llm = LLMGroq(api_key=api_key)
+        response = llm.ask(
+            user_prompt="What is the capital of France?",
+            system_prompt="You are a helpful assistant that answers questions.",
+            model_name="llama-3.1-8b-instant",
+            temperature=0.0,
+            timeout=30
         )
+        print("✓ Response received:")
+        print(f"  {response}")
+    except Exception as e:
+        print(f"✗ Error: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+def test_groq_llm():
+    """Test hàm LLMFactory với Groq"""
+    print("[TEST] Testing LLMFactory with Groq...")
     
-    elif provider == "fake":
-        return LLMFactory.create_fake_llm()
-    
-    else:
-        raise ValueError(f"Unknown provider: {provider}")
+    try:
+        # Tạo LLM instance
+        llm = LLMFactory.create_llm(provider="groq")
+        print("✓ LLM instance created successfully")
+        
+        # Test gửi message đơn giản
+        print("\n[TEST] Sending test message to Groq...")
+        response = llm.chat.completions.create(
+             model="llama-3.1-8b-instant",
+             messages=[
+                {"role": "system", "content": "Extract product review information from the text."},
+                {
+                    "role": "user",
+                    "content": "I bought the UltraSound Headphones last week and I'm really impressed! The noise cancellation is amazing and the battery lasts all day. Sound quality is crisp and clear. I'd give it 4.5 out of 5 stars.",
+                },
+            ],
+            temperature=0.0,
+            max_tokens=50
+        )
+        
+        print("✓ Response received:")
+        print(f"  {response.choices[0].message.content}")
+        print(response)
+        
+    except Exception as e:
+        print(f"✗ Error: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+if __name__ == "__main__":
+    test_groq()

@@ -61,5 +61,5 @@ class ChromaQueryResult(BaseModel):
     chunk_id: str
     text: str
     metadata: Optional[dict] = None
-    distance: float
+    distance: Optional[float] = None  # None khi query by ID (không có vector similarity)
     score_rerank: Optional[float] = None  # Điểm số từ reranker (nếu có rerank)

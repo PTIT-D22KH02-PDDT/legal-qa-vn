@@ -7,11 +7,10 @@ import time
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
-from langchain_core.tools import BaseTool
-from langchain_core.agents import AgentExecutor, create_tool_calling_agent
+from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.language_model import LLM
 
+from src.agent.llms import LLMGroq
 from src.search.retrieval import RetrievalService
 from src.indexing.vector_store import ChromaStore
 from src.indexing.embedding import OnnxEmbeddingModel
@@ -48,12 +47,11 @@ Khi trả lời:
 3. Giải thích một cách rõ ràng và dễ hiểu
 4. Nếu có nhiều góc độ, hãy trình bày cân bằng
 5. Nếu không chắc chắn, hãy nói rõ điều đó
-
 Hãy tập trung vào câu hỏi của người dùng và sử dụng các công cụ một cách hiệu quả."""
     
     def __init__(
         self,
-        llm: LLM,
+        llm: LLMGroq,
         chroma_store: ChromaStore,
         embedding_model: OnnxEmbeddingModel,
         retrieval_service: Optional[RetrievalService] = None,
@@ -225,9 +223,9 @@ Hãy tập trung vào câu hỏi của người dùng và sử dụng các công
         return tool_calls
     
     def _step_execute_tool(
-        self, tool_name: str, tool_input: Dict[str, Any], step_num: int
+        self, tool_name: str, tool_input: Dict[str, Any], step_num: int, retry_count: int = 0
     ) -> AgentStep:
-        """Step 3: Execute a tool"""
+        """Step 3: Execute a tool with retry logic"""
         
         step = AgentStep(
             step_number=step_num,
@@ -242,25 +240,30 @@ Hãy tập trung vào câu hỏi của người dùng và sử dụng các công
             start_time = time.time()
             
             # Execute tool based on name
+            # Note: @tool decorator converts methods to StructuredTool, use .invoke() to call
             if tool_name == "search_legal_documents":
-                result = self.tools_provider.search_legal_documents(**tool_input)
+                result = self.tools_provider.search_legal_documents.invoke(tool_input)
             elif tool_name == "search_document_metadata":
-                result = self.tools_provider.search_document_metadata(**tool_input)
+                result = self.tools_provider.search_document_metadata.invoke(tool_input)
             elif tool_name == "get_specific_article":
-                result = self.tools_provider.get_specific_article(**tool_input)
+                result = self.tools_provider.get_specific_article.invoke(tool_input)
             elif tool_name == "find_related_documents":
-                result = self.tools_provider.find_related_documents(**tool_input)
+                result = self.tools_provider.find_related_documents.invoke(tool_input)
             elif tool_name == "find_cross_references":
-                result = self.tools_provider.find_cross_references(**tool_input)
+                result = self.tools_provider.find_cross_references.invoke(tool_input)
             else:
                 result = f"Unknown tool: {tool_name}"
             
             execution_time = time.time() - start_time
             
+            # Check if result is empty/error - potential retry candidate
+            is_error = (isinstance(result, str) and 
+                       ("Lỗi" in result or "không tìm thấy" in result or "Error" in result))
+            
             # Build result
             step.result = ToolExecutionResult(
                 tool_name=tool_name,
-                success=True,
+                success=not is_error,
                 results=[{"content": result}],
                 execution_time=execution_time,
             )
@@ -271,6 +274,12 @@ Hãy tập trung vào câu hỏi của người dùng và sử dụng các công
         
         except Exception as e:
             logger.error(f"      ✗ Error: {e}", exc_info=True)
+            
+            # Retry logic: Retry up to 2 times on failure
+            if retry_count < 2:
+                logger.warning(f"      [Retry {retry_count + 1}/2] Retrying {tool_name}...")
+                return self._step_execute_tool(tool_name, tool_input, step_num, retry_count + 1)
+            
             step.result = ToolExecutionResult(
                 tool_name=tool_name,
                 success=False,

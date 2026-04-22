@@ -1,0 +1,146 @@
+# Legal QA Agent Configuration
+# Cấu hình cho LLM Query Analyzer, Router, và Pipeline
+
+# LLM Query Analyzer Settings
+query_analyzer:
+  # LLM Provider: "groq", "openai", "ollama"
+  llm_provider: "groq"
+
+  # Groq Configuration
+  groq:
+    model_name: "llama-3.1-8b-instant"
+    temperature: 0.0 # 0 = deterministic (ideal for entity extraction)
+    api_key: null # Load từ GROQ_API_KEY env variable
+    timeout: 30
+
+  # OpenAI Configuration (alternative)
+  openai:
+    model_name: "gpt-3.5-turbo"
+    temperature: 0.0
+    api_key: null # Load từ OPENAI_API_KEY env variable
+    timeout: 30
+
+  # Ollama Configuration (alternative - local)
+  ollama:
+    model_name: "mistral"
+    base_url: "http://localhost:11434"
+    temperature: 0.0
+    timeout: 30
+
+  # Fallback analyzer (regex-based)
+  use_fallback: true
+  fallback_on_error: true
+
+# Router Configuration
+router:
+  # Enable multi-block handling (query có multiple extracted_blocks)
+  enable_multi_block: true
+
+  # Tool routing strategy
+  routing_strategy: "priority" # "priority" | "all"
+
+  # Tools configuration
+  tools:
+    search_legal_documents:
+      enabled: true
+      priority: 1
+      default_top_k: 5
+
+    get_specific_article:
+      enabled: true
+      priority: 1
+
+    find_related_documents:
+      enabled: true
+      priority: 2
+
+    find_cross_references:
+      enabled: true
+      priority: 2
+
+    search_document_metadata:
+      enabled: true
+      priority: 3
+
+# Agent Execution Settings
+execution:
+  # Maximum tool calls per query
+  max_tool_calls: 10
+
+  # Tool execution timeout (seconds)
+  tool_timeout: 30
+
+  # Maximum reasoning steps
+  max_steps: 5
+
+  # Enable intermediate logging
+  enable_logging: true
+
+  # Log level: "DEBUG" | "INFO" | "WARNING" | "ERROR"
+  log_level: "INFO"
+
+# Search & Retrieval Pipeline
+pipeline:
+  retrieval:
+    default_top_k: 10
+    score_threshold: null
+    default_filter_types: null
+
+  rerank:
+    enabled: true
+    top_k: 5
+    use_cross_encoder: true
+
+# Embedding Configuration
+embedding:
+  model_dir: null # null = use default vietnamese-embedding
+  pooling: "auto"
+  max_length: 256
+  normalize: false
+  batch_size: 32
+
+# Vector Store Configuration
+vector_store:
+  collection_name: "legal_documents"
+  is_persist: true
+  distance_metric: "ip" # "ip" (inner product) | "cosine"
+
+# Reranker Configuration
+reranker:
+  model_name: "AITeamVN/Vietnamese_Reranker"
+  device: "cpu"
+  batch_size: 32
+  normalize_scores: true
+  max_length: 512
+
+# SQLite Database Configuration
+sqlite_store:
+  db_path: "legal_documents.db" # Relative to project root
+
+# Response Generation Settings
+generation:
+  # Max answer length
+  max_answer_length: 1000
+
+  # Temperature for generation
+  temperature: 0.3
+
+  # Include source documents in response
+  include_sources: true
+
+  # Include reasoning steps in response
+  include_reasoning: false
+
+# Prompt Files
+prompts:
+  system_prompt_file: "configs/prompts/system_prompt.txt"
+  answer_prompt_file: "configs/prompts/answer_prompt.txt"
+
+# Monitoring & Logging
+monitoring:
+  enabled: true
+  log_file: "logs/agent.log"
+  metrics_file: "logs/agent_metrics.json"
+  track_latency: true
+  track_tool_calls: true
+  track_errors: true

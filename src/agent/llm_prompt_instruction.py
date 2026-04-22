@@ -1,7 +1,5 @@
 """
 LLM Query Analyzer Prompt Instructions
-======================================
-
 Hướng dẫn chi tiết cho LLM để phân tích câu hỏi và trả về structured JSON output
 """
 

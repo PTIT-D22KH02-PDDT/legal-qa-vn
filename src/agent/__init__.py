@@ -18,6 +18,11 @@ from .schemas import (
     DocumentMetadataResult,
     ArticleBlock,
 )
+from .config import (
+    AgentConfig,
+    get_agent_config,
+    reload_agent_config,
+)
 
 __all__ = [
     "LegalQAAgent",
@@ -35,4 +40,8 @@ __all__ = [
     "DocumentSearchResult",
     "DocumentMetadataResult",
     "ArticleBlock",
+    # Configuration
+    "AgentConfig",
+    "get_agent_config",
+    "reload_agent_config",
 ]

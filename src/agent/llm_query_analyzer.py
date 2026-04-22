@@ -11,7 +11,7 @@ from .schemas import (
     QueryType,
     Intent,
 )
-from .llms import LLMFactory
+from .llms import LLMGroq
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class LLMQueryAnalyzer:
         self,
         llm=None,
         fallback_analyzer=None,
-        temperature: float = 0,
+        api_key=None,
     ):
         """
         Initialize LLMQueryAnalyzer
@@ -39,15 +39,14 @@ class LLMQueryAnalyzer:
         Args:
             llm: LangChain LLM instance (default: Groq)
             fallback_analyzer: Regex analyzer để fallback
-            temperature: LLM temperature (0 for deterministic)
+            api_key: API key for Groq LLM
         """
         if llm is None:
-            self.llm = LLMFactory.create_groq_llm(temperature=temperature)
+            self.llm = LLMGroq(api_key=api_key)
         else:
             self.llm = llm
         
         self.fallback_analyzer = fallback_analyzer
-        self.temperature = temperature
     def analyze(self, query: str) -> QueryAnalysisResult:
         """
         Phân tích query sử dụng LLM
@@ -87,14 +86,14 @@ class LLMQueryAnalyzer:
         Returns:
             LLM response text
         """
-        from langchain_core.messages import SystemMessage, HumanMessage
-        messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_prompt),
-        ]
-        
-        response = self.llm.invoke(messages)
-        return response.content
+        # Pass model_name để dùng config model (llama-3.1-8b-instant)
+        response = self.llm.ask(
+            user_prompt=user_prompt,
+            system_prompt=system_prompt,
+            model_name="llama-3.1-8b-instant",  # Use fast model for query analysis
+            temperature=0.0  # Deterministic for entity extraction
+        )
+        return response
     
     def _parse_json(self, response_text: str) -> dict:
         """
