@@ -21,7 +21,7 @@ class ToolRouter:
     """
     # Mapping giữa QueryType và tools
     QUERY_TYPE_TO_TOOLS = {
-        QueryType.SEMANTIC_SEARCH: ["search_legal_documents"],
+        QueryType.SEMANTIC_SEARCH: ["search_legal_documents", "search_document_metadata"],
         QueryType.SPECIFIC_LOOKUP: ["get_specific_article", "search_legal_documents"],
         QueryType.COMPARATIVE: ["search_legal_documents", "find_related_documents"],
         QueryType.PROCEDURAL: ["search_legal_documents"],
@@ -31,7 +31,7 @@ class ToolRouter:
     
     # Mapping giữa Intent và tools
     INTENT_TO_TOOLS = {
-        Intent.LOOKUP: ["search_legal_documents", "get_specific_article"],
+        Intent.LOOKUP: ["search_legal_documents", "get_specific_article","find_cross_references"],
         Intent.COMPARE: ["search_legal_documents", "find_related_documents"],
         Intent.EXPLAIN: ["search_legal_documents", "find_cross_references"],
         Intent.VERIFY: ["search_legal_documents", "get_specific_article"],

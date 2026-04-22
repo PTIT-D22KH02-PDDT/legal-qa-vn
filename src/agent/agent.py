@@ -83,13 +83,17 @@ Hãy tập trung vào câu hỏi của người dùng và sử dụng các công
             retrieval_service=retrieval_service,
         )
         
+        # Create tools dict for lookup
+        self.tools_list = self.tools_provider.get_tools_list()
+        self.tools_dict = {tool.name: tool for tool in self.tools_list}
+        
         # Create LangChain agent
         self.agent_executor = self._create_agent_executor()
     
     def _create_agent_executor(self) -> AgentExecutor:
         """Tạo LangChain AgentExecutor"""
         # Get tools
-        tools = self.tools_provider.get_tools_list()
+        tools = self.tools_list
         
         # Create prompt template
         prompt = ChatPromptTemplate.from_messages([
@@ -239,18 +243,10 @@ Hãy tập trung vào câu hỏi của người dùng và sử dụng các công
             
             start_time = time.time()
             
-            # Execute tool based on name
-            # Note: @tool decorator converts methods to StructuredTool, use .invoke() to call
-            if tool_name == "search_legal_documents":
-                result = self.tools_provider.search_legal_documents.invoke(tool_input)
-            elif tool_name == "search_document_metadata":
-                result = self.tools_provider.search_document_metadata.invoke(tool_input)
-            elif tool_name == "get_specific_article":
-                result = self.tools_provider.get_specific_article.invoke(tool_input)
-            elif tool_name == "find_related_documents":
-                result = self.tools_provider.find_related_documents.invoke(tool_input)
-            elif tool_name == "find_cross_references":
-                result = self.tools_provider.find_cross_references.invoke(tool_input)
+            # Execute tool by looking up from tools_dict and calling invoke()
+            if tool_name in self.tools_dict:
+                tool = self.tools_dict[tool_name]
+                result = tool.invoke(tool_input)
             else:
                 result = f"Unknown tool: {tool_name}"
             
