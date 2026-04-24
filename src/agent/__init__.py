@@ -1,17 +1,39 @@
 """
-Legal QA Agent Module
-Cung cấp LangChain Agent để trả lời các câu hỏi về pháp luật Việt Nam.
+Legal QA Agent package.
+
+Kiến trúc:
+- `graph/`:  LangGraph build & state (logic chính của agent).
+- `nodes/`:  các node trong graph (analyze / plan / execute / grade / ...).
+- `tools/`:  tool gọi Chroma/DB + LLMQueryAnalyzer.
+- `utils/`:  prompt templates.
+- `runner.py`: entry point — boot infrastructure + gọi graph.
+- `router.py`: logic chọn tool (dùng trong node plan_tools).
+- `schemas.py`: toàn bộ Pydantic/Enum dùng chung.
+
+Sử dụng nhanh:
+
+    from src.agent.runner import LegalQARunner
+    runner = LegalQARunner()
+    result = runner.query("Điều 5 Luật 102/2017 nói gì?")
+    print(result["answer"])
+
+Hoặc chạy trực tiếp từ CLI:
+    python -m src.agent.runner --interactive
 """
-from .agent import LegalQAAgent
-from .llm_query_analyzer import LLMQueryAnalyzer
-from .query_analyzer import QueryAnalyzer
+
 from .router import ToolRouter
-from .tools import LegalDocumentTools
+from .tools import LegalDocumentTools, LLMQueryAnalyzer, QueryAnalysisError
+
+# NOTE: `LegalQARunner` không re-export ở đây vì nó kéo theo ChromaStore,
+# OnnxEmbeddingModel, SearchPipeline... làm nặng việc chỉ muốn import schema.
+# Dùng trực tiếp: `from src.agent.runner import LegalQARunner`.
 from .schemas import (
-    QueryType,
     Intent,
+    Grade,
     QueryAnalysisResult,
     ToolExecutionResult,
+    ToolOutput,
+    ValidationResult,
     AgentStep,
     AgentResponse,
     DocumentSearchResult,
@@ -25,16 +47,18 @@ from .config import (
 )
 
 __all__ = [
-    "LegalQAAgent",
+    # Core classes
     "LLMQueryAnalyzer",
-    "QueryAnalyzer",
+    "QueryAnalysisError",
     "ToolRouter",
     "LegalDocumentTools",
     # Schemas
-    "QueryType",
     "Intent",
+    "Grade",
     "QueryAnalysisResult",
     "ToolExecutionResult",
+    "ToolOutput",
+    "ValidationResult",
     "AgentStep",
     "AgentResponse",
     "DocumentSearchResult",
