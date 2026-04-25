@@ -46,13 +46,9 @@ def _format_context(chunks: List[Dict[str, Any]], max_chars: int = 6000) -> str:
         if not isinstance(c, dict):
             continue
         title = c.get("title") or ""
-        # 1A migration: chuẩn key mới là `so_hieu`, fallback đọc `van_ban`
-        # để tương thích dữ liệu cũ trước khi re-index.
         so_hieu = (
             c.get("so_hieu")
             or (c.get("metadata") or {}).get("so_hieu")
-            or c.get("van_ban")
-            or (c.get("metadata") or {}).get("van_ban")
             or ""
         )
         text = c.get("text") or c.get("content") or c.get("display_text") or ""

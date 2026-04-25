@@ -48,9 +48,7 @@ def _format_chunk_title(meta: dict) -> str:
     if meta.get("diem"):
         parts.append(f"Điểm {meta['diem']}")
     title = " ".join(parts) if parts else "Điều khoản"
-    # 1A migration: chuẩn key mới là `so_hieu`, fallback đọc `van_ban`
-    # để không vỡ với dữ liệu Chroma cũ trước khi re-index.
-    so_hieu = meta.get("so_hieu") or meta.get("van_ban")
+    so_hieu = meta.get("so_hieu")
     if so_hieu:
         title = f"{title} — {so_hieu}"
     return title
@@ -59,9 +57,7 @@ def _format_chunk_title(meta: dict) -> str:
 def _chunk_to_item(chunk, score=None) -> dict:
     """Convert ChromaQueryResult → dict structured chunk."""
     meta = chunk.metadata or {}
-    # 1A migration: chuẩn key mới là `so_hieu`, fallback đọc `van_ban`
-    # để tương thích dữ liệu Chroma cũ.
-    so_hieu = meta.get("so_hieu") or meta.get("van_ban")
+    so_hieu = meta.get("so_hieu")
     return {
         "kind": "chunk",
         "chunk_id": getattr(chunk, "chunk_id", None),
@@ -488,16 +484,6 @@ class LegalDocumentTools:
             results = self.chroma_store.query(ChromaQueryRequest(
                 query_vector=[0.0] * 768, top_k=1, filter=where_filter,
             ))
-            # Backward-compat: dữ liệu Chroma cũ có thể vẫn lưu key `van_ban`.
-            if not results and so_hieu:
-                legacy_filter = {
-                    k: v for k, v in where_filter.items()
-                    if k != "so_hieu"
-                }
-                legacy_filter["van_ban"] = so_hieu
-                results = self.chroma_store.query(ChromaQueryRequest(
-                    query_vector=[0.0] * 768, top_k=1, filter=legacy_filter,
-                ))
             if not results:
                 missing = (
                     " (không resolve được số hiệu từ document_name)"
@@ -632,16 +618,6 @@ class LegalDocumentTools:
                 hits = self.chroma_store.query(ChromaQueryRequest(
                     query_vector=[0.0] * 768, top_k=1, filter=where_filter,
                 ))
-                # Backward-compat: dữ liệu Chroma cũ có thể vẫn lưu key `van_ban`.
-                if not hits and so_hieu:
-                    legacy_filter = {
-                        k: v for k, v in where_filter.items()
-                        if k != "so_hieu"
-                    }
-                    legacy_filter["van_ban"] = so_hieu
-                    hits = self.chroma_store.query(ChromaQueryRequest(
-                        query_vector=[0.0] * 768, top_k=1, filter=legacy_filter,
-                    ))
                 source_chunk = hits[0] if hits else None
             else:
                 return ToolOutput(

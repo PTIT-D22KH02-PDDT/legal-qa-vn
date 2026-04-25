@@ -89,13 +89,9 @@ def _extract_sources(chunks: List[Dict[str, Any]]) -> List[str]:
     seen = set()
     for c in _iter_items(chunks):
         meta = c.get("metadata") or {}
-        # 1A migration: chuẩn key mới là `so_hieu`, fallback đọc `van_ban`
-        # để tương thích dữ liệu cũ trước khi re-index.
         so_hieu = (
             c.get("so_hieu")
             or meta.get("so_hieu")
-            or c.get("van_ban")
-            or meta.get("van_ban")
         )
         if so_hieu and so_hieu not in seen:
             seen.add(so_hieu)

@@ -85,10 +85,7 @@ def _check_coverage(
             # So sánh str để tránh int vs str khác kiểu
             ok = True
             for k, v in required.items():
-                # Backward-compat: dữ liệu Chroma cũ dùng key `van_ban`.
                 actual = meta_src.get(k)
-                if actual is None and k == "so_hieu":
-                    actual = meta_src.get("van_ban")
                 if actual is None or str(actual) != str(v):
                     ok = False
                     break
