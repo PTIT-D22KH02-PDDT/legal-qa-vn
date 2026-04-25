@@ -30,6 +30,9 @@ class ArticleBlock(BaseModel):
     khoan: Optional[int] = Field(default=None, description="Số khoản (nếu có)")
     diem: Optional[str] = Field(default=None, description="Tên điểm (nếu có): a, b, c, ...")
     chuong: Optional[int] = Field(default=None, description="Số chương (nếu có)")
+    muc: Optional[int] = Field(default=None, description="Số mục (nếu có)")
+    phan: Optional[int] = Field(default=None, description="Số phần (nếu có)")
+    so_hieu: Optional[str] = Field(default=None, description="Số hiệu tài liệu pháp luật")
     document_name: Optional[str] = Field(default=None, description="Tên tài liệu pháp luật")
 
     # LLM hay trả "null" / "None" / "" thay vì JSON null thật.
@@ -44,7 +47,7 @@ class ArticleBlock(BaseModel):
         except (TypeError, ValueError):
             return None
 
-    @field_validator("diem", "document_name", mode="before")
+    @field_validator("diem", "so_hieu", "document_name", mode="before")
     @classmethod
     def _coerce_nullable_str(cls, v):
         if v is None:
@@ -102,9 +105,6 @@ class QueryAnalysisResult(BaseModel):
     keywords: List[str] = Field(default_factory=list, description="Từ khoá chính (3-7 từ)")
     reasoning: str = Field(default="", description="Giải thích ngắn (1-2 câu)")
 
-    # ------------------------------------------------------------------
-    # Validators (xử lý quirks của LLM output)
-    # ------------------------------------------------------------------
     @field_validator("intent", mode="before")
     @classmethod
     def _normalize_intent(cls, v):
@@ -175,7 +175,6 @@ class DocumentSearchResult(BaseModel):
 
 class DocumentMetadataResult(BaseModel):
     """Kết quả tìm kiếm metadata tài liệu"""
-    doc_id: str = Field(..., description="ID của tài liệu")
     so_hieu: str = Field(..., description="Số hiệu")
     ten_van_ban: str = Field(..., description="Tên văn bản")
     loai: str = Field(..., description="Loại văn bản")

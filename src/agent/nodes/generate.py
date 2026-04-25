@@ -46,13 +46,21 @@ def _format_context(chunks: List[Dict[str, Any]], max_chars: int = 6000) -> str:
         if not isinstance(c, dict):
             continue
         title = c.get("title") or ""
-        van_ban = c.get("van_ban") or (c.get("metadata") or {}).get("van_ban") or ""
+        # 1A migration: chuẩn key mới là `so_hieu`, fallback đọc `van_ban`
+        # để tương thích dữ liệu cũ trước khi re-index.
+        so_hieu = (
+            c.get("so_hieu")
+            or (c.get("metadata") or {}).get("so_hieu")
+            or c.get("van_ban")
+            or (c.get("metadata") or {}).get("van_ban")
+            or ""
+        )
         text = c.get("text") or c.get("content") or c.get("display_text") or ""
         header = f"[#{i}]"
         if title:
             header += f" {title}"
-        if van_ban and van_ban not in header:
-            header += f" (Nguồn: {van_ban})"
+        if so_hieu and so_hieu not in header:
+            header += f" (Nguồn: {so_hieu})"
         parts.append(f"{header}\n{text}")
     joined = "\n\n".join(parts)
     return joined[:max_chars]

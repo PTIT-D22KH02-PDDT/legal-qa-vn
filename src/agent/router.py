@@ -79,12 +79,14 @@ class ToolRouter:
             ))
 
         # 6. Relationship check (sửa đổi/thay thế/hiệu lực)
+        # Ưu tiên `so_hieu` (PK của document_metadata); fallback `document_name`
+        # (khi chưa resolve được — tool sẽ tự xử lý hoặc fail có ý nghĩa).
         if analysis.needs_relationship_check:
-            first_doc = _first_document_name(analysis.extracted_blocks)
-            if first_doc:
+            doc_id = _first_doc_identifier(analysis.extracted_blocks)
+            if doc_id:
                 tool_calls.append((
                     "find_related_documents",
-                    {"doc_id": first_doc, "relation_type": None},
+                    {"doc_id": doc_id, "relation_type": None},
                 ))
 
         logger.info("[router] tools=%s", [t[0] for t in tool_calls])
@@ -102,7 +104,11 @@ class ToolRouter:
         return explanations.get(tool_name, "Tool không xác định")
 
 
-def _first_document_name(blocks: List[ArticleBlock]) -> str | None:
+def _first_doc_identifier(blocks: List[ArticleBlock]) -> str | None:
+    """Ưu tiên số hiệu; fallback tên văn bản."""
+    for b in blocks:
+        if b.so_hieu:
+            return b.so_hieu
     for b in blocks:
         if b.document_name:
             return b.document_name

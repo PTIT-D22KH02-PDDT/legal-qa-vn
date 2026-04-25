@@ -21,7 +21,6 @@ class ChromaConfig(BaseModel):
 class ChromaUpsertRequest(BaseModel):
     """Dữ liệu cần upsert vào ChromaDB"""
     chunk_id: str
-    num_chunk: Optional[int] = None  # Số thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
     vector: List[float]         # Lấy từ EmbeddingResult.vector
     text: str                   
     metadata: dict   # Lấy từ ChunkMetadata tương ứng và có thể thêm thông tin khác nếu cần

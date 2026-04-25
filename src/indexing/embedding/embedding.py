@@ -35,7 +35,8 @@ class EmbeddingPipeline:
                     'full_text': "\n".join(full_text), 
                     'parent_id': chunk.parent_id,
                     'section_type': chunk.type,  # Dùng cho filter trong retrieval
-                    **decode_section_id(section_id).dict()  # Add van_ban, dieu, khoan, etc
+                    'num_chunk': stt+1,
+                    **decode_section_id(section_id).dict()  # Add so_hieu, dieu, khoan, etc
                 }
                 # Chỉ thêm reference nếu không rỗng
                 if chunk.reference:
@@ -44,7 +45,6 @@ class EmbeddingPipeline:
                 requests.append(
                     EmbeddingRequest(
                         chunk_id=section_id,
-                        num_chunk=stt+1,
                         text='\n'.join(texts),
                         metadata=metadata
                     )

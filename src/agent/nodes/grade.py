@@ -63,12 +63,15 @@ def _check_coverage(
 
     missing: List[ArticleBlock] = []
     for block in analysis.extracted_blocks:
+        # 1A migration: metadata chuẩn dùng key `so_hieu`.
+        # Fallback `document_name` chỉ là best-effort khi không có so_hieu.
+        so_hieu_required = block.so_hieu or block.document_name
         required = {
             k: v for k, v in {
                 "dieu": block.dieu,
                 "khoan": block.khoan,
                 "diem": block.diem,
-                "van_ban": block.document_name,
+                "so_hieu": so_hieu_required,
             }.items() if v is not None
         }
         if not required:
@@ -80,10 +83,15 @@ def _check_coverage(
                 continue
             meta_src = c.get("metadata") or c
             # So sánh str để tránh int vs str khác kiểu
-            ok = all(
-                str(meta_src.get(k)) == str(v) if meta_src.get(k) is not None else False
-                for k, v in required.items()
-            )
+            ok = True
+            for k, v in required.items():
+                # Backward-compat: dữ liệu Chroma cũ dùng key `van_ban`.
+                actual = meta_src.get(k)
+                if actual is None and k == "so_hieu":
+                    actual = meta_src.get("van_ban")
+                if actual is None or str(actual) != str(v):
+                    ok = False
+                    break
             if ok:
                 covered = True
                 break
@@ -110,7 +118,7 @@ def build_grade_node(llm, max_context_chars: int = 3000) -> Callable[[AgentState
         missing = _check_coverage(analysis, chunks) if analysis else []
         if missing:
             reason = "missing blocks: " + ", ".join(
-                f"dieu={b.dieu},khoan={b.khoan},diem={b.diem},vb={b.document_name}"
+                f"dieu={b.dieu},khoan={b.khoan},diem={b.diem},so_hieu={b.so_hieu or b.document_name}"
                 for b in missing
             )
             logger.info("[grade] coverage fail → INSUFFICIENT (%s)", reason)

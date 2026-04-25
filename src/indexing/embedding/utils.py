@@ -140,7 +140,7 @@ def decode_section_id(chunk_id: str) -> str:
     #     else:
     #         raise ValueError(f"Không nhận diện được loại section {le} trong chunk_id {chunk_id}")
     # return ' '.join(result[::-1])
-    metadata=ChunkMetadata(van_ban=levels[0])
+    metadata=ChunkMetadata(so_hieu=levels[0])
     for level in levels[1:]:
         # Handle case when level doesn't contain '_'
         if '_' not in level:

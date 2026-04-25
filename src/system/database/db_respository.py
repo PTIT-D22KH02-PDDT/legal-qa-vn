@@ -2,7 +2,7 @@ from src.core.enums import RelationType
 from src.core.models import DocumentMetadata, DocumentRelation
 from typing import List, Optional
 from pathlib import Path
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import Session, sessionmaker
 import logging
 from datetime import datetime
@@ -104,7 +104,47 @@ class DocumentMetadataRepository:
     def get_by_loai(self, loai: str) -> List[DocumentMetadataDB]:
         """Lấy tất cả metadata theo loại (Luật, Nghị định, etc.)"""
         return self.session.query(DocumentMetadataDB).filter_by(loai=loai).all()
-    
+
+    def search_by_name(
+        self,
+        name: str,
+        limit: int = 20,
+    ) -> List[DocumentMetadataDB]:
+        """
+        Tìm metadata theo tên văn bản HOẶC số hiệu dùng SQL LIKE (case-insensitive).
+
+        Dùng cho workflow: người dùng nói tên dân dã ("bộ luật dân sự") →
+        caller sau đó rerank bằng fuzzy matching để chọn văn bản khớp nhất.
+
+        Args:
+            name: phần tên/ từ khoá cần tìm. Sẽ tách theo khoảng trắng để
+                lọc các row có chứa TẤT CẢ token (AND), giúp giảm nhiễu khi
+                tên dài (vd "bộ luật dân sự" → token: bo, luat, dan, su).
+            limit: số kết quả tối đa trả về (trước khi rerank phía caller).
+        """
+        name = (name or "").strip()
+        if not name:
+            return []
+
+        query = self.session.query(DocumentMetadataDB)
+
+        # Tách token, bỏ token quá ngắn (<2) để tránh match ngẫu nhiên
+        tokens = [t for t in name.split() if len(t) >= 2]
+        if not tokens:
+            tokens = [name]
+
+        # Mỗi token phải xuất hiện trong ten_van_ban HOẶC so_hieu
+        for tok in tokens:
+            like = f"%{tok}%"
+            query = query.filter(
+                or_(
+                    DocumentMetadataDB.ten_van_ban.ilike(like),
+                    DocumentMetadataDB.so_hieu.ilike(like),
+                )
+            )
+
+        return query.limit(limit).all()
+
     def get_all(self, limit: int = 100, offset: int = 0) -> List[DocumentMetadataDB]:
         """Lấy tất cả metadata (có phân trang)"""
         return self.session.query(DocumentMetadataDB).limit(limit).offset(offset).all()

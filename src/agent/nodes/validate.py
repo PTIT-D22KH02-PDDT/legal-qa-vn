@@ -70,28 +70,40 @@ def _regex_has_citation(text: str) -> bool:
 
 
 def _extract_sources(chunks: List[Dict[str, Any]]) -> List[str]:
-    """Ưu tiên đọc metadata structured; fallback regex trên text."""
+    """Ưu tiên đọc metadata structured; fallback regex trên text.
+
+    Hỗ trợ cả cấu trúc nested: nếu item có field `references` (list dict) —
+    duyệt đệ quy để không bỏ sót nguồn từ các chunk được tham chiếu.
+    """
+
+    def _iter_items(items):
+        for it in items or []:
+            if not isinstance(it, dict):
+                continue
+            yield it
+            refs = it.get("references")
+            if isinstance(refs, list):
+                yield from _iter_items(refs)
+
     sources: List[str] = []
     seen = set()
-    for c in chunks:
-        if not isinstance(c, dict):
-            continue
+    for c in _iter_items(chunks):
         meta = c.get("metadata") or {}
-        van_ban = (
-            c.get("van_ban")
-            or meta.get("van_ban")
+        # 1A migration: chuẩn key mới là `so_hieu`, fallback đọc `van_ban`
+        # để tương thích dữ liệu cũ trước khi re-index.
+        so_hieu = (
+            c.get("so_hieu")
             or meta.get("so_hieu")
-            or c.get("so_hieu")
+            or c.get("van_ban")
+            or meta.get("van_ban")
         )
-        if van_ban and van_ban not in seen:
-            seen.add(van_ban)
-            sources.append(str(van_ban))
+        if so_hieu and so_hieu not in seen:
+            seen.add(so_hieu)
+            sources.append(str(so_hieu))
     if sources:
         return sources
-    # fallback
-    for c in chunks:
-        if not isinstance(c, dict):
-            continue
+    # fallback regex on text
+    for c in _iter_items(chunks):
         for m in _SO_HIEU_RE.finditer(
             str(c.get("text") or c.get("content") or c.get("display_text") or "")
         ):

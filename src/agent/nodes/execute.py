@@ -80,12 +80,30 @@ def build_execute_node(
             output = _coerce_to_tool_output(raw, tool_name)
             elapsed = time.time() - start
 
-            # Bắn structured items vào retrieved_chunks (giữ metadata đầy đủ)
+            # Bắn structured items vào retrieved_chunks (giữ metadata đầy đủ).
+            # Nếu main item có nested `references`, flatten ra thành các item
+            # riêng có `_parent_chunk_id` + `_role="reference"` để downstream
+            # (grade/generate/validate) xử lý đồng nhất.
             chunks: List[Dict[str, Any]] = []
             for it in output.items:
-                if isinstance(it, dict):
-                    enriched = {**it, "_tool": tool_name, "_step": step_num}
-                    chunks.append(enriched)
+                if not isinstance(it, dict):
+                    continue
+                # Copy để không mutate ToolOutput.items
+                main = {k: v for k, v in it.items() if k != "references"}
+                main["_tool"] = tool_name
+                main["_step"] = step_num
+                main["_role"] = "main"
+                chunks.append(main)
+
+                for ref in (it.get("references") or []):
+                    if not isinstance(ref, dict):
+                        continue
+                    ref_copy = dict(ref)
+                    ref_copy["_tool"] = tool_name
+                    ref_copy["_step"] = step_num
+                    ref_copy["_role"] = "reference"
+                    ref_copy["_parent_chunk_id"] = main.get("chunk_id")
+                    chunks.append(ref_copy)
 
             step = AgentStep(
                 step_number=step_num,
