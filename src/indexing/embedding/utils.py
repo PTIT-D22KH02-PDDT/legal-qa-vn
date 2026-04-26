@@ -1,9 +1,12 @@
 """Embedding utilities."""
 
-from typing import Optional, List
+import re
+from typing import List, Optional
+
 from src.core.models import DocumentNode
+from src.schemas import ChunkMetadata, LevelIndex
+
 from .schemas import EmbeddingRequest
-from src.schemas import ChunkMetadata
 dictionary = {
     'modau': 'Mở đầu',
     'chinh': 'Chính',
@@ -12,9 +15,47 @@ dictionary = {
     'diem': 'Điểm',
     'chuong': 'Chương',
     'phan': 'Phần',
-    'muc': 'Mục',
-    
+    "muc": "Mục",
 }
+
+
+def _parse_level_index_for_metadata(level_key: str, index: str) -> LevelIndex:
+    """
+    Lưu metadata Chroma: dieu/khoan/chuong/... dạng số nếu được; diem là chuỗi mã thuần.
+    `index` sau khi nối underscore (có thể '1', '1.2', 'a'...).
+    """
+    s = (index or "").strip()
+    if level_key == "diem":
+        return s
+    if not s:
+        return s
+    if s.isdigit():
+        return int(s)
+    if re.fullmatch(r"\d+\.\d+", s):
+        return float(s)
+    return s
+
+
+def format_chunk_id_for_embedding_text(chunk_id: str) -> str:
+    """
+    Chuỗi hiển thị cho text embedding (tiêu đề có nhãn), không dùng làm filter DB.
+    Ví dụ: "x.dieu_6.diem_2" -> "Điểm 2 điều 6" (thứ tự đảo như bản cũ).
+    """
+    try:
+        levels = chunk_id.strip().split(".")
+    except Exception:
+        return chunk_id
+    result: List[str] = []
+    for level in levels[1:]:
+        if "_" not in level:
+            continue
+        le, raw = level.split("_", 1)
+        raw = ".".join(raw.split("_"))
+        if le in dictionary:
+            result.append(f"{dictionary[le]} {raw}")
+        else:
+            result.append(f"{le}_{raw}")
+    return " ".join(result[::-1]) if result else chunk_id
 
 # def decode_section_id(chunk_id: str) -> str:
 #     """
@@ -86,7 +127,9 @@ def create_chunk_embedding_text(chunk: DocumentNode) -> str:
     
     # Mã đoạn (decoded)
     if chunk.id:
-        texts.append(f'Mã đoạn: {decode_section_id(chunk.id)}')
+        texts.append(
+            f"Mã đoạn: {format_chunk_id_for_embedding_text(chunk.id)}"
+        )
     
     # Tiêu đề
     if chunk.title:
@@ -98,7 +141,9 @@ def create_chunk_embedding_text(chunk: DocumentNode) -> str:
     
     # Viện dẫn
     if chunk.reference:
-        refs_str = ", ".join(decode_section_id(ref) for ref in chunk.reference)
+        refs_str = ", ".join(
+            format_chunk_id_for_embedding_text(ref) for ref in chunk.reference
+        )
         texts.append(f'Các viện dẫn: {refs_str}')
     
     return '\n'.join(texts)
@@ -118,48 +163,38 @@ def create_embedding_request(text: str, chunk_id: str | None = None) -> Embeddin
     return EmbeddingRequest(chunk_id=chunk_id, text=text)
 
 
-def decode_section_id(chunk_id: str) -> str:
+def decode_section_id(chunk_id: str) -> ChunkMetadata:
     """
-    Chuyển đổi chunk_id về dạng dễ hiểu. Ví dụ: "dieu_6.diem_2" -> "Điểm 2 điều 6"
+    Parse `chunk_id` thành ChunkMetadata. Các cấp dieu/khoan/chuong/... lưu **số**
+    (int hoặc float nếu mã dạng 1.2); `diem` lưu chuỗi mã thuần (vd "a", "2").
     """
     try:
-        levels = chunk_id.strip().split('.')
-    
+        levels = chunk_id.strip().split(".")
     except Exception as e:
-        raise ValueError(f"Invalid chunk_id format: {chunk_id}. Error: {e}")
-    
-    result = []
-    # for level in levels[1:]:
-    #     # Handle case when level doesn't contain '_'
-    #     if '_' not in level:
-    #         continue
-    #     le, index = level.split('_', 1)
-    #     index = '.'.join(index.split('_'))
-    #     if le in dictionary:
-    #         result.append(f"{dictionary[le]} {index}")
-    #     else:
-    #         raise ValueError(f"Không nhận diện được loại section {le} trong chunk_id {chunk_id}")
-    # return ' '.join(result[::-1])
-    metadata=ChunkMetadata(so_hieu=levels[0])
+        raise ValueError(f"Invalid chunk_id format: {chunk_id}. Error: {e}") from e
+
+    metadata = ChunkMetadata(so_hieu=levels[0])
     for level in levels[1:]:
-        # Handle case when level doesn't contain '_'
-        if '_' not in level:
+        if "_" not in level:
             continue
-        le, index = level.split('_', 1)
-        index = '.'.join(index.split('_'))
-        if le in dictionary:
-            if le=="dieu":
-                metadata.dieu=f"{dictionary[le]} {index}"
-            elif le=="khoan":
-                metadata.khoan=f"{dictionary[le]} {index}"
-            elif le=="diem":
-                metadata.diem=f"{dictionary[le]} {index}"
-            elif le=="phan":
-                metadata.phan=f"{dictionary[le]} {index}"
-            elif le=="chuong":
-                metadata.chuong=f"{dictionary[le]} {index}"
-            elif le=="muc":
-                metadata.muc=f"{dictionary[le]} {index}"
-        else:
-            raise ValueError(f"Không nhận diện được loại section {le} trong chunk_id {chunk_id}")
+        le, index = level.split("_", 1)
+        index = ".".join(index.split("_"))
+        if le not in dictionary:
+            raise ValueError(
+                f"Không nhận diện được loại section {le} trong chunk_id {chunk_id}"
+            )
+        val = _parse_level_index_for_metadata(le, index)
+        if le == "dieu":
+            metadata.dieu = val
+        elif le == "khoan":
+            metadata.khoan = val
+        elif le == "diem":
+            s = str(val).strip() if val is not None else ""
+            metadata.diem = s or None
+        elif le == "phan":
+            metadata.phan = val
+        elif le == "chuong":
+            metadata.chuong = val
+        elif le == "muc":
+            metadata.muc = val
     return metadata

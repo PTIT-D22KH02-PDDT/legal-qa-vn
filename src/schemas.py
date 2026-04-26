@@ -52,14 +52,19 @@ class TypeChunk(str, Enum):
     khoan="khoan"
     diem="diem"
 
+# Giá trị từ `chunk_id` (dieu/khoan/chuong/...): ưu tiên int; có thể float (vd 1.2)
+# hoặc str nếu mã có chữ; `diem` luôn là mã thuần (vd "a", "2") không gắn nhãn "Điểm ".
+LevelIndex = int | float | str
+
+
 class ChunkMetadata(BaseModel):
-    so_hieu: str=""
-    dieu: str=""
-    khoan: str=""
-    diem: str=""
-    phan: str=""
-    chuong: str=""
-    muc: str=""
+    so_hieu: str = ""
+    dieu: LevelIndex | None = None
+    khoan: LevelIndex | None = None
+    diem: str | None = None
+    phan: LevelIndex | None = None
+    chuong: LevelIndex | None = None
+    muc: LevelIndex | None = None
 
 class DocumentNode(BaseModel):
     id: str=""

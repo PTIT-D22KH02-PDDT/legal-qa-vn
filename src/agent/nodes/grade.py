@@ -14,11 +14,16 @@ Chiến lược chấm hai tầng:
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from ..llms import ask_text
 from ..schemas import ArticleBlock, Grade, QueryAnalysisResult
 from ..graph.state import AgentState
+from ..tools import LegalDocumentTools
+from ..utils.chroma_metadata import (
+    coverage_expected_from_article_block,
+    coverage_field_matches,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +57,7 @@ def _parse_grade(text: str) -> Grade:
 def _check_coverage(
     analysis: QueryAnalysisResult,
     chunks: List[Dict[str, Any]],
+    tools_provider: Optional[LegalDocumentTools] = None,
 ) -> List[ArticleBlock]:
     """
     Với mỗi block yêu cầu trong analysis.extracted_blocks, kiểm tra có chunk
@@ -63,17 +69,21 @@ def _check_coverage(
 
     missing: List[ArticleBlock] = []
     for block in analysis.extracted_blocks:
-        # 1A migration: metadata chuẩn dùng key `so_hieu`.
-        # Fallback `document_name` chỉ là best-effort khi không có so_hieu.
-        so_hieu_required = block.so_hieu or block.document_name
-        required = {
-            k: v for k, v in {
-                "dieu": block.dieu,
-                "khoan": block.khoan,
-                "diem": block.diem,
-                "so_hieu": so_hieu_required,
-            }.items() if v is not None
-        }
+        resolved: Optional[str] = None
+        if tools_provider is not None and (
+            not (block.so_hieu and str(block.so_hieu).strip())
+        ) and (block.document_name and str(block.document_name).strip()):
+            try:
+                resolved = tools_provider._resolve_so_hieu(block)
+            except Exception as e:
+                logger.warning("[grade] _resolve_so_hieu failed: %s", e)
+        if resolved:
+            logger.info(
+                "[grade] coverage: document_name → so_hieu=%r", resolved
+            )
+        required = coverage_expected_from_article_block(
+            block, resolved_so_hieu=resolved
+        )
         if not required:
             continue
 
@@ -82,11 +92,10 @@ def _check_coverage(
             if not isinstance(c, dict):
                 continue
             meta_src = c.get("metadata") or c
-            # So sánh str để tránh int vs str khác kiểu
             ok = True
             for k, v in required.items():
                 actual = meta_src.get(k)
-                if actual is None or str(actual) != str(v):
+                if not coverage_field_matches(v, actual, k):
                     ok = False
                     break
             if ok:
@@ -97,7 +106,11 @@ def _check_coverage(
     return missing
 
 
-def build_grade_node(llm, max_context_chars: int = 3000) -> Callable[[AgentState], Dict[str, Any]]:
+def build_grade_node(
+    llm,
+    tools_provider: Optional[LegalDocumentTools] = None,
+    max_context_chars: int = 3000,
+) -> Callable[[AgentState], Dict[str, Any]]:
     def grade_retrieval(state: AgentState) -> Dict[str, Any]:
         chunks = state.get("retrieved_chunks", []) or []
         query = state.get("query", "")
@@ -112,7 +125,11 @@ def build_grade_node(llm, max_context_chars: int = 3000) -> Callable[[AgentState
             }
 
         # --- Tầng 1: coverage deterministic ---
-        missing = _check_coverage(analysis, chunks) if analysis else []
+        missing = (
+            _check_coverage(analysis, chunks, tools_provider=tools_provider)
+            if analysis
+            else []
+        )
         if missing:
             reason = "missing blocks: " + ", ".join(
                 f"dieu={b.dieu},khoan={b.khoan},diem={b.diem},so_hieu={b.so_hieu or b.document_name}"

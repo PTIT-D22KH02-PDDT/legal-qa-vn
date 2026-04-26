@@ -68,7 +68,7 @@ def build_graph(
     g.add_node("analyze_query", build_analyze_node(llm))
     g.add_node("plan_tools", build_plan_node())
     g.add_node("execute_tool", build_execute_node(tools_provider))
-    g.add_node("grade_retrieval", build_grade_node(llm))
+    g.add_node("grade_retrieval", build_grade_node(llm, tools_provider))
     g.add_node("rewrite_query", build_rewrite_node(llm))
     g.add_node("clear_retrieval", build_clear_retrieval_node())
     g.add_node("generate_answer", build_generate_node(llm))

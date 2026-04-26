@@ -61,7 +61,6 @@ class AgentConfig(BaseConfig):
         
         return {
             'enable_multi_block': router_config.get('enable_multi_block', True),
-            'routing_strategy': router_config.get('routing_strategy', 'priority'),
         }
     
     def get_tools_config(self) -> Dict[str, Dict[str, Any]]:
@@ -81,20 +80,6 @@ class AgentConfig(BaseConfig):
                 enabled_tools.append(tool_name)
         
         return enabled_tools
-    
-    def get_tools_by_priority(self) -> list[str]:
-        """Lấy tools sắp xếp theo priority (cao đến thấp)."""
-        tools_config = self.get_tools_config()
-        tools_with_priority = []
-        
-        for tool_name, tool_cfg in tools_config.items():
-            if tool_cfg.get('enabled', True):
-                priority = tool_cfg.get('priority', 1)
-                tools_with_priority.append((tool_name, priority))
-        
-        # Sort by priority descending
-        tools_with_priority.sort(key=lambda x: x[1], reverse=True)
-        return [name for name, _ in tools_with_priority]
     
     def get_execution_params(self) -> Dict[str, Any]:
         """Lấy execution parameters."""

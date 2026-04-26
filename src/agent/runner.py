@@ -1,6 +1,5 @@
 """
 Entry point cho Legal QA Agent.
-
 Một file duy nhất chịu 2 việc:
 1. Boot infrastructure: ChromaStore, embedding, LLM, SearchPipeline.
 2. Build LangGraph (xem `src/agent/graph/`) rồi gọi `graph.invoke()`.
@@ -103,10 +102,21 @@ class LegalQARunner:
             api_key=api_key,
         )
 
-        # 4. Tools provider + graph
+        # 4. Tools provider + graph (có SQL → resolve tên văn bản → so_hieu)
+        _db_session = None
+        try:
+            from src.system.database.db_respository import get_session
+
+            _db_session = get_session()
+        except Exception as e:
+            logger.warning(
+                "[runner] no DB session (name→so_hieu resolve disabled): %s", e
+            )
+
         self.tools_provider = LegalDocumentTools(
             chroma_store=self.chroma_store,
             embedding_model=self.embedding_model,
+            db_session=_db_session,
             retrieval_service=self.search_pipeline,
         )
         self.graph = build_default_graph(
@@ -154,7 +164,6 @@ class LegalQARunner:
             "state": final_state,
         }
 
-    # ------------------------------------------------------------------
     def interactive_mode(self) -> None:
         """CLI hội thoại liên tục."""
         thread_id = str(uuid.uuid4())
@@ -187,7 +196,6 @@ class LegalQARunner:
                 logger.exception("query failed")
                 print(f"Lỗi: {e}\n")
 
-    # ------------------------------------------------------------------
     def run_examples(self, n: int = 3) -> None:
         """Chạy `n` câu hỏi trong EXAMPLE_QUERIES."""
         print("\n" + "=" * 60)
@@ -204,10 +212,6 @@ class LegalQARunner:
                 logger.exception("example failed")
                 print(f"Lỗi: {e}")
 
-
-# ----------------------------------------------------------------------
-# CLI
-# ----------------------------------------------------------------------
 def main() -> None:
     args = sys.argv[1:]
     use_config = "--no-config" not in args

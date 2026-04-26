@@ -36,31 +36,23 @@ router:
   # Enable multi-block handling (query có multiple extracted_blocks)
   enable_multi_block: true
 
-  # Tool routing strategy
-  routing_strategy: "priority" # "priority" | "all"
-
   # Tools configuration
   tools:
     search_legal_documents:
       enabled: true
-      priority: 1
       default_top_k: 5
 
     get_specific_article:
       enabled: true
-      priority: 1
 
     find_related_documents:
       enabled: true
-      priority: 2
 
     find_cross_references:
       enabled: true
-      priority: 2
 
     search_document_metadata:
       enabled: true
-      priority: 3
 
 # Agent Execution Settings
 execution:

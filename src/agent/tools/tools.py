@@ -24,6 +24,7 @@ from langchain_core.tools import StructuredTool
 from sqlalchemy.orm import Session
 
 from src.indexing.embedding import OnnxEmbeddingModel
+from src.indexing.embedding.utils import dictionary as _SECTION_LABELS
 from src.indexing.vector_store import ChromaQueryRequest, ChromaStore
 from src.search.pipeline import SearchPipeline
 from src.system.database.db_respository import (
@@ -32,6 +33,7 @@ from src.system.database.db_respository import (
 )
 
 from ..schemas import ArticleBlock, ToolOutput
+from ..utils.chroma_metadata import chroma_filter_from_article_block
 
 logger = logging.getLogger(__name__)
 
@@ -40,13 +42,23 @@ logger = logging.getLogger(__name__)
 # Helpers
 # ----------------------------------------------------------------------
 def _format_chunk_title(meta: dict) -> str:
+    def _one(label_key: str, raw) -> str:
+        if raw is None or raw == "":
+            return ""
+        s = str(raw).strip()
+        prefix = _SECTION_LABELS.get(label_key, "")
+        if prefix and s.startswith(prefix):
+            return s
+        return f"{prefix} {s}".strip() if prefix else s
+
     parts = []
-    if meta.get("dieu"):
-        parts.append(f"Điều {meta['dieu']}")
-    if meta.get("khoan"):
-        parts.append(f"Khoản {meta['khoan']}")
-    if meta.get("diem"):
-        parts.append(f"Điểm {meta['diem']}")
+    d, k, i = meta.get("dieu"), meta.get("khoan"), meta.get("diem")
+    if d is not None and d != "":
+        parts.append(_one("dieu", d))
+    if k is not None and k != "":
+        parts.append(_one("khoan", k))
+    if i is not None and i != "":
+        parts.append(_one("diem", i))
     title = " ".join(parts) if parts else "Điều khoản"
     so_hieu = meta.get("so_hieu")
     if so_hieu:
@@ -464,13 +476,9 @@ class LegalDocumentTools:
         try:
             so_hieu = self._resolve_so_hieu(article_block)
 
-            filter_data = {
-                "dieu": article_block.dieu,
-                "khoan": article_block.khoan,
-                "diem": article_block.diem,
-                "so_hieu": so_hieu,
-            }
-            where_filter = {k: v for k, v in filter_data.items() if v}
+            where_filter = chroma_filter_from_article_block(
+                article_block, so_hieu,
+            )
             if not where_filter:
                 return ToolOutput(
                     tool_name=tool_name, success=False,
@@ -603,13 +611,9 @@ class LegalDocumentTools:
                 source_chunk = hits[0] if hits else None
             elif article_block is not None:
                 so_hieu = self._resolve_so_hieu(article_block)
-                filter_data = {
-                    "dieu": article_block.dieu,
-                    "khoan": article_block.khoan,
-                    "diem": article_block.diem,
-                    "so_hieu": so_hieu,
-                }
-                where_filter = {k: v for k, v in filter_data.items() if v}
+                where_filter = chroma_filter_from_article_block(
+                    article_block, so_hieu,
+                )
                 if not where_filter:
                     return ToolOutput(
                         tool_name=tool_name, success=False,

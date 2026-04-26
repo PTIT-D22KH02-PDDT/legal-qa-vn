@@ -59,7 +59,7 @@ def handle_index_local():
     logger.info("\n[LOCAL INDEXING]")
     
     # file_path = input("Enter file path: ").strip()
-    file_path=r"C:\Users\LAPTOP HP\Downloads\data_raw_law\dan_su\luat\bo_luat_dan_su.docx"
+    file_path=r"C:\Users\LAPTOP HP\Downloads\data_raw_law\hinh_su\luat\bo_luat_hinh_su.doc"
     if not file_path:
         logger.warning("No file path provided")
         return

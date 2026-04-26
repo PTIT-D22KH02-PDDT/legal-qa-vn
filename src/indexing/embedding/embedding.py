@@ -30,13 +30,13 @@ class EmbeddingPipeline:
                     full_text.append(chunk.parent_context)
                 if chunk.full_text:
                     full_text.append(chunk.full_text)
-                # Tạo metadata dict, loại bỏ reference nếu rỗng (ChromaDB không cho phép list rỗng)
+                sec_meta = decode_section_id(section_id).model_dump(exclude_none=True)
                 metadata = {
-                    'full_text': "\n".join(full_text), 
-                    'parent_id': chunk.parent_id,
-                    'section_type': chunk.type,  # Dùng cho filter trong retrieval
-                    'num_chunk': stt+1,
-                    **decode_section_id(section_id).dict()  # Add so_hieu, dieu, khoan, etc
+                    "full_text": "\n".join(full_text),
+                    "parent_id": chunk.parent_id,
+                    "section_type": chunk.type,  # Dùng cho filter trong retrieval
+                    "num_chunk": stt + 1,
+                    **sec_meta,  # so_hieu, dieu (số), khoan, diem, ...
                 }
                 # Chỉ thêm reference nếu không rỗng
                 if chunk.reference:
