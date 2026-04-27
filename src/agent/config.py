@@ -139,6 +139,14 @@ class AgentConfig(BaseConfig):
                                                      'configs/prompts/answer_prompt.txt'),
         }
     
+    def get_planner_params(self) -> Dict[str, Any]:
+        """Plan 2: LLM lập lịch thứ tự tool + thực thi tuần tự."""
+        p = self.config.get("planner", {})
+        return {
+            "enabled": p.get("enabled", True),
+            "max_steps": p.get("max_steps", 6),
+        }
+    
     def get_monitoring_params(self) -> Dict[str, Any]:
         """Lấy monitoring parameters."""
         monitoring_config = self.config.get('monitoring', {})

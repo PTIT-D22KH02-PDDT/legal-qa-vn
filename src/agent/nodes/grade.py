@@ -24,6 +24,7 @@ from ..utils.chroma_metadata import (
     coverage_expected_from_article_block,
     coverage_field_matches,
 )
+from ..utils.retrieved_context import body_text_for_prompt_item
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +146,9 @@ def build_grade_node(
         # --- Tầng 2: LLM-as-judge về mặt ngữ nghĩa ---
         context_parts: List[str] = []
         for c in chunks:
-            text = c.get("text") or c.get("content") or c.get("display_text")
+            text = body_text_for_prompt_item(c) or (
+                c.get("text") or c.get("content") or c.get("display_text")
+            )
             if text:
                 meta = c.get("metadata") or c
                 title = meta.get("title") or c.get("title") or ""

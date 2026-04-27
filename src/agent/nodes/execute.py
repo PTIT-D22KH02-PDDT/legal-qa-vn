@@ -1,12 +1,8 @@
 """
-Node execute_tool + dispatcher dispatch_tools.
+Node execute_tool_chain + dispatcher dispatch_tools.
 
-Mỗi instance `execute_tool` được spawn qua `Send` (fan-out parallel).
-Kết quả (structured) được nối vào `tool_results` + `retrieved_chunks` nhờ
-reducer khai báo ở `state.py`.
-
-Tool nay trả về `ToolOutput` (Pydantic) thay vì string, nên node này
-giữ nguyên metadata xuống các node grade / generate / validate.
+Plan 2 (mức vừa): toàn bộ `tool_plan` chạy **tuần tự** trong một node
+(đúng thứ tự LLM planner / router).
 """
 
 from __future__ import annotations
@@ -14,8 +10,6 @@ from __future__ import annotations
 import logging
 import time
 from typing import Any, Callable, Dict, List
-
-from langgraph.constants import Send
 
 from ..schemas import AgentStep, ToolExecutionResult, ToolOutput
 from ..tools import LegalDocumentTools
@@ -42,117 +36,148 @@ def _coerce_to_tool_output(raw: Any, tool_name: str) -> ToolOutput:
     )
 
 
-def build_execute_node(
-    tools_provider: LegalDocumentTools,
-) -> Callable[[ToolTask], Dict[str, Any]]:
-    """Factory tạo node `execute_tool`."""
-    tools_dict = {t.name: t for t in tools_provider.get_tools_list()}
+def _invoke_single_task(
+    tools_dict: Dict[str, Any],
+    tool_name: str,
+    tool_input: Dict[str, Any],
+    step_num: int,
+) -> Dict[str, Any]:
+    """Một lần gọi tool → {tool_results, retrieved_chunks, errors?}."""
+    logger.info("[execute] tool=%s step=%d", tool_name, step_num)
+    start = time.time()
+    tool = tools_dict.get(tool_name)
 
-    def execute_tool(task: ToolTask) -> Dict[str, Any]:
-        tool_name = task["tool"]
-        tool_input = task.get("input") or {}
-        step_num = task.get("step_num", 0)
-
-        logger.info("[execute] tool=%s step=%d", tool_name, step_num)
-
-        start = time.time()
-        tool = tools_dict.get(tool_name)
-
-        if tool is None:
-            step = AgentStep(
-                step_number=step_num,
-                reasoning=f"Unknown tool: {tool_name}",
+    if tool is None:
+        step = AgentStep(
+            step_number=step_num,
+            reasoning=f"Unknown tool: {tool_name}",
+            tool_name=tool_name,
+            tool_input=tool_input,
+            result=ToolExecutionResult(
                 tool_name=tool_name,
-                tool_input=tool_input,
-                result=ToolExecutionResult(
-                    tool_name=tool_name, success=False,
-                    error="unknown tool",
-                    execution_time=time.time() - start,
-                ),
-            )
-            return {
-                "tool_results": [step],
-                "errors": [f"execute_tool: unknown tool {tool_name}"],
-            }
+                success=False,
+                error="unknown tool",
+                execution_time=time.time() - start,
+            ),
+        )
+        return {
+            "tool_results": [step],
+            "errors": [f"execute_tool: unknown tool {tool_name}"],
+        }
 
-        try:
-            raw = tool.invoke(tool_input)
-            output = _coerce_to_tool_output(raw, tool_name)
-            elapsed = time.time() - start
+    try:
+        raw = tool.invoke(tool_input)
+        output = _coerce_to_tool_output(raw, tool_name)
+        elapsed = time.time() - start
 
-            # Bắn structured items vào retrieved_chunks (giữ metadata đầy đủ).
-            # Nếu main item có nested `references`, flatten ra thành các item
-            # riêng có `_parent_chunk_id` + `_role="reference"` để downstream
-            # (grade/generate/validate) xử lý đồng nhất.
-            chunks: List[Dict[str, Any]] = []
-            for it in output.items:
-                if not isinstance(it, dict):
+        chunks: List[Dict[str, Any]] = []
+        for it in output.items:
+            if not isinstance(it, dict):
+                continue
+            main = {k: v for k, v in it.items() if k != "references"}
+            main["_tool"] = tool_name
+            main["_step"] = step_num
+            main["_role"] = "main"
+            chunks.append(main)
+
+            for ref in (it.get("references") or []):
+                if not isinstance(ref, dict):
                     continue
-                # Copy để không mutate ToolOutput.items
-                main = {k: v for k, v in it.items() if k != "references"}
-                main["_tool"] = tool_name
-                main["_step"] = step_num
-                main["_role"] = "main"
-                chunks.append(main)
+                ref_copy = dict(ref)
+                ref_copy["_tool"] = tool_name
+                ref_copy["_step"] = step_num
+                ref_copy["_role"] = "reference"
+                ref_copy["_parent_chunk_id"] = main.get("chunk_id")
+                chunks.append(ref_copy)
 
-                for ref in (it.get("references") or []):
-                    if not isinstance(ref, dict):
-                        continue
-                    ref_copy = dict(ref)
-                    ref_copy["_tool"] = tool_name
-                    ref_copy["_step"] = step_num
-                    ref_copy["_role"] = "reference"
-                    ref_copy["_parent_chunk_id"] = main.get("chunk_id")
-                    chunks.append(ref_copy)
-
-            step = AgentStep(
-                step_number=step_num,
-                reasoning=f"Execute {tool_name}",
+        step = AgentStep(
+            step_number=step_num,
+            reasoning=f"Execute {tool_name}",
+            tool_name=tool_name,
+            tool_input=tool_input,
+            result=ToolExecutionResult(
                 tool_name=tool_name,
-                tool_input=tool_input,
-                result=ToolExecutionResult(
-                    tool_name=tool_name,
-                    success=output.success,
-                    results=[{
+                success=output.success,
+                results=[
+                    {
                         "display_text": output.display_text,
                         "item_count": len(output.items),
-                    }],
-                    error=output.error,
-                    execution_time=elapsed,
-                ),
-            )
-            return {
-                "tool_results": [step],
-                "retrieved_chunks": chunks,
-            }
+                    }
+                ],
+                error=output.error,
+                execution_time=elapsed,
+            ),
+        )
+        return {
+            "tool_results": [step],
+            "retrieved_chunks": chunks,
+        }
 
-        except Exception as e:
-            elapsed = time.time() - start
-            logger.exception("[execute] tool=%s failed", tool_name)
-            step = AgentStep(
-                step_number=step_num,
-                reasoning=f"Execute {tool_name}",
+    except Exception as e:
+        elapsed = time.time() - start
+        logger.exception("[execute] tool=%s failed", tool_name)
+        step = AgentStep(
+            step_number=step_num,
+            reasoning=f"Execute {tool_name}",
+            tool_name=tool_name,
+            tool_input=tool_input,
+            result=ToolExecutionResult(
                 tool_name=tool_name,
-                tool_input=tool_input,
-                result=ToolExecutionResult(
-                    tool_name=tool_name, success=False,
-                    error=str(e), execution_time=elapsed,
-                ),
-            )
-            return {
-                "tool_results": [step],
-                "errors": [f"execute_tool[{tool_name}]: {e}"],
-            }
+                success=False,
+                error=str(e),
+                execution_time=elapsed,
+            ),
+        )
+        return {
+            "tool_results": [step],
+            "errors": [f"execute_tool[{tool_name}]: {e}"],
+        }
 
-    return execute_tool
+
+def build_execute_tool_chain_node(
+    tools_provider: LegalDocumentTools,
+) -> Callable[[AgentState], Dict[str, Any]]:
+    """Chạy lần lượt mọi task trong `tool_plan` (Plan 2)."""
+    tools_dict = {t.name: t for t in tools_provider.get_tools_list()}
+
+    def execute_tool_chain(state: AgentState) -> Dict[str, Any]:
+        plan: List[ToolTask] = state.get("tool_plan", []) or []
+        if not plan:
+            return {}
+
+        logger.info("[execute_chain] sequential %d step(s)", len(plan))
+        all_steps: List[AgentStep] = []
+        all_chunks: List[Dict[str, Any]] = []
+        all_errors: List[str] = []
+
+        for task in plan:
+            part = _invoke_single_task(
+                tools_dict,
+                task["tool"],
+                task.get("input") or {},
+                task.get("step_num", 0),
+            )
+            all_steps.extend(part.get("tool_results") or [])
+            all_chunks.extend(part.get("retrieved_chunks") or [])
+            all_errors.extend(part.get("errors") or [])
+
+        out: Dict[str, Any] = {
+            "tool_results": all_steps,
+            "retrieved_chunks": all_chunks,
+        }
+        if all_errors:
+            out["errors"] = all_errors
+        return out
+
+    return execute_tool_chain
 
 
 def dispatch_tools(state: AgentState):
-    """Conditional edge: fan-out qua `Send` hoặc skip sang generate."""
+    """Conditional edge: có plan → node chuỗi; không → generate."""
     plan: List[ToolTask] = state.get("tool_plan", []) or []
     if not plan:
         logger.info("[dispatch] empty plan → generate_answer")
         return "generate_answer"
 
-    logger.info("[dispatch] fan-out %d tool(s)", len(plan))
-    return [Send("execute_tool", task) for task in plan]
+    logger.info("[dispatch] sequential chain %d tool(s)", len(plan))
+    return "execute_tool_chain"

@@ -31,6 +31,11 @@ query_analyzer:
   use_fallback: true
   fallback_on_error: true
 
+# Plan 2: LLM sinh thứ tự gọi tool, thực thi tuần tự (metadata trước RAG khi cần)
+planner:
+  enabled: true
+  max_steps: 6
+
 # Router Configuration
 router:
   # Enable multi-block handling (query có multiple extracted_blocks)

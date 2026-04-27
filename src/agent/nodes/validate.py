@@ -20,6 +20,7 @@ from typing import Any, Callable, Dict, List, Optional
 from ..llms import ask_text
 from ..schemas import ValidationResult
 from ..graph.state import AgentState
+from ..utils.retrieved_context import body_text_for_prompt_item
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +117,9 @@ def _format_context(chunks: List[Dict[str, Any]], max_chars: int = 4000) -> str:
         if not isinstance(c, dict):
             continue
         title = c.get("title") or ""
-        text = c.get("text") or c.get("content") or c.get("display_text") or ""
+        text = body_text_for_prompt_item(c) or (
+            c.get("text") or c.get("content") or c.get("display_text") or ""
+        )
         header = f"[#{i}]" + (f" {title}" if title else "")
         parts.append(f"{header}\n{text}")
     return "\n\n".join(parts)[:max_chars]
