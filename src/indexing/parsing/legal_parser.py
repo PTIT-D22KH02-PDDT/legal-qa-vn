@@ -595,11 +595,11 @@ class ParseLegal:
                                 dieu_con.append(current_diem)
 
                         #Tao Diem moi
-                        parent_id=current_khoan['type_id'] if current_khoan is not None else dieu_id
+                        diem_parent_id=current_khoan['type_id'] if current_khoan is not None else dieu_id
                         current_diem={
                             'type':'diem',
-                            'type_id': f"{parent_id}.diem_{praw}",
-                            'parent_id':parent_id,
+                            'type_id': f"{diem_parent_id}.diem_{praw}",
+                            'parent_id':diem_parent_id,
                             'lines':[pline]
                         }
                     else :
