@@ -18,12 +18,12 @@ SECTION_TYPE_NAMES = {
 
 def _remove_chunk_suffix(level: str) -> str:
     """
-    Xóa sufix counter ở cuối level nếu có (tình huống document có chunk_id trùng nhau và được đánh số đuôi _N).
-    Ví dụ: diem_2_0 -> diem_2; diem_3_2_0 -> diem_3_2
+    Xóa sufix counter ở cuối level nếu có (tình huống document có chunk_id trùng nhau và được đánh số đuôi __dup_N).
+    Ví dụ: dieu_6__dup_0 -> dieu_6; khoan_1__dup_2 -> khoan_1
     """
 
-    if level.count('_') >= 2:
-        prefix, suffix = level.rsplit('_', 1)
+    if '__dup_' in level:
+        prefix, suffix = level.rsplit('__dup_', 1)
         if suffix.isdigit():
             return prefix
     return level

@@ -50,29 +50,6 @@ class RetrievalService:
             raise ValueError(f"Failed to embed query: {query}")
         return result[0].vector
 
-    def _extract_section_type(self, section_id: str) -> str:
-        """
-        Lấy loại section từ section_id
-        VD: "phan_5.chuong_xxv.dieu_663.khoan_1" -> "khoan"
-        """
-        parts = section_id.split('.')
-        if not parts:
-            return ""
-        last_part = parts[-1]
-        type_name = last_part.split('_')[0]
-        return type_name
-
-    def _build_filter_metadata(self, filter_by_type: Optional[List[str]]) -> Optional[Dict[str, Any]]:
-        """Xây dựng filter metadata cho ChromaDB"""
-        if not filter_by_type:
-            return None
-        
-        # ChromaDB sử dụng where clauses để filter
-        # VD: {"section_type": {"$in": ["dieu", "khoan"]}}
-        return {
-            "section_type": {"$in": filter_by_type}
-        }
-
     def _process_chroma_results(
         self,
         chroma_results: List[ChromaQueryResult]
@@ -82,14 +59,17 @@ class RetrievalService:
         
         for chroma_result in chroma_results:
             section_id = chroma_result.chunk_id
-            section_type = self._extract_section_type(section_id)
             
             # Trả về distance từ ChromaDB
             distance = chroma_result.distance
             
+            section_metadata = decode_section_id(section_id)
+            section_display = section_metadata.display()
+            section_type = section_metadata.get_section_type()
+            
             result = RetrieveResult(
                 section_id=section_id,
-                section_display=decode_section_id(section_id),
+                section_display=section_display,
                 text=chroma_result.text,
                 distance=distance,
                 section_type=section_type,

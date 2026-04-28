@@ -118,7 +118,7 @@ class HierarchicalChunker:
                 chunk_id_counters[node_id] += 1
             else:
                 chunk_id_counters[node_id] = 0
-            unique_id = f"{node_id}_{chunk_id_counters[node_id]}"
+            unique_id = f"{node_id}__dup_{chunk_id_counters[node_id]}"
         else:
             # No duplicate - keep ID as is
             unique_id = node_id
