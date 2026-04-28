@@ -27,6 +27,7 @@ dependencies = [
     "pyyaml>=6.0",
     "transformers>=4.45,<5",
     "torch>=2.7,<2.10",
+    "sentence-transformers>=5.4.1",
 ]
 
 [tool.setuptools.packages.find]
