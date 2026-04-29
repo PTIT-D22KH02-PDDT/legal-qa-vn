@@ -44,15 +44,21 @@ class PipelineConfig(BaseConfig):
         """Lấy reranker model parameters."""
         reranker_config = self.config.get('reranker', {})
         model_dir = reranker_config.get('model_dir')
-        
+
+        # Default to bundled model if not specified
         if model_dir is None:
             model_dir = str(self._get_root_dir() / "models" / "mmarco-mMiniLMv2-L12-H384-v1")
         else:
+            # If the provided value points to an existing local path (absolute or relative),
+            # resolve it to an absolute path. Otherwise treat it as a HuggingFace repo id
+            # (e.g. "owner/repo") and leave it as-is so transformers can download it.
             model_path = Path(model_dir)
-            if not model_path.is_absolute():
-                model_dir = str(self._get_root_dir() / model_dir)
+            root_dir = self._get_root_dir()
+            local_candidate = model_path if model_path.is_absolute() else (root_dir / model_path)
+            if local_candidate.exists():
+                model_dir = str(local_candidate.resolve())
             else:
-                model_dir = str(model_path)
+                model_dir = str(model_dir)
         
         return {
             'model_dir': model_dir,
