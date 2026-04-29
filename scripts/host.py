@@ -348,12 +348,9 @@ def generate(req: GenerateRequest):
                 }
                 output_ids = llm_model.generate(**inputs, **gen_kwargs)
 
-        full_text = llm_tokenizer.decode(output_ids[0], skip_special_tokens=True)
-
-        if full_text.startswith(req.prompt):
-            answer = full_text[len(req.prompt):].strip()
-        else:
-            answer = full_text.strip()
+        prompt_token_count = inputs["input_ids"].shape[1]
+        answer_ids = output_ids[0][prompt_token_count:]
+        answer = llm_tokenizer.decode(answer_ids, skip_special_tokens=True).strip()
 
         return {
             "prompt": req.prompt,

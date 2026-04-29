@@ -92,6 +92,12 @@ def build_search_service(
         else:
             reranker = build_local_reranker()
 
+    if reranker is not None:
+        try:
+            reranker.startup()
+        except Exception as exc:
+            logger.warning("Failed to startup reranker: %s", exc)
+
     return SearchService(
         chroma_store=chroma_store,
         embedding_model=embedding_model,

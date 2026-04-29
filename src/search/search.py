@@ -138,6 +138,8 @@ class SearchService:
         
         # 2. Rerank (nếu có)
         if use_rerank and self.reranker:
+            if query is None:
+                raise ValueError("Reranking requires query text, but query is None")
             logger.info(f"Reranking {len(candidates)} candidates with top_k_rerank={top_k_rerank}")
             reranked_results = self.reranker.rerank(
                 query=query,
