@@ -28,7 +28,7 @@ vector_store:
   distance_metric: "ip"
 
 reranker:
-  model_name: "AITeamVN/Vietnamese_Reranker"
+  model_dir: "AITeamVN/Vietnamese_Reranker"
   device: "cpu"
   batch_size: 32
   normalize_scores: true
