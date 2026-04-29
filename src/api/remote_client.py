@@ -88,28 +88,27 @@ class RemoteAPIClient:
     
     def embed_requests(self, requests: List) -> List:
         """
-        Adapter để nhận List[EmbeddingRequest] và return List[EmbeddingResult]
-        Dùng khi thay thế local embedding model
-        
-        Args:
-            requests: List of EmbeddingRequest
-        
-        Returns:
-            List[EmbeddingResult]
+        Adapter để nhận List[EmbeddingRequest] và return List[EmbeddingResult].
+        Dùng khi thay thế local embedding model.
         """
         from src.indexing.embedding.schemas import EmbeddingResult
-        
+
         texts = [req.text for req in requests]
         embeddings = self.embed(texts)
-        
+
         results = []
         for i, req in enumerate(requests):
-            results.append(EmbeddingResult(
-                chunk_id=req.chunk_id,
-                num_chunk=req.num_chunk,
-                embedding=embeddings[i].tolist(),
-                embedding_length=len(embeddings[i])
-            ))
+            results.append(
+                EmbeddingResult(
+                    chunk_id=req.chunk_id,
+                    num_chunk=req.num_chunk,
+                    text=req.text,
+                    vector=embeddings[i].tolist(),
+                    token_count=None,
+                    metadata=req.metadata,
+                )
+            )
+
         return results
     
     def rerank(

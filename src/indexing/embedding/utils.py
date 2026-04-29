@@ -167,7 +167,7 @@ def create_embedding_request(
     Args:
         text: Nội dung text cần embedding
         chunk_id: Optional ID (dùng cho chunks, query không cần)
-        num_chunk: Số lượng chunks
+        num_chunk: Số thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
         metadata: Metadata liên quan đến chunk
 
     Returns:

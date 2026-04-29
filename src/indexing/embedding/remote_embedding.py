@@ -82,7 +82,8 @@ class RemoteEmbeddingModel:
                             num_chunk=req.num_chunk,
                             text=req.text,
                             vector=embedding_vector,
-                            token_count=None  # Remote API không cung cấp token count
+                            token_count=None,
+                            metadata=req.metadata
                         )
                         results.append(result)
                 

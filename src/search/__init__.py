@@ -1,16 +1,8 @@
-"""Search module - Unified vector search + re-ranking pipeline."""
-
-from .pipeline import SearchPipeline
-from .config import PipelineConfig
-from .retrieval import RetrievalService, RetrieveQuestionRequest, RetrieveResult
-from .rerank import CrossEncoderReranker, RankedResult
+from .search import SearchService
+from .reranker import CrossEncoderReranker, RemoteReranker
 
 __all__ = [
-    "SearchPipeline",
-    "PipelineConfig",
-    "RetrievalService",
-    "RetrieveQuestionRequest",
-    "RetrieveResult",
+    "SearchService",
     "CrossEncoderReranker",
-    "RankedResult",
+    "RemoteReranker",
 ]

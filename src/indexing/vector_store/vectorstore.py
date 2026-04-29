@@ -14,12 +14,17 @@ class VectorStorePipeline(BaseModel):
         for embedding in self.embeddings:
             if not embedding.chunk_id:
                 raise ValueError(f"EmbeddingResult thiếu chunk_id: {embedding}")
+            metadata = dict(embedding.metadata or {})
+            if embedding.num_chunk is not None:
+                metadata.setdefault("num_chunk", embedding.num_chunk)
+
             requests.append(
                 ChromaUpsertRequest(
                     chunk_id=embedding.chunk_id,
+                    num_chunk=embedding.num_chunk,
                     text=embedding.text,
                     vector=embedding.vector,
-                    metadata=embedding.metadata
+                    metadata=metadata
                 )
             )
         return requests
