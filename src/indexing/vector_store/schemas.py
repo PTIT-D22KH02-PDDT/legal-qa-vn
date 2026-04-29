@@ -35,12 +35,13 @@ class ChromaUpsertRequest(BaseModel):
         num_chunk: Số thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
         text: Nội dung của chunk, lấy từ EmbeddingResult.text
         vector: Vector embedding của chunk, lấy từ EmbeddingResult.vector
+        metadata: Metadata của chunk
     """
     chunk_id: str
     num_chunk: Optional[int] = None 
     vector: List[float]         
     text: str                   
-    metadata: Dict[str, Any]    
+    metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
 class ChromaQueryRequest(BaseModel):
@@ -51,13 +52,13 @@ class ChromaQueryRequest(BaseModel):
         query: Văn bản truy vấn, được tạo ra từ module embedding
         query_vector: Vector embedding của câu truy vấn, được tạo ra từ module embedding
         top_k: Số lượng kết quả trả về
-        filter: Bộ lọc theo metadata cho ChromaDB nếu cần, ví dụ {"section_id": "section_1"}
+        metadata_filter: Bộ lọc theo metadata cho ChromaDB nếu cần, ví dụ {"section_id": "section_1"}
 
     """
     query: Optional[str] = None
     query_vector: Optional[List[float]] = None  
     top_k: int = Field(5, ge=1, le=100, description="Số lượng kết quả trả về")
-    filter: Optional[Dict[str, Any]] = None
+    metadata_filter: Optional[Dict[str, Any]] = None
     score_threshold: Optional[float] = Field(None, description="Ngưỡng điểm số để lọc kết quả, chỉ trả về các kết quả có điểm số thấp hơn ngưỡng này")
 
     @model_validator(mode='after')
@@ -82,6 +83,6 @@ class ChromaQueryResult(BaseModel):
     """
     chunk_id: str
     text: str
-    metadata: Dict[str, Any]
+    metadata: Dict[str, Any] = Field(default_factory=dict)
     distance: float
     score_rerank: Optional[float] = None

@@ -50,7 +50,7 @@ class ChromaStore:
             query_embeddings = [request.query_vector],
             n_results = request.top_k,
             include=['documents', 'metadatas', 'distances'],
-            **({'where': request.filter} if request.filter else {})
+            **({'where': request.metadata_filter} if request.metadata_filter else {})
         )
     
         return [

@@ -17,6 +17,7 @@ class VectorStorePipeline(BaseModel):
             requests.append(
                 ChromaUpsertRequest(
                     chunk_id=embedding.chunk_id,
+                    num_chunk=embedding.num_chunk,
                     text=embedding.text,
                     vector=embedding.vector,
                     metadata=embedding.metadata
