@@ -1,0 +1,190 @@
+# HƯỚNG DẪN CHI TIẾT TRÍCH XUẤT THỰ THỂ PHÁP LÝ
+
+## PHẦN 1: ĐỊNH NGHĨA CHI TIẾT CÁC NHÃN ENTITY
+
+### LEVEL 3 - FOUNDATIONS (Mỏ neo pháp lý)
+
+**SUBJECT** (Chủ thể - các cá nhân/tổ chức bị ảnh hưởng)
+- Là ai, gì đó có quyền hoặc nghĩa vụ
+- VD: "cá nhân", "pháp nhân", "nhà nước", "cơ quan công an", "người lao động"
+- CHÚ Ý: Trích TẤT CẢ SUBJECT, không bỏ sót. Nếu văn bản nói "cá nhân và pháp nhân", phải trích 2 entity riêng
+- KHÔNG TRÍCH: Các động từ hành động như "vi phạm", "phạt"
+
+**LEGAL_CONCEPT** (Khái niệm pháp lý - ý tưởng/quy tắc trừu tượng)
+- Các khái niệm cơ bản: "phạm vi điều chỉnh", "quan hệ dân sự", "tài sản", "quyền dân sự"
+- Các nguyên tắc: "bình đẳng", "tự do ý chí", "tự chịu trách nhiệm"
+- KHÔNG TRÍCH: Các hành động cụ thể hoặc sự kiện
+
+**DEFINITION** (Định nghĩa - giải thích cho khái niệm)
+- Là mô tả chi tiết về ý nghĩa của một khái niệm
+- VD: "Tài sản là những giá trị kinh tế thuộc sở hữu"
+- Thường có dấu hiệu: "là", "gọi là", "được hiểu là"
+- Liên kết với LEGAL_CONCEPT bằng DEFINES
+
+**STANDARD_CONDITION** (Điều kiện chuẩn - hoàn cảnh, điều kiện áp dụng)
+- Khi nào, ở đâu, dưới như thế nào cái gì được áp dụng
+- VD: "trên cơ sở bình đẳng", "trong trường hợp cần thiết", "tại nơi vi phạm"
+- Dấu hiệu: "trong trường hợp", "nếu", "khi", "trên cơ sở"
+- Liên kết bằng MEETS_CONDITION
+
+**OBJECT_EQUIPMENT** (Đối tượng/thiết bị - vật thể bị tác động)
+- Những cái vật: "xe máy", "giấy phép lái xe", "tài sản", "bất động sản"
+- Các loại tài liệu: "hợp đồng", "giấy tờ"
+- Dấu hiệu: "của", "liên quan đến" cái vật cụ thể
+
+**DOCUMENT_RECORD** (Tài liệu/quy định - luật, nghị định, điều khoản)
+- "Điều 1", "Khoản 2", "Bộ luật dân sự", "Điều 3 của Bộ luật này"
+- Dùng khi nói "sửa đổi", "bãi bỏ", "thay thế"
+
+### LEVEL 2 - RULES & ACTIONS (Quy định & Hành vi)
+
+**VIOLATION** (Vi phạm - hành vi sai trái)
+- Những hành động cấm, không được làm
+- VD: "không đội mũ bảo hiểm", "lái xe vượt tốc độ", "không thanh toán nợ"
+- Dấu hiệu: "không", "cấm", "vi phạm"
+- Liên kết từ SUBJECT bằng COMMITS
+
+**RIGHT_OBLIGATION** (Quyền/Nghĩa vụ - được làm gì hoặc phải làm gì)
+- Tích cực: "có quyền...", "được...", "bảo đảm", "bảo vệ"
+- Tiêu cực: "có nghĩa vụ...", "phải...", "tự chịu trách nhiệm"
+- VD: "được công nhận quyền", "phải thanh toán", "có trách nhiệm bồi thường"
+
+**PROHIBITED_EXCLUDED** (Cấm hoặc loại trừ - điều không được làm/áp dụng)
+- VD: "không được hạn chế", "loại trừ trường hợp", "không được phân biệt"
+- Rõ ràng là cách diễn đạt "cấm"
+
+**PROCEDURE_ACTION** (Thủ tục/Hành động cụ thể - quy trình phải làm)
+- Các bước, thủ tục: "nộp đơn", "xin phép", "kiểm tra"
+- Hành động cụ thể của cơ quan: "cấp giấy phép", "tạm giữ", "xử phạt"
+- Dấu hiệu: động từ hành động cụ thể + ai làm
+
+### LEVEL 3 - ATTRIBUTES & MEASURES (Thuộc tính & Biện pháp)
+
+**PENALTY_MEASURE** (Biện pháp xử phạt - hình phạt, xử lý)
+- VD: "phạt tiền", "tước quyền lái xe", "tòa án tuyên bố"
+- Thường theo sau VIOLATION
+- Liên kết bằng HAS_PENALTY
+
+**MONEY_AMOUNT** (Số tiền - giá trị tài chính)
+- Phải có "min" và "max" (số nguyên VND)
+- VD: "từ 400.000 đến 600.000 đồng" → min=400000, max=600000
+- "phạt tối đa 2 triệu" → min=0, max=2000000
+- KHÔNG trích tiền nếu không phải là biện pháp phạt
+
+**POINT_DEDUCTION** (Trừ điểm - trong hệ thống điểm)
+- VD: "bị trừ 12 điểm"
+- Dấu hiệu: "trừ", "mất điểm"
+
+**TIME_DURATION** (Thời gian - khoảng thời gian áp dụng)
+- VD: "từ 1 tháng đến 3 tháng", "6 tháng", "2 năm"
+- Liên kết bằng HAS_DURATION
+
+**PERCENTAGE** (Phần trăm - tỷ lệ)
+- VD: "tối đa 50%", "từ 10% đến 20%"
+
+---
+
+## PHẦN 2: LƯỢC ĐỒ QUAN HỆ CHI TIẾT
+
+| ID | Relationship | From | To | Ý nghĩa |
+|---|---|---|---|---|
+| 1 | HAS_RIGHT_OBLIGATION | SUBJECT | RIGHT_OBLIGATION | Chủ thể có quyền/nghĩa vụ gì |
+| 2 | IS_PROHIBITED_OR_EXCLUDED | SUBJECT | PROHIBITED_EXCLUDED | Chủ thể bị cấm/loại trừ |
+| 3 | COMMITS | SUBJECT | VIOLATION | Chủ thể phạm vi phạm |
+| 4 | EXECUTES_ACTION | SUBJECT | PROCEDURE_ACTION | Chủ thể thực hiện thủ tục |
+| 5 | MEETS_CONDITION | Bất kỳ entity | STANDARD_CONDITION | Entity này áp dụng trong điều kiện nào |
+| 6 | HAS_PENALTY | VIOLATION / SUBJECT | PENALTY_MEASURE | Vi phạm có hình phạt gì |
+| 7 | HAS_MONEY_AMOUNT | VIOLATION / SUBJECT / PROCEDURE_ACTION | MONEY_AMOUNT | Có liên quan đến số tiền bao nhiêu |
+| 8 | DEDUCTS_POINT | VIOLATION | POINT_DEDUCTION | Vi phạm bị trừ bao nhiêu điểm |
+| 9 | HAS_AUTHORITY | SUBJECT | VIOLATION / PENALTY_MEASURE | Chủ thể có quyền lực gì |
+| 10 | REQUIRES_DOCUMENT | PROCEDURE_ACTION / SUBJECT | DOCUMENT_RECORD | Thủ tục/chủ thể cần tài liệu nào |
+| 11 | HAS_DURATION | PENALTY_MEASURE / PROCEDURE_ACTION | TIME_DURATION | Hình phạt/thủ tục kéo dài bao lâu |
+| 12 | APPLIES_TO_OBJECT | PROCEDURE_ACTION / VIOLATION | OBJECT_EQUIPMENT | Thủ tục/vi phạm tác động đến vật gì |
+| 13 | DEFINES | LEGAL_CONCEPT | DEFINITION / LEGAL_CONCEPT | Khái niệm này định nghĩa/nối với khái niệm khác |
+| 14 | HAS_PERCENTAGE | VIOLATION / RIGHT_OBLIGATION | PERCENTAGE | Vi phạm/quyền có tỷ lệ gì |
+| 15 | AMENDS | DOCUMENT_RECORD | DOCUMENT_RECORD | Quy định này sửa đổi quy định khác |
+| 16 | REPEALS | DOCUMENT_RECORD | DOCUMENT_RECORD | Quy định này bãi bỏ quy định khác |
+
+---
+
+## PHẦN 3: VÍ DỤ THỰC TIỄN & ANTI-PATTERNS
+
+### Ví dụ 1: Bài vi phạm (Luật Giao thông)
+**Văn bản:** "Người điều khiển xe máy không đội mũ bảo hiểm bị phạt tiền từ 400.000 đến 600.000 đồng hoặc tước bằng lái 1-3 tháng."
+
+**Trích xuất đúng:**
+- e1: SUBJECT "Người điều khiển xe máy"
+- e2: VIOLATION "Không đội mũ bảo hiểm"
+- e3: MONEY_AMOUNT "400.000-600.000 đồng" (min=400000, max=600000)
+- e4: PENALTY_MEASURE "Tước bằng lái xe"
+- e5: TIME_DURATION "1-3 tháng"
+- Relationships: COMMITS(e1→e2), HAS_MONEY_AMOUNT(e2→e3), HAS_PENALTY(e2→e4), HAS_DURATION(e4→e5)
+
+**SAI - Những gì KHÔNG nên làm:**
+- ❌ Không tách "người" và "xe máy" thành 2 SUBJECT
+- ❌ Không trích "phạt tiền" là VIOLATION (nó là PENALTY_MEASURE)
+- ❌ Không bỏ MONEY_AMOUNT chỉ vì không phải lỗi
+- ❌ Không tạo relationship tới e5 nếu không có e4
+
+### Ví dụ 2: Bài định nghĩa (Điều 1, Luật dân sự)
+**Văn bản:** "Cá nhân, pháp nhân đều bình đẳng. Quyền dân sự được công nhận, tôn trọng, bảo vệ."
+
+**Trích xuất đúng:**
+- e1: SUBJECT "Cá nhân"
+- e2: SUBJECT "Pháp nhân"
+- e3: LEGAL_CONCEPT "Quyền dân sự"
+- e4: STANDARD_CONDITION "Bình đẳng"
+- e5: RIGHT_OBLIGATION "Được công nhận, tôn trọng, bảo vệ"
+- Relationships: MEETS_CONDITION(e1→e4), MEETS_CONDITION(e2→e4), HAS_RIGHT_OBLIGATION(e1→e5), HAS_RIGHT_OBLIGATION(e2→e5)
+
+**SAI:**
+- ❌ Không trích "công nhận" là VIOLATION (nó là RIGHT_OBLIGATION)
+- ❌ Không bỏ SUBJECT chỉ vì không có vi phạm
+- ❌ Không lưa chọn chỉ e1 hoặc e2 (phải trích CẢ HAI)
+
+### Ví dụ 3: Bài có sửa đổi
+**Văn bản:** "Sửa đổi Điều 5 của Bộ luật này. Thay thế bằng: Tài sản không gắn liền với nhân thân được gọi là tài sản riêng."
+
+**Trích xuất đúng:**
+- e1: DOCUMENT_RECORD "Điều 5 (cũ)"
+- e2: DOCUMENT_RECORD "Điều 5 (mới): Tài sản không gắn liền..."
+- e3: LEGAL_CONCEPT "Tài sản riêng"
+- Relationships: AMENDS(e2→e1), DEFINES(e3→definition)
+
+---
+
+## PHẦN 4: EXTRACTION CHECKLIST (Danh sách kiểm tra)
+
+Trước khi trả về JSON, kiểm tra:
+
+□ **Có bỏ sót SUBJECT nào không?** (Liệt kê tất cả cá nhân/tổ chức đề cập)
+□ **Có bỏ sót VIOLATION nào không?** (Tất cả hành vi cấm, sai trái)
+□ **Có bỏ sót RIGHT_OBLIGATION nào không?** (Tất cả quyền và nghĩa vụ)
+□ **Có bỏ sót PENALTY_MEASURE nào không?** (Tất cả hình phạt)
+□ **Mỗi MONEY_AMOUNT có min, max không?** (Kiểm tra dữ liệu số)
+□ **Mỗi relationship có entity nguồn & đích không?** (Không có dangling edges)
+□ **Loại relationship có đúng không?** (So sánh với bảng LƯỢC ĐỒ QUAN HỆ)
+□ **Entity trong mỗi level có ID duy nhất không?** (e1, e2, e3... không trùng)
+□ **Trường 'value' giữ nguyên văn phong không?** (Không tóm tắt hoặc biến đổi)
+
+---
+
+## PHẦN 5: KỸ THUẬT TRÍCH XUẤT NÂNG CAO
+
+**Chain-of-Thought trước JSON:**
+Trước khi output JSON, suy nghĩ:
+1. Văn bản nói về CHỦTHỂ nào? (SUBJECT)
+2. Các chủ thể có QUYỀN/NGHĨA VỤ gì? (RIGHT_OBLIGATION)
+3. Có VI PHẠM/BỊ CẤM nào không? (VIOLATION, PROHIBITED_EXCLUDED)
+4. Vi phạm có HẢI QUẢ gì? (PENALTY, MONEY, TIME)
+5. Có THỦTỤC cần thực hiện không? (PROCEDURE_ACTION)
+6. Có ĐIỀU KIỆN áp dụng không? (STANDARD_CONDITION)
+7. Các quan hệ giữa chúng là gì?
+
+**Chiến lược tìm kiếm:**
+- Tìm tất cả danh từ chỉ người/tổ chức → SUBJECT
+- Tìm tất cả động từ hành động → VIOLATION hoặc PROCEDURE_ACTION
+- Tìm tất cả danh từ chỉ hình phạt → PENALTY_MEASURE
+- Tìm tất cả số tiền → MONEY_AMOUNT
+- Tìm tất cả con số thời gian → TIME_DURATION
+- Tìm tất cả điều kiện (if, when, khi, nếu) → STANDARD_CONDITION
