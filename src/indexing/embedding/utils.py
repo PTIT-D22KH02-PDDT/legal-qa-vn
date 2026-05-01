@@ -45,7 +45,7 @@ def decode_section_id(chunk_id: str) -> ChunkMetadata:
         91_2015_qh13.dieu_6.khoan_1.diem_a
     Thành:
         ChunkMetadata(
-            van_ban="91_2015_qh13",
+            so_hieu="91_2015_qh13",
             dieu="Điều 6",
             khoan="Khoản 1",
             diem="Điểm a"
@@ -73,7 +73,7 @@ def decode_section_id(chunk_id: str) -> ChunkMetadata:
     if not levels:
         raise ValueError(f"Invalid chunk_id format: {chunk_id}. No levels found.")
     
-    metadata = ChunkMetadata(van_ban=levels[0])
+    metadata = ChunkMetadata(so_hieu=levels[0])
 
     for raw_level in levels[1:]:
         level = _remove_chunk_suffix(raw_level)
@@ -158,7 +158,7 @@ def create_chunk_embedding_metadata(chunk: DocumentNode) -> dict[str, Any]:
 def create_embedding_request(
         text: str, 
         chunk_id: str | None = None, 
-        num_chunk: int | None = None,
+        chunk_index: int | None = None,
         metadata: dict[str, Any] | None = None
     ) -> EmbeddingRequest:
     """
@@ -167,11 +167,16 @@ def create_embedding_request(
     Args:
         text: Nội dung text cần embedding
         chunk_id: Optional ID (dùng cho chunks, query không cần)
-        num_chunk: Số thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
+        chunk_index: Vị trí/thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
         metadata: Metadata liên quan đến chunk
 
     Returns:
         EmbeddingRequest object
     """
-    return EmbeddingRequest(chunk_id=chunk_id, text=text, num_chunk=num_chunk, metadata=metadata or {})
+    return EmbeddingRequest(
+        chunk_id=chunk_id,
+        text=text,
+        chunk_index=chunk_index,
+        metadata=metadata or {},
+    )
 

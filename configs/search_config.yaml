@@ -9,14 +9,37 @@ pipeline:
     top_k: 5
     use_cross_encoder: true
 
+search:
+  local:
+    top_k_retrieve: 10
+    top_k_rerank: 5
+    use_rerank: true
+
+  remote:
+    top_k_retrieve: 60
+    top_k_rerank: 5
+    use_remote_embedding: true
+    use_rerank: true
+    use_remote_rerank: true
+
+rag:
+  top_k_retrieve: 10
+  top_k_rerank: 5
+  use_rerank: true
+  use_remote_embedding: true
+  use_remote_rerank: true
+  prompt_template_path: "configs/prompts/rag_answer_prompt.txt"
+  max_context_length: 30000
+  max_answer_length: 8000
+  temperature: 0.5
+  score_threshold: null
+
 chunking:
   strategy: "hierarchical"
-  params:
-    max_chunk_size: 512
-    min_chunk_size: 50
 
 embedding:
-  model_dir: null
+  model_dir: "models/Vietnamese_Embedding_v2"
+  onnx_path: null
   pooling: "auto"
   max_length: 256
   normalize: false
@@ -25,6 +48,7 @@ embedding:
 vector_store:
   collection_name: "legal_documents"
   is_persist: true
+  persist_directory: "chroma_db"
   distance_metric: "ip"
 
 reranker:

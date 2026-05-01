@@ -1,39 +1,68 @@
 import logging
 from pathlib import Path
+from typing import Any
+
+import yaml
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-
-DEFAULT_COLLECTION_NAME = "legal_documents"
-DEFAULT_CHROMA_DIR = PROJECT_ROOT / "chroma_db"
-DEFAULT_EMBEDDING_MODEL_DIR = PROJECT_ROOT / "models" / "Vietnamese_Embedding_v2"
-DEFAULT_RERANKER_MODEL_NAME = "AITeamVN/Vietnamese_Reranker"
+CONFIG_PATH = PROJECT_ROOT / "configs" / "search_config.yaml"
 
 
-def build_chroma_store():
+def load_config(config_path: str | Path = CONFIG_PATH) -> dict[str, Any]:
+    """Load runtime config from YAML."""
+    path = Path(config_path)
+    if not path.is_absolute():
+        path = PROJECT_ROOT / path
+
+    with path.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
+
+
+def resolve_project_path(value: str | None) -> str | None:
+    """Resolve relative paths from project root."""
+    if value is None:
+        return None
+
+    path = Path(value)
+    if not path.is_absolute():
+        path = PROJECT_ROOT / path
+    return str(path)
+
+
+APP_CONFIG = load_config()
+
+
+def build_chroma_store(app_config: dict[str, Any] | None = None):
     """Build ChromaStore."""
     from src.indexing.vector_store import ChromaConfig
     from src.indexing.vector_store.chroma_store import ChromaStore
 
+    config_data = (app_config or APP_CONFIG)["vector_store"]
     config = ChromaConfig(
-        collection_name=DEFAULT_COLLECTION_NAME,
-        persist_directory=str(DEFAULT_CHROMA_DIR),
-        distance_metric="ip",
-        is_persist=True,
+        collection_name=config_data["collection_name"],
+        persist_directory=resolve_project_path(config_data.get("persist_directory")),
+        distance_metric=config_data["distance_metric"],
+        is_persist=config_data["is_persist"],
     )
 
     return ChromaStore(config=config)
 
 
-def build_local_embedding_model():
+def build_local_embedding_model(app_config: dict[str, Any] | None = None):
     """Build local ONNX embedding model."""
     from src.indexing.embedding.onnx_embedding import OnnxEmbeddingModel
 
+    config_data = (app_config or APP_CONFIG)["embedding"]
     return OnnxEmbeddingModel(
-        model_dir=str(DEFAULT_EMBEDDING_MODEL_DIR),
+        model_dir=resolve_project_path(config_data["model_dir"]),
+        pooling=config_data["pooling"],
+        max_length=config_data["max_length"],
+        normalize=config_data["normalize"],
+        onnx_path=resolve_project_path(config_data.get("onnx_path")),
     )
 
 
@@ -44,14 +73,16 @@ def build_remote_embedding_model(api_client):
     return RemoteEmbeddingModel(api_client)
 
 
-def build_local_reranker():
+def build_local_reranker(app_config: dict[str, Any] | None = None):
     """Build local cross-encoder reranker."""
     from src.search import CrossEncoderReranker
 
+    config_data = (app_config or APP_CONFIG)["reranker"]
     return CrossEncoderReranker(
-        model_name=DEFAULT_RERANKER_MODEL_NAME,
-        max_length=2304,
-        batch_size=32,
+        model_name=config_data["model_dir"],
+        max_length=config_data["max_length"],
+        device=config_data.get("device"),
+        batch_size=config_data["batch_size"],
     )
 
 
@@ -67,19 +98,21 @@ def build_search_service(
     use_remote_embedding: bool = True,
     use_rerank: bool = True,
     use_remote_rerank: bool = True,
+    app_config: dict[str, Any] | None = None,
 ):
     """Build SearchService from selected runtime options."""
     from src.api import RemoteAPIClient
     from src.search import SearchService
 
-    chroma_store = build_chroma_store()
+    app_config = app_config or APP_CONFIG
+    chroma_store = build_chroma_store(app_config)
 
     api_client = RemoteAPIClient() if (use_remote_embedding or use_remote_rerank) else None
 
     if use_remote_embedding:
         embedding_model = build_remote_embedding_model(api_client)
     else:
-        embedding_model = build_local_embedding_model()
+        embedding_model = build_local_embedding_model(app_config)
 
     reranker = None
 
@@ -89,7 +122,7 @@ def build_search_service(
                 api_client = RemoteAPIClient()
             reranker = build_remote_reranker(api_client)
         else:
-            reranker = build_local_reranker()
+            reranker = build_local_reranker(app_config)
 
     if reranker is not None:
         try:
@@ -116,7 +149,9 @@ def print_search_results(results):
         logger.info("=" * 70)
         logger.info("Result #%d", index)
         logger.info("Chunk ID: %s", result.chunk_id)
-        logger.info("Distance: %.4f", result.distance)
+
+        if result.distance is not None:
+            logger.info("Distance: %.4f", result.distance)
 
         if result.score_rerank is not None:
             logger.info("Rerank score: %.4f", result.score_rerank)
@@ -142,6 +177,7 @@ def handle_index_local():
         result = process_document(
             file_path=file_path,
             use_remote_api=False,
+            config_path=CONFIG_PATH,
         )
 
         logger.info("Indexing result: %s", result)
@@ -165,6 +201,7 @@ def handle_index_remote():
         result = process_document(
             file_path=file_path,
             use_remote_api=True,
+            config_path=CONFIG_PATH,
         )
 
         logger.info("Indexing result: %s", result)
@@ -182,17 +219,17 @@ def handle_search_local():
         logger.warning("No query provided.")
         return
 
-    top_k_retrieve = int(input("Top-k retrieve (default 10): ").strip() or "10")
-    top_k_rerank = int(input("Top-k final/rerank (default 5): ").strip() or "5")
-
-    use_rerank_input = input("Use local rerank? (y/n, default y): ").strip().lower()
-    use_rerank = use_rerank_input != "n"
+    search_config = APP_CONFIG["search"]["local"]
+    top_k_retrieve = search_config["top_k_retrieve"]
+    top_k_rerank = search_config["top_k_rerank"]
+    use_rerank = search_config["use_rerank"]
 
     try:
         search_service = build_search_service(
             use_remote_embedding=False,
             use_rerank=use_rerank,
             use_remote_rerank=False,
+            app_config=APP_CONFIG,
         )
 
         results = search_service.search(
@@ -224,24 +261,26 @@ def handle_search_remote_rerank():
         logger.warning("No query provided.")
         return
 
-    top_k_retrieve = int(input("Top-k retrieve (default 10): ").strip() or "60")
-    top_k_rerank = int(input("Top-k final/rerank (default 5): ").strip() or "5")
-
-    remote_embedding_input = input("Use remote embedding? (y/n, default y): ").strip().lower()
-    use_remote_embedding = remote_embedding_input != "n"
+    search_config = APP_CONFIG["search"]["remote"]
+    top_k_retrieve = search_config["top_k_retrieve"]
+    top_k_rerank = search_config["top_k_rerank"]
+    use_remote_embedding = search_config["use_remote_embedding"]
+    use_rerank = search_config["use_rerank"]
+    use_remote_rerank = search_config["use_remote_rerank"]
 
     try:
         search_service = build_search_service(
             use_remote_embedding=use_remote_embedding,
-            use_rerank=True,
-            use_remote_rerank=True,
+            use_rerank=use_rerank,
+            use_remote_rerank=use_remote_rerank,
+            app_config=APP_CONFIG,
         )
 
         results = search_service.search(
             query=query,
             top_k_retrieve=top_k_retrieve,
             top_k_rerank=top_k_rerank,
-            use_rerank=True,
+            use_rerank=use_rerank,
         )
 
         print_search_results(results)
@@ -271,23 +310,19 @@ def handle_rag():
         logger.warning("No question provided.")
         return
 
-    top_k_retrieve = int(input("Top-k retrieve (default 10): ").strip() or "10")
-    top_k_rerank = int(input("Top-k context/final (default 5): ").strip() or "5")
-
-    use_rerank_input = input("Use rerank? (y/n, default y): ").strip().lower()
-    use_rerank = use_rerank_input != "n"
-
-    remote_embedding_input = input("Use remote embedding? (y/n, default y): ").strip().lower()
-    use_remote_embedding = remote_embedding_input != "n"
-
-    remote_rerank_input = input("Use remote rerank? (y/n, default y): ").strip().lower()
-    use_remote_rerank = remote_rerank_input != "n"
+    rag_config = APP_CONFIG["rag"]
+    top_k_retrieve = rag_config["top_k_retrieve"]
+    top_k_rerank = rag_config["top_k_rerank"]
+    use_rerank = rag_config["use_rerank"]
+    use_remote_embedding = rag_config["use_remote_embedding"]
+    use_remote_rerank = rag_config["use_remote_rerank"]
 
     try:
         search_service = build_search_service(
             use_remote_embedding=use_remote_embedding,
             use_rerank=use_rerank,
             use_remote_rerank=use_remote_rerank,
+            app_config=APP_CONFIG,
         )
 
         api_client = RemoteAPIClient()
@@ -298,9 +333,16 @@ def handle_rag():
             top_k_retrieve=top_k_retrieve,
             top_k_rerank=top_k_rerank,
             use_rerank=use_rerank,
+            prompt_template_path=resolve_project_path(rag_config["prompt_template_path"]),
+            max_context_length=rag_config["max_context_length"],
+            max_answer_length=rag_config["max_answer_length"],
+            temperature=rag_config["temperature"],
         )
 
-        result = rag_service.answer(query=query)
+        result = rag_service.answer(
+            query=query,
+            score_threshold=rag_config.get("score_threshold"),
+        )
 
         logger.info("=" * 70)
         logger.info("Question: %s", result.query)

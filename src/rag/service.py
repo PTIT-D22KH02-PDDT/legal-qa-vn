@@ -56,7 +56,7 @@ class RAGService:
         metadata = result.metadata or {}
 
         hierarchy_order = [
-            "diem", "khoan", "dieu", "muc", "chuong", "phan", "chinh", "modau", "van_ban"
+            "diem", "khoan", "dieu", "muc", "chuong", "phan", "chinh", "modau", "so_hieu"
         ]
 
         parts = [

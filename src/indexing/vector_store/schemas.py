@@ -32,13 +32,13 @@ class ChromaUpsertRequest(BaseModel):
     
     Attributes:
         chunk_id: ID của chunk, lấy từ EmbeddingResult.chunk_id
-        num_chunk: Số thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
+        chunk_index: Vị trí/thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
         text: Nội dung của chunk, lấy từ EmbeddingResult.text
         vector: Vector embedding của chunk, lấy từ EmbeddingResult.vector
         metadata: Metadata của chunk
     """
     chunk_id: str
-    num_chunk: Optional[int] = None 
+    chunk_index: Optional[int] = None
     vector: List[float]         
     text: str                   
     metadata: Dict[str, Any] = Field(default_factory=dict)
@@ -84,5 +84,5 @@ class ChromaQueryResult(BaseModel):
     chunk_id: str
     text: str
     metadata: Dict[str, Any] = Field(default_factory=dict)
-    distance: float
+    distance: Optional[float] = None
     score_rerank: Optional[float] = None

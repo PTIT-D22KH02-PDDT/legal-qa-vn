@@ -79,10 +79,9 @@ class RemoteEmbeddingModel:
                         
                         result = EmbeddingResult(
                             chunk_id=req.chunk_id,
-                            num_chunk=req.num_chunk,
+                            chunk_index=req.chunk_index,
                             text=req.text,
                             vector=embedding_vector,
-                            token_count=None,
                             metadata=req.metadata
                         )
                         results.append(result)

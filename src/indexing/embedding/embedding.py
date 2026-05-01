@@ -27,7 +27,7 @@ class EmbeddingPipeline:
             requests.append(
                 EmbeddingRequest(
                     chunk_id=chunk.id,
-                    num_chunk=stt,
+                    chunk_index=stt,
                     text=create_chunk_embedding_text(chunk),
                     metadata=create_chunk_embedding_metadata(chunk),
                 )

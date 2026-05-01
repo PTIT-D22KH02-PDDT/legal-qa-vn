@@ -61,3 +61,28 @@ class ChromaStore:
                 distance=raw['distances'][0][i]
             ) for i in range(len(raw['ids'][0]))
         ]
+
+    def get_by_ids(self, chunk_ids: List[str]) -> List[ChromaQueryResult]:
+        """
+        Tìm kiếm danh sách các chunk theo chunk_id. Dùng để lấy các chunk được referenced (tham chiếu).
+        """
+        if not chunk_ids:
+            return []
+
+        raw = self.collection.get(
+            ids=chunk_ids,
+            include=['documents', 'metadatas']
+        )
+        for chunk_id, document, metadata in zip(raw['ids'], raw['documents'], raw['metadatas']):
+            records = {
+                chunk_id: ChromaQueryResult(
+                    chunk_id=chunk_id,
+                    text=document,
+                    metadata=metadata or {},
+                    distance=None
+            )
+        }
+
+        return [
+            records[chunk_id] for chunk_id in chunk_ids if chunk_id in records
+        ]

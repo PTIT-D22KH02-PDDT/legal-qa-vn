@@ -127,10 +127,9 @@ class RemoteAPIClient:
             results.append(
                 EmbeddingResult(
                     chunk_id=req.chunk_id,
-                    num_chunk=req.num_chunk,
+                    chunk_index=req.chunk_index,
                     text=req.text,
                     vector=embeddings[i].tolist(),
-                    token_count=None,
                     metadata=req.metadata,
                 )
             )

@@ -1,6 +1,7 @@
 from pathlib import Path
 from tkinter import Tk, filedialog
 
+import yaml
 from tqdm import tqdm
 
 
@@ -31,12 +32,19 @@ def select_file_dialog() -> str:
 def process_document(
     file_path: str,
     use_remote_api: bool = False,
+    config_path: str | Path | None = None,
+    config: dict | None = None,
+    chunker_params: dict | None = None,
+    embedding_params: dict | None = None,
+    store_params: dict | None = None,
     **kwargs,
 ) -> dict:
     """
     Process a document: ingestion -> parsing -> chunking -> embedding -> vector store.
 
     Optional kwargs:
+        config_path: Path toi file YAML config.
+        config: Dict config truyen truc tiep tu ben ngoai.
         chunker_params: {'strategy': 'fixed_size' | 'hierarchical', ...}
         embedding_params: {'model_dir': str, 'max_length': int, ...}
         store_params: {'collection_name': str, 'is_persist': bool, ...}
@@ -48,27 +56,65 @@ def process_document(
 
     try:
         root_dir = Path(__file__).resolve().parents[2]
+
+        external_config = {}
+        if config_path:
+            config_file = Path(config_path)
+            if not config_file.is_absolute():
+                config_file = root_dir / config_file
+            with config_file.open("r", encoding="utf-8") as f:
+                external_config = yaml.safe_load(f) or {}
+        if config:
+            external_config = {**external_config, **config}
+
+        config_chunking = external_config.get("chunking", {})
+        config_embedding = external_config.get("embedding", {})
+        config_vector_store = external_config.get("vector_store", {})
+
+        chunker_overrides = chunker_params or {}
+        embedding_overrides = embedding_params or {}
+        store_overrides = store_params or {}
+
         chunker_params = {
-            'strategy': 'hierarchical',
+            'strategy': config_chunking.get('strategy') or 'hierarchical',
             **kwargs.get('chunker_params', {}),
+            **chunker_overrides,
         }
+
         embedding_params = {
             'model_dir': str(root_dir / "models" / "Vietnamese_Embedding_v2"),
             'max_length': 256,
             'batch_size': 32,
             'pooling': 'auto',
             'normalize': False,
+            **{k: v for k, v in config_embedding.items() if v is not None},
             **kwargs.get('embedding_params', {}),
+            **embedding_overrides,
         }
         store_params = {
             'collection_name': 'legal_documents',
             'is_persist': True,
             'persist_directory': str(root_dir / "chroma_db"),
             'distance_metric': 'ip',
+            **{k: v for k, v in config_vector_store.items() if v is not None},
             **kwargs.get('store_params', {}),
+            **store_overrides,
         }
 
+        for path_key in ("model_dir", "onnx_path"):
+            path_value = embedding_params.get(path_key)
+            if path_value:
+                path = Path(path_value)
+                embedding_params[path_key] = str(path if path.is_absolute() else root_dir / path)
+
+        persist_directory = store_params.get("persist_directory")
+        if persist_directory:
+            path = Path(persist_directory)
+            store_params["persist_directory"] = str(path if path.is_absolute() else root_dir / path)
+
         chunking_strategy = chunker_params.pop('strategy', 'fixed_size')
+        if chunking_strategy.strip().lower() == 'hierarchical':
+            chunker_params = {}
 
         tqdm.write(f'[1/4] Chunking with strategy: {chunking_strategy}')
         chunker = create_chunker(strategy=chunking_strategy, **chunker_params)

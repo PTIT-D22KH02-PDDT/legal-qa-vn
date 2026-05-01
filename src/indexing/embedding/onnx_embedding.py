@@ -163,10 +163,9 @@ class OnnxEmbeddingModel:
                     results.append(
                         EmbeddingResult(
                             chunk_id=requests[i + j].chunk_id,
-                            num_chunk=requests[i + j].num_chunk if hasattr(requests[i + j], 'num_chunk') else None,
+                            chunk_index=requests[i + j].chunk_index,
                             text=requests[i + j].text,
                             vector=emb[j].astype(float).tolist(),
-                            token_count=int(tokenized['attention_mask'][j].sum()),
                             metadata=requests[i + j].metadata
                         )
                     )
