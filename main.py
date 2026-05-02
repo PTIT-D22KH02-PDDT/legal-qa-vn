@@ -1,68 +1,62 @@
+import sys
+try:
+    __import__('pysqlite3')
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ImportError:
+    pass
+
 import logging
 from pathlib import Path
-from typing import Any
 
-import yaml
+import os
+from datetime import datetime
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging
+PROJECT_ROOT = Path(__file__).resolve().parent
+LOG_DIR = PROJECT_ROOT / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
+# Use LOG_SUFFIX from env, or default to timestamp + pid
+log_suffix = os.getenv("LOG_SUFFIX", f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{os.getpid()}")
+LOG_FILE = LOG_DIR / f"app_{log_suffix}.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE, encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
 
-
-PROJECT_ROOT = Path(__file__).resolve().parent
-CONFIG_PATH = PROJECT_ROOT / "configs" / "search_config.yaml"
-
-
-def load_config(config_path: str | Path = CONFIG_PATH) -> dict[str, Any]:
-    """Load runtime config from YAML."""
-    path = Path(config_path)
-    if not path.is_absolute():
-        path = PROJECT_ROOT / path
-
-    with path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+DEFAULT_COLLECTION_NAME = "legal_documents"
+DEFAULT_CHROMA_DIR = PROJECT_ROOT / "chroma_db"
+DEFAULT_EMBEDDING_MODEL_DIR = PROJECT_ROOT / "models" / "Vietnamese_Embedding_v2"
+DEFAULT_RERANKER_MODEL_NAME = "AITeamVN/Vietnamese_Reranker"
 
 
-def resolve_project_path(value: str | None) -> str | None:
-    """Resolve relative paths from project root."""
-    if value is None:
-        return None
-
-    path = Path(value)
-    if not path.is_absolute():
-        path = PROJECT_ROOT / path
-    return str(path)
-
-
-APP_CONFIG = load_config()
-
-
-def build_chroma_store(app_config: dict[str, Any] | None = None):
+def build_chroma_store():
     """Build ChromaStore."""
     from src.indexing.vector_store import ChromaConfig
     from src.indexing.vector_store.chroma_store import ChromaStore
 
-    config_data = (app_config or APP_CONFIG)["vector_store"]
     config = ChromaConfig(
-        collection_name=config_data["collection_name"],
-        persist_directory=resolve_project_path(config_data.get("persist_directory")),
-        distance_metric=config_data["distance_metric"],
-        is_persist=config_data["is_persist"],
+        collection_name=DEFAULT_COLLECTION_NAME,
+        persist_directory=str(DEFAULT_CHROMA_DIR),
+        distance_metric="ip",
+        is_persist=True,
     )
 
     return ChromaStore(config=config)
 
 
-def build_local_embedding_model(app_config: dict[str, Any] | None = None):
+def build_local_embedding_model():
     """Build local ONNX embedding model."""
     from src.indexing.embedding.onnx_embedding import OnnxEmbeddingModel
 
-    config_data = (app_config or APP_CONFIG)["embedding"]
     return OnnxEmbeddingModel(
-        model_dir=resolve_project_path(config_data["model_dir"]),
-        pooling=config_data["pooling"],
-        max_length=config_data["max_length"],
-        normalize=config_data["normalize"],
-        onnx_path=resolve_project_path(config_data.get("onnx_path")),
+        model_dir=str(DEFAULT_EMBEDDING_MODEL_DIR),
     )
 
 
@@ -73,16 +67,14 @@ def build_remote_embedding_model(api_client):
     return RemoteEmbeddingModel(api_client)
 
 
-def build_local_reranker(app_config: dict[str, Any] | None = None):
+def build_local_reranker():
     """Build local cross-encoder reranker."""
     from src.search import CrossEncoderReranker
 
-    config_data = (app_config or APP_CONFIG)["reranker"]
     return CrossEncoderReranker(
-        model_name=config_data["model_dir"],
-        max_length=config_data["max_length"],
-        device=config_data.get("device"),
-        batch_size=config_data["batch_size"],
+        model_name=DEFAULT_RERANKER_MODEL_NAME,
+        max_length=2304,
+        batch_size=32,
     )
 
 
@@ -98,21 +90,19 @@ def build_search_service(
     use_remote_embedding: bool = True,
     use_rerank: bool = True,
     use_remote_rerank: bool = True,
-    app_config: dict[str, Any] | None = None,
 ):
     """Build SearchService from selected runtime options."""
     from src.api import RemoteAPIClient
     from src.search import SearchService
 
-    app_config = app_config or APP_CONFIG
-    chroma_store = build_chroma_store(app_config)
+    chroma_store = build_chroma_store()
 
     api_client = RemoteAPIClient() if (use_remote_embedding or use_remote_rerank) else None
 
     if use_remote_embedding:
         embedding_model = build_remote_embedding_model(api_client)
     else:
-        embedding_model = build_local_embedding_model(app_config)
+        embedding_model = build_local_embedding_model()
 
     reranker = None
 
@@ -122,7 +112,7 @@ def build_search_service(
                 api_client = RemoteAPIClient()
             reranker = build_remote_reranker(api_client)
         else:
-            reranker = build_local_reranker(app_config)
+            reranker = build_local_reranker()
 
     if reranker is not None:
         try:
@@ -149,9 +139,7 @@ def print_search_results(results):
         logger.info("=" * 70)
         logger.info("Result #%d", index)
         logger.info("Chunk ID: %s", result.chunk_id)
-
-        if result.distance is not None:
-            logger.info("Distance: %.4f", result.distance)
+        logger.info("Distance: %.4f", result.distance)
 
         if result.score_rerank is not None:
             logger.info("Rerank score: %.4f", result.score_rerank)
@@ -177,7 +165,6 @@ def handle_index_local():
         result = process_document(
             file_path=file_path,
             use_remote_api=False,
-            config_path=CONFIG_PATH,
         )
 
         logger.info("Indexing result: %s", result)
@@ -201,13 +188,120 @@ def handle_index_remote():
         result = process_document(
             file_path=file_path,
             use_remote_api=True,
-            config_path=CONFIG_PATH,
         )
 
         logger.info("Indexing result: %s", result)
 
     except Exception as exc:
         logger.error("Indexing failed: %s", exc, exc_info=True)
+
+
+def handle_index_folder():
+    """Index all PDF documents in a folder."""
+    from src.indexing.indexing import process_document
+    from pathlib import Path
+
+    logger.info("[FOLDER INDEXING]")
+
+    dir_path_str = input("Enter directory path: ").strip()
+    if not dir_path_str:
+        logger.warning("No directory path provided.")
+        return
+
+    dir_path = Path(dir_path_str)
+    if not dir_path.is_dir():
+        logger.error("Directory does not exist: %s", dir_path_str)
+        return
+
+    use_remote_input = input("Use remote embedding? (y/n, default n): ").strip().lower()
+    use_remote = use_remote_input == "y"
+
+    # Tìm các file DOCX
+    docx_files = sorted(list(dir_path.glob("*.docx")))
+    if not docx_files:
+        logger.warning("No DOCX files found in %s", dir_path_str)
+        return
+
+    logger.info("Found %d DOCX files. Starting indexing...", len(docx_files))
+
+    success_count = 0
+    fail_count = 0
+
+    for i, file_path in enumerate(docx_files, 1):
+        logger.info("[%d/%d] Processing: %s", i, len(docx_files), file_path.name)
+        try:
+            result = process_document(
+                file_path=str(file_path),
+                use_remote_api=use_remote,
+            )
+            if result.get('success'):
+                logger.info("   [OK] Success: %d chunks.", result.get('chunks_count'))
+                success_count += 1
+            else:
+                logger.warning("   [FAIL] Error: %s", result.get('message'))
+                fail_count += 1
+        except Exception as exc:
+            logger.error("   [ERROR] System error: %s", exc)
+            fail_count += 1
+
+    logger.info("=" * 40)
+    logger.info("FOLDER INDEXING COMPLETED")
+    logger.info("Total: %d, Success: %d, Failed: %d", len(docx_files), success_count, fail_count)
+    logger.info("=" * 40)
+
+
+def handle_index_folder_remote():
+    """Index all DOCX documents in a folder using remote embedding."""
+    from src.indexing.indexing import process_document
+    from pathlib import Path
+
+    logger.info("[FOLDER INDEXING - REMOTE]")
+
+    dir_path_str = input("Enter directory path: ").strip()
+    if not dir_path_str:
+        logger.warning("No directory path provided.")
+        return
+
+    dir_path = Path(dir_path_str)
+    if not dir_path.is_dir():
+        logger.error("Directory does not exist: %s", dir_path_str)
+        return
+
+    # Force using remote embedding
+    use_remote = True
+
+    # Tìm các file DOCX
+    docx_files = sorted(list(dir_path.glob("*.docx")))
+    if not docx_files:
+        logger.warning("No DOCX files found in %s", dir_path_str)
+        return
+
+    logger.info("Found %d DOCX files. Starting remote indexing...", len(docx_files))
+
+    success_count = 0
+    fail_count = 0
+
+    for i, file_path in enumerate(docx_files, 1):
+        logger.info("[%d/%d] Processing: %s", i, len(docx_files), file_path.name)
+        try:
+            result = process_document(
+                file_path=str(file_path),
+                use_remote_api=use_remote,
+            )
+            if result.get('success'):
+                logger.info("   [OK] Success: %d chunks.", result.get('chunks_count'))
+                success_count += 1
+            else:
+                logger.warning("   [FAIL] Error: %s", result.get('message'))
+                fail_count += 1
+        except Exception as exc:
+            logger.error("   [ERROR] System error: %s", exc)
+            fail_count += 1
+
+    logger.info("=" * 40)
+    logger.info("FOLDER INDEXING (REMOTE) COMPLETED")
+    logger.info("Total: %d, Success: %d, Failed: %d", len(docx_files), success_count, fail_count)
+    logger.info("=" * 40)
 
 
 def handle_search_local():
@@ -219,17 +313,17 @@ def handle_search_local():
         logger.warning("No query provided.")
         return
 
-    search_config = APP_CONFIG["search"]["local"]
-    top_k_retrieve = search_config["top_k_retrieve"]
-    top_k_rerank = search_config["top_k_rerank"]
-    use_rerank = search_config["use_rerank"]
+    top_k_retrieve = int(input("Top-k retrieve (default 10): ").strip() or "10")
+    top_k_rerank = int(input("Top-k final/rerank (default 5): ").strip() or "5")
+
+    use_rerank_input = input("Use local rerank? (y/n, default y): ").strip().lower()
+    use_rerank = use_rerank_input != "n"
 
     try:
         search_service = build_search_service(
             use_remote_embedding=False,
             use_rerank=use_rerank,
             use_remote_rerank=False,
-            app_config=APP_CONFIG,
         )
 
         results = search_service.search(
@@ -261,26 +355,24 @@ def handle_search_remote_rerank():
         logger.warning("No query provided.")
         return
 
-    search_config = APP_CONFIG["search"]["remote"]
-    top_k_retrieve = search_config["top_k_retrieve"]
-    top_k_rerank = search_config["top_k_rerank"]
-    use_remote_embedding = search_config["use_remote_embedding"]
-    use_rerank = search_config["use_rerank"]
-    use_remote_rerank = search_config["use_remote_rerank"]
+    top_k_retrieve = int(input("Top-k retrieve (default 10): ").strip() or "60")
+    top_k_rerank = int(input("Top-k final/rerank (default 5): ").strip() or "5")
+
+    remote_embedding_input = input("Use remote embedding? (y/n, default y): ").strip().lower()
+    use_remote_embedding = remote_embedding_input != "n"
 
     try:
         search_service = build_search_service(
             use_remote_embedding=use_remote_embedding,
-            use_rerank=use_rerank,
-            use_remote_rerank=use_remote_rerank,
-            app_config=APP_CONFIG,
+            use_rerank=True,
+            use_remote_rerank=True,
         )
 
         results = search_service.search(
             query=query,
             top_k_retrieve=top_k_retrieve,
             top_k_rerank=top_k_rerank,
-            use_rerank=use_rerank,
+            use_rerank=True,
         )
 
         print_search_results(results)
@@ -310,19 +402,23 @@ def handle_rag():
         logger.warning("No question provided.")
         return
 
-    rag_config = APP_CONFIG["rag"]
-    top_k_retrieve = rag_config["top_k_retrieve"]
-    top_k_rerank = rag_config["top_k_rerank"]
-    use_rerank = rag_config["use_rerank"]
-    use_remote_embedding = rag_config["use_remote_embedding"]
-    use_remote_rerank = rag_config["use_remote_rerank"]
+    top_k_retrieve = int(input("Top-k retrieve (default 10): ").strip() or "10")
+    top_k_rerank = int(input("Top-k context/final (default 5): ").strip() or "5")
+
+    use_rerank_input = input("Use rerank? (y/n, default y): ").strip().lower()
+    use_rerank = use_rerank_input != "n"
+
+    remote_embedding_input = input("Use remote embedding? (y/n, default y): ").strip().lower()
+    use_remote_embedding = remote_embedding_input != "n"
+
+    remote_rerank_input = input("Use remote rerank? (y/n, default y): ").strip().lower()
+    use_remote_rerank = remote_rerank_input != "n"
 
     try:
         search_service = build_search_service(
             use_remote_embedding=use_remote_embedding,
             use_rerank=use_rerank,
             use_remote_rerank=use_remote_rerank,
-            app_config=APP_CONFIG,
         )
 
         api_client = RemoteAPIClient()
@@ -333,16 +429,9 @@ def handle_rag():
             top_k_retrieve=top_k_retrieve,
             top_k_rerank=top_k_rerank,
             use_rerank=use_rerank,
-            prompt_template_path=resolve_project_path(rag_config["prompt_template_path"]),
-            max_context_length=rag_config["max_context_length"],
-            max_answer_length=rag_config["max_answer_length"],
-            temperature=rag_config["temperature"],
         )
 
-        result = rag_service.answer(
-            query=query,
-            score_threshold=rag_config.get("score_threshold"),
-        )
+        result = rag_service.answer(query=query)
 
         logger.info("=" * 70)
         logger.info("Question: %s", result.query)
@@ -367,9 +456,11 @@ def main():
         logger.info("  3. Search with local embedding/local rerank")
         logger.info("  4. Search with optional remote embedding + remote rerank")
         logger.info("  5. Full RAG")
+        logger.info("  6. Index all DOCXs in a folder")
+        logger.info("  7. Index all DOCXs in a folder with remote embedding")
         logger.info("  0. Exit")
 
-        choice = input("\nChoose option (0-5): ").strip()
+        choice = input("\nChoose option (0-7): ").strip()
 
         if choice == "0":
             logger.info("Goodbye!")
@@ -385,6 +476,10 @@ def main():
             handle_search_remote_rerank()
         elif choice == "5":
             handle_rag()
+        elif choice == "6":
+            handle_index_folder()
+        elif choice == "7":
+            handle_index_folder_remote()
         else:
             logger.warning("Invalid option.")
 
