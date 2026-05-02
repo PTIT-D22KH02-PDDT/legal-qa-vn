@@ -1,0 +1,62 @@
+[
+  {
+    "file": "data\\vbpl_3_1\\20_3\\45_2023_ND-CP_571537.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":5,\"token_length\":2281,\"max_length\":2046,\"text_preview\":\"Chương XXI : ĐIỀU KHOẢN THI HÀNH\\nĐiều 21.8. Bản gốc và Ngôn ngữ\\nHợp đồng này sẽ được làm thành [............................] (...) bản gốc: bao gồm [..............................] (...) bản bằng tiế\"},{\"index\":6,\"token_length\":2219,\"max_length\":2046,\"text_preview\":\"Chương XXI : ĐIỀU KHOẢN THI HÀNH\\nĐiều 21.8. Bản gốc và Ngôn ngữ\\nHợp đồng này sẽ được làm thành [............................] (...) bản gốc: bao gồm [..............................] (...) bản bằng tiế\"},{\"index\":7,\"token_length\":5300,\"max_length\":2046,\"text_preview\":\"Chương XXI : ĐIỀU KHOẢN THI HÀNH\\nĐiều 21.8. Bản gốc và Ngôn ngữ\\nHợp đồng này sẽ được làm thành [............................] (...) bản gốc: bao gồm [..............................] (...) bản bằng tiế\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T22:56:39.008673"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_3\\55_2023_ND-CP_563148 (1).doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":27,\"token_length\":2174,\"max_length\":2046,\"text_preview\":\"Điều 3. Trách nhiệm thi hành\\nBộ trưởng Bộ Lao động - Thương binh và Xã hội, các Bộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chính phủ, Chủ tịch Ủy ban nhân dân các tỉnh, thành phố\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T23:02:51.695824"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_3\\55_2023_ND-CP_563148.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":27,\"token_length\":2174,\"max_length\":2046,\"text_preview\":\"Điều 3. Trách nhiệm thi hành\\nBộ trưởng Bộ Lao động - Thương binh và Xã hội, các Bộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chính phủ, Chủ tịch Ủy ban nhân dân các tỉnh, thành phố\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T23:03:01.285740"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_3\\55_2023_TT-BGTVT_578838.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":22,\"token_length\":2620,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"},{\"index\":23,\"token_length\":2636,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"},{\"index\":24,\"token_length\":2646,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"},{\"index\":25,\"token_length\":2637,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"},{\"index\":26,\"token_length\":2636,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"},{\"index\":27,\"token_length\":2632,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"},{\"index\":28,\"token_length\":2649,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"},{\"index\":29,\"token_length\":2725,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"},{\"index\":30,\"token_length\":2633,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"},{\"index\":31,\"token_length\":2632,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 16. Tổ chức thực hiện\\nChánh Văn phòng Bộ, Chánh Thanh tra Bộ, các Vụ trưởng, Cục trưởng các Cục thuộc Bộ Giao thông vận tải, Giám đốc các Ban Quản lý dự án thuộc B\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T23:03:14.155929"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_3\\61_2020_QH14_321051.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":0,\"token_length\":11798,\"max_length\":2046,\"text_preview\":\"Chương VII : ĐIỀU KHOẢN THI HÀNH\\nĐiều 77. Quy định chuyển tiếp\\n12. Chính phủ quy định chi tiết Điều này.. Luật này được Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam khóa XIV, kỳ họp thứ 9 thông qu\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T23:08:24.291625"
+  }
+]

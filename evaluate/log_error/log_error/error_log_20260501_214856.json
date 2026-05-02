@@ -1,0 +1,50 @@
+[
+  {
+    "file": "data\\vbpl_3_1\\20_1\\08_2025_ND-CP_639917.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":4,\"token_length\":5689,\"max_length\":2046,\"text_preview\":\"Chương III : ĐIỀU KHOẢN THI HÀNH\\nĐiều 30. Điều khoản thi hành\\n4. Ý kiến của các bên tham gia bàn giao, tiếp nhận.............................................. ĐẠI DIỆN BÊN NHẬN. (Ký, ghi rõ họ tên, đó\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T21:35:39.173984"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_1\\11_2021_ND-CP_465099.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":7,\"token_length\":3831,\"max_length\":2046,\"text_preview\":\"Chương VI : ĐIỀU KHOẢN THI HÀNH\\nĐiều 45. Trách nhiệm thi hành\\nBộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chính phủ, Chủ tịch Ủy ban nhân dân tỉnh, thành phố trực thuộc trung ương\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T21:37:29.358329"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_1\\15_2021_ND-CP_466771.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":30,\"token_length\":6269,\"max_length\":2046,\"text_preview\":\"Chương VII : ĐIỀU KHOẢN THI HÀNH\\nĐiều 3. Văn bản này được lập và sao gửi như quy định tại Điều 4 Giấy phép hoạt động xây dựng số..../20.../QĐ-HĐXD ngày... tháng... năm.....\\nNơi nhận:. - Như Điều 3;. -\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T21:42:57.682347"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_1\\16_2023_QH15_519324.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":7,\"token_length\":3373,\"max_length\":2046,\"text_preview\":\"Chương VIII : ĐIỀU KHOẢN THI HÀNH\\nĐiều 75. Quy định chuyển tiếp\\n9. Thuốc thuộc danh mục thuốc thiết yếu được sử dụng tại cơ sở khám bệnh, chữa bệnh.. PHỤ LỤC SỐ 02. DANH MỤC HÀNG HÓA, DỊCH VỤ DO NHÀ N\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T21:46:35.826590"
+  }
+]

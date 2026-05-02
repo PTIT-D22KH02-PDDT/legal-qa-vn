@@ -1,0 +1,62 @@
+[
+  {
+    "file": "data\\vbpl_3_1\\20_6\\120_2024_ND-CP_626080.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":14,\"token_length\":4059,\"max_length\":2046,\"text_preview\":\"Điều 5. Điều khoản thi hành\\n10. Thông tin sản phẩm gỗ:. TT. Tên sản phẩm gỗ(8). Số hiệu/ nhãn đánh dấu (nếu có). Đơn vị tính. Tên gỗ nguyên liệu (9). Tên gỗ nguyên liệu (9). Tên gỗ nguyên liệu (9). Tê\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:17:35.286599"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_6\\151_2024_ND-CP_619564.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":2,\"token_length\":2069,\"max_length\":2046,\"text_preview\":\"Chương VII : ĐIỀU KHOẢN THI HÀNH\\nĐiều 39. Trách nhiệm thi hành\\nCác Bộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chính phủ, Chủ tịch Ủy ban nhân dân các tỉnh, thành phố trực thuộc t\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:21:50.169987"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_6\\155_2025_ND-CP__661016.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":12,\"token_length\":2746,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN THI HÀNH\\nĐiều 15. Trách nhiệm thi hành\\n5. Bộ trưởng, Thủ trưởng cơ quan ngang Bộ, cơ quan thuộc Chính phủ, cơ quan khác ở trung ương, Chủ tịch Ủy ban nhân dân các tỉnh, thành ph\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:22:05.420625"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_6\\175_2024_ND-CP_609382.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":27,\"token_length\":2496,\"max_length\":2046,\"text_preview\":\"Chương VII : ĐIỀU KHOẢN THI HÀNH\\nĐiều 3. Tổ chức, cá nhân có liên quan chịu trách nhiệm thi hành quyết định.\\nNơi nhận:. - Như Điều 3;. - Các cơ quan có liên quan;. - Lưu:.... CƠ QUAN PHÊ DUYỆT. (Ký, g\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:30:44.806785"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_6\\181_2025_ND-CP_646124.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":31,\"token_length\":2459,\"max_length\":2046,\"text_preview\":\"Chương 81 Kim loại cơ bản khác; gốm kim loại; các sản phẩm của chúng\\n- Loại khác:. - Loại khác:. - Loại khác:. - Magiê chưa gia công:. - Zircon chưa gia công; bột:. - Phế liệu và mảnh vụn:. - Loại khá\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:32:34.533883"
+  }
+]

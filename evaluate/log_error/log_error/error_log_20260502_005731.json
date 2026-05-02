@@ -1,0 +1,74 @@
+[
+  {
+    "file": "data\\vbpl_1_4\\20_1\\Nghi-dinh-17-2023-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":5,\"token_length\":8315,\"max_length\":2046,\"text_preview\":\"Chương VI : BẢO VỆ QUYỀN TÁC GIẢ, QUYỀN LIÊN QUAN\\nMục 8\\nDOANH NGHIỆP CUNG CẤP DỊCH VỤ TRUNG GIAN\\nĐiều 116. Trách nhiệm thi hành\\nCác Bộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chí\"},{\"index\":7,\"token_length\":3485,\"max_length\":2046,\"text_preview\":\"Chương VI : BẢO VỆ QUYỀN TÁC GIẢ, QUYỀN LIÊN QUAN\\nMục 8\\nDOANH NGHIỆP CUNG CẤP DỊCH VỤ TRUNG GIAN\\nĐiều 116. Trách nhiệm thi hành\\nCác Bộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chí\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:45:30.084223"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_1\\Nghi-dinh-26-2019-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":16,\"token_length\":2237,\"max_length\":2046,\"text_preview\":\"Chương VI : KHEN THƯỞNG VÀ KỶ LUẬT : Mẫu số 04.BT : CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\\\\ : Độc lập - Tự do - Hạnh phúc\\\\ : --------------- : THÔNG TIN VỀ TỔ CHỨC CỘNG ĐỒNG\\n- Tên tổ chức cộng đồng: ……………\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:47:30.246424"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_1\\Nghi-dinh-44-2016-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":14,\"token_length\":2800,\"max_length\":2046,\"text_preview\":\"Chương VI : ĐIỀU KHOẢN THI HÀNH\\nĐiều 47. Hiệu lực thi hành\\n5. Các hình thức xử lý kỷ luật, khen thưởng (nếu có):. ……………………………………………………………………….. ……………………………………………………………………….. III. KIẾN NGHỊ (NẾU CÓ). Đ\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:52:45.212065"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_1\\Nghi-dinh-62-2015-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":23,\"token_length\":3002,\"max_length\":2046,\"text_preview\":\"Chương IV : ĐIỀU KHOẢN CHUYỂN TIẾP VÀ THI HÀNH\\nĐiều 85. Trách nhiệm thi hành và hướng dẫn thi hành\\n2. Các Bộ trưởng, Thủ trưởng cơ quan ngang Bộ, Thủ trưởng các cơ quan thuộc Chính phủ, Chủ tịch Ủy ba\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:54:22.137056"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_1\\Nghi-dinh-82-2020-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: [WinError 10054] An existing connection was forcibly closed by the remote host",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:57:01.466554"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_1\\Nghi-dinh-94-2024-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":10,\"token_length\":2230,\"max_length\":2046,\"text_preview\":\"Chương IV : TỔ CHỨC THI HÀNH\\nĐiều 27. Hiệu lực thi hành\\n2. Đơn vị tiếp nhận báo cáo: Ủy ban nhân dân tỉnh, thành phố trực thuộc trung ương.. Ghi chú:. I. THÔNG TIN CHUNG VỀ DỰ ÁN BẤT ĐỘNG SẢN. 1. Tên \"},{\"index\":16,\"token_length\":2090,\"max_length\":2046,\"text_preview\":\"Chương IV : TỔ CHỨC THI HÀNH\\nĐiều 27. Hiệu lực thi hành\\n2. Đơn vị tiếp nhận báo cáo: Ủy ban nhân dân tỉnh, thành phố trực thuộc trung ương. I. THÔNG TIN CHUNG VỀ DỰ ÁN BẤT ĐỘNG SẢN. 1. Tên chủ đầu tư:\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:57:31.840228"
+  }
+]
