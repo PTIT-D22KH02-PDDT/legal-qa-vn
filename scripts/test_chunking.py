@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import re
 import argparse
 import json
 import sys
@@ -60,7 +60,11 @@ def run_chunking(file_path: Path, limit: int, output_path: Path | None) -> None:
         title = shorten(chunk.title, 120)
         content = shorten(chunk.content, 220)
         parent_context = shorten(chunk.parent_context, 160)
-        references = ", ".join(chunk.reference or [])
+        raw_references = chunk.reference or []
+        if isinstance(raw_references, str):
+            references = raw_references
+        else:
+            references = ", ".join(str(ref) for ref in raw_references)
 
         if title:
             print(f"  title: {title}")
@@ -72,8 +76,8 @@ def run_chunking(file_path: Path, limit: int, output_path: Path | None) -> None:
             print(f"  ref: {references}")
     print("-" * 100)
 
-    auto_json = PROJECT_ROOT / "chunk" / f"{getattr(metadata, 'so_hieu', '')}.json"
-    # Tạo payload để lưu/in
+    safe_so_hieu = re.sub(r"[\\/]+", "_", str(getattr(metadata, "so_hieu", "")).strip()) or "unknown"
+    auto_json = PROJECT_ROOT / "chunk" / f"{safe_so_hieu}.json"    # Tạo payload để lưu/in
     payload = {
         "file": str(file_path),
         "strategy": "hierarchical",

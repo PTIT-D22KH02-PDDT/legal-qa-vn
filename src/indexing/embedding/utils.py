@@ -1,6 +1,6 @@
 """Embedding utilities."""
-
-from typing import Optional, List, Any
+import json
+from typing import Any
 from src.core.models import DocumentNode
 from .schemas import EmbeddingRequest
 from ..chunker.schemas import ChunkMetadata
@@ -164,7 +164,7 @@ def create_chunk_embedding_metadata(chunk: DocumentNode) -> dict[str, Any]:
             metadata[key] = value
     
     if chunk.reference:
-        metadata['reference'] = chunk.reference
+        metadata['reference'] = json.dumps(chunk.reference, ensure_ascii=False)
     
     if chunk.id:
         section_metadata = decode_section_id(chunk.id)

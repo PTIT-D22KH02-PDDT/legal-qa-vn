@@ -176,7 +176,7 @@ def handle_index_local():
     try:
         result = process_document(
             file_path=file_path,
-            use_remote_api=True,
+            use_remote_api=False,
             config_path=CONFIG_PATH,
         )
 

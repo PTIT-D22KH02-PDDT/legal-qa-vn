@@ -35,36 +35,6 @@ REF_CANDIDATE_RE = re.compile(
     r")"
 )
 
-REF_ANCHOR_RE = re.compile(
-    r"(?i)("
-    # điểm a khoản 2 Điều 10 ...
-    r"\bđiểm\s+[a-zđ0-9]+\s+khoản\s+\d+[a-zđ]?\s+điều\s+\d+[a-zđ]?\b"
-    r"|"
-    # khoản 2 Điều 66 ...
-    r"\bkhoản\s+\d+[a-zđ]?\s+điều\s+\d+[a-zđ]?\b"
-    r"|"
-    # Điều 5 ...
-    r"\bđiều\s+\d+[a-zđ]?\b"
-    r"|"
-    # Phụ lục I, Phụ lục số 1
-    r"\bphụ\s+lục\s+(?:số\s+)?[ivxlcdm\d]+\b"
-    r"|"
-    # Văn bản có số hiệu
-    r"\b(?:luật|bộ\s+luật|nghị\s+định|thông\s+tư|quyết\s+định|nghị\s+quyết|pháp\s+lệnh)"
-    r"(?:\s+số)?\s+\d+\/\d{4}\/[0-9a-zđ\/\-]+"
-    r"|"
-    # Số hiệu đứng riêng
-    r"\b\d+\/\d{4}\/[0-9a-zđ\/\-]+\b"
-    r"|"
-    # Tên văn bản không có số hiệu
-    r"\b(?:luật|bộ\s+luật|nghị\s+định|thông\s+tư|quyết\s+định|nghị\s+quyết|pháp\s+lệnh)"
-    r"\s+[a-zàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợ"
-    r"ùúủũụưứừửữựỳýỷỹỵđ\s]{2,80}"
-    r"|"
-    # self-ref cụ thể
-    r"\b(?:điều|khoản|điểm|mục|chương|phần|thông\s+tư|nghị\s+định|luật|văn\s+bản)\s+này\b"
-    r")"
-)
 
 class ParseLegal:
     """
@@ -174,61 +144,6 @@ class ParseLegal:
                 }
 
         return None
-
-    def _extract_ref_windows(
-        self,
-        text: str,
-        *,
-        char_window: int = 200,
-        max_windows: int = 8,
-    ) -> list[str]:
-        """
-        Tìm anchor có khả năng là viện dẫn rồi cắt window quanh anchor.
-
-        Mục tiêu:
-        - Không gửi cả chunk dài vào LLM.
-        - Giảm hallucination.
-        - Giữ đủ context gần ref để LLM biết ref_doc_name / Điều / Khoản.
-        """
-        if not text:
-            return []
-
-        spans: list[tuple[int, int]] = []
-
-        for match in REF_ANCHOR_RE.finditer(text):
-            start = max(0, match.start() - char_window)
-            end = min(len(text), match.end() + char_window)
-            spans.append((start, end))
-
-        if not spans:
-            return []
-
-        # Merge windows gần nhau/trùng nhau để tránh gọi LLM lặp.
-        spans.sort()
-        merged: list[list[int]] = []
-
-        for start, end in spans:
-            if not merged:
-                merged.append([start, end])
-                continue
-
-            last = merged[-1]
-            if start <= last[1] + 50:
-                last[1] = max(last[1], end)
-            else:
-                merged.append([start, end])
-
-        windows = []
-        for start, end in merged[:max_windows]:
-            window = text[start:end].strip()
-
-            # Làm sạch biên cho dễ đọc, tránh cắt giữa nhiều whitespace.
-            window = re.sub(r"\s+", " ", window)
-
-            if window and self.has_ref_candidate(window):
-                windows.append(window)
-
-        return windows
 
     def chunk_text_approx(self, text):
         """
