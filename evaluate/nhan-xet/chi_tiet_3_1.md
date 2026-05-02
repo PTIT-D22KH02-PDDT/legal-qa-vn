@@ -62,6 +62,15 @@
 | Chủ đề Điện lực | 4 | 0 | 4 | 100.0% |
 | Chủ đề Đất đai | 9 | 10 | 19 | 47.4% |
 
+### 3.2 Các câu sai liên quan đến văn bản index lỗi
+- Trong 31 câu sai, có 5 câu sai có thể trực tiếp chịu ảnh hưởng bởi các file văn bản bị lỗi khi indexing.
+- Các câu này gồm: ID 23, 58, 60, 61, 67.
+- Văn bản đúng tương ứng là:
+  - ID 23, 58, 60, 67: Nghị định 101/2024/NĐ-CP
+  - ID 61: Nghị định 175/2024/NĐ-CP
+- Hai file tương ứng là `101_2024_ND-CP_613131.docx` và `175_2024_ND-CP_609382.docx`, nằm trong danh sách `cac_van_ban_index_loi.md`.
+- Vì vậy, ngoài nguyên nhân D-bias và retrieval kém, một phần sai sót là do thiếu/không tìm thấy nội dung của các văn bản này trong ChromaDB.
+
 ## 4. Các câu đúng điển hình
 Dưới đây là một số câu hỏi mà mô hình trả lời đúng, kèm theo phân tích vì sao có thể đúng.
 

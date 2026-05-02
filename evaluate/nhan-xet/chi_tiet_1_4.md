@@ -71,6 +71,17 @@
 | Thông tư 49/2018/TT-BTC | 0 | 1 | 1 | 0.0% |
 | Thông tư 83/2010/TT-BTC | 1 | 0 | 1 | 100.0% |
 
+### 3.2 Các câu sai liên quan đến văn bản index lỗi
+- Trong 49 câu sai, có tối thiểu 4 câu sai có khả năng bị ảnh hưởng trực tiếp bởi các file văn bản bị lỗi khi indexing.
+- Các câu này gồm: ID 50, 58, 72, 98.
+- Văn bản đúng tương ứng là:
+  - ID 50: Thông tư 49/2018/TT-BTC
+  - ID 58: Thông tư số 06/2022/TT-BKHĐT
+  - ID 72: Thông tư số 22/2014/TT-BCA
+  - ID 98: Thông tư số 21/2019/TT-BTC
+- Các file này nằm trong danh sách `cac_van_ban_index_loi.md` và đã bị lỗi HTTP 422 khi indexing.
+- Do đó, phần lỗi của mô hình không chỉ do D-bias hay retrieval kém, mà còn một phần do thiếu dữ liệu/thông tin từ các văn bản chưa được index đúng.
+
 ## 4. Các câu đúng điển hình
 Dưới đây là một số câu hỏi mà mô hình trả lời đúng, kèm theo phân tích vì sao có thể đúng.
 
@@ -897,7 +908,7 @@ Nhiều câu trả lời thô (raw_response) chứa lặp lại prompt, ký tự
 - Thiên lệch đáp án D rõ ràng, dễ gây sai sót khi đáp án đúng là A/B/C.
 - Cần cải thiện khả năng trích xuất điều khoản cụ thể từ ngữ cảnh pháp lý.
 
-## 8. Kết luận và khuyến nghị cải thiện
-- Mô hình **Mô hình 1.4 (accuracy 51%)** đạt độ chính xác **51.00%** trên tập đánh giá.
+## 8. Kết luận
+- Mô hình đạt độ chính xác **51.00%** trên tập đánh giá 1.4.
 - Điểm mạnh: nhận diện tốt đáp án **D** và các văn bản có liên quan đến đáp án này.
 - Điểm yếu: cần khắc phục bias D và tăng độ chính xác cho đáp án **C**. Ngoài ra thêm các văn bản vào cơ sở tri thức đẻ xử lý việc không tìm tháy các văn bản liên quan
