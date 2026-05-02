@@ -63,7 +63,17 @@ class ParseLegal:
         # Điều/Khoản/Điểm: có thể là số hoặc chữ cái, có thể có dấu chấm (1.1, 1.1.1, etc.)
         dieu_khoan_diem_id = r'[0-9a-zđ]+(?:\.[0-9a-zđ]+)*'
 
-        PATTERNS = [
+        # Import boundary patterns from constants
+        from .constants import BOUNDARY_SECTION_PATTERNS
+        
+        PATTERNS = []
+        
+        # ADD BOUNDARY PATTERNS FIRST (higher priority)
+        for btype, pattern in BOUNDARY_SECTION_PATTERNS.items():
+            PATTERNS.append((btype, pattern))
+        
+        # THEN ADD EXISTING PATTERNS
+        PATTERNS.extend([
             # Phần: MUST be one of:
             # 1. "Phần thứ {Vietnamese}" - MUST have "thứ" + lowercase Vietnamese word
             # 2. "Phần {Roman|Digit}" - uppercase Roman or digit, NO Vietnamese word
@@ -95,19 +105,23 @@ class ParseLegal:
             # Khoản/Điểm dạng chữ cái: a), b), đ), v.v. (khi không có từ "Điểm")
             # Handle both ) and \) from docx conversion
             ('chu_thuong', r'^([a-zđ])[\\\.\)\,\;]\s*(.*)$')
-        ]
+        ])
 
         for p_type, pattern in PATTERNS:
             match = re.match(pattern, line)
             if match:
-                raw_id = match.group(1).lower().strip()
+                if match.lastindex:
+                    raw_id = match.group(1).lower().strip()
+                else:
+                    raw_id = ''
 
                 # Normalize phan_num back to phan for consistency
                 normalized_type = 'phan' if p_type == 'phan_num' else p_type
 
-                # Chỉ normalize ID cho Phần (từ Việt -> số, bỏ La Mã)
-                # Còn lại giữ nguyên, chỉ replace dấu chấm thành gạch dưới nếu có
-                if normalized_type == 'phan':
+                # Handle special cases
+                if normalized_type == 'phu_luc':
+                    normalized_id = raw_id if raw_id else '1'  # Default PHỤ LỤC to 1
+                elif normalized_type == 'phan':
                     normalized_id = self.normalize_id(raw_id, only_vietnamese=True)
                 else:
                     normalized_id = raw_id.replace('.', '_') if '.' in raw_id else raw_id
@@ -435,8 +449,40 @@ class ParseLegal:
                 dieu_node=self._extract_dieu(parsed_lines, i, context, parent_id=doc_id)
                 tree.append(dieu_node)
                 i=dieu_node['_end_idx']
+            
+            #Case 4 : Xu ly boundary sections (PHỤ LỤC, MỤC LỤC, TỪ VIẾT TẮT, NƠI NHẬN, CHỮ KÝ)
+            elif ptype=='heading' and pid in ['phu_luc', 'muc_luc', 'tu_viet_tat', 'noi_nhan', 'chu_ky']:
+                section_id = f"{doc_id}.{pid}_{praw}" if praw else f"{doc_id}.{pid}"
+                section_parts = [pline]
+                i += 1
+                section_content = []
+                
+                # Collect all content until next heading or end
+                while i < len(parsed_lines):
+                    ntype, nid, nraw, nline = parsed_lines[i]
+                    
+                    # Stop if we encounter another heading (boundary or structural)
+                    if ntype == 'heading':
+                        break
+                    
+                    # Collect text content
+                    if ntype == 'text':
+                        section_content.append(nline)
+                    
+                    i += 1
+                
+                # Create boundary section node
+                section_node = {
+                    'type_id': section_id,
+                    'parent_id': doc_id,
+                    'type': pid,
+                    'title': pline,
+                    'content': '. '.join(section_content),
+                    'ref': self.extract_refs('. '.join(section_content), {'luat_id': doc_id}),
+                }
+                tree.append(section_node)
 
-            #Case 3 : skip cac dong khac
+            #Case 5 : skip cac dong khac
             else :
                 i+=1
 
@@ -489,6 +535,8 @@ class ParseLegal:
         Khoản types: 'khoan', 'so_cap_3', 'so_cap_2', 'so_cap_1'
         Điểm types: 'diem', 'chu_thuong'
         """
+        from .constants import STOP_HEADING_TYPES
+        
         dieu_id=context["dieu_id"]
         _,_, dieu_id_raw, dieu_line=parsed_lines[start_idx]
         i=start_idx+1
@@ -505,8 +553,8 @@ class ParseLegal:
         #Scan noi dung Dieu
         while i<len(parsed_lines):
             ptype, pid, praw, pline=parsed_lines[i]
-            #Neu gap heading cap cao hon-->thoat
-            if ptype=='heading' and pid in ['phan', 'chuong', 'muc', 'dieu']:
+            #Neu gap heading cap cao hon hoac special section-->thoat
+            if ptype=='heading' and (pid in ['phan', 'chuong', 'muc', 'dieu'] or pid in STOP_HEADING_TYPES):
                 break
             #Neu la text
             if ptype=='text':
@@ -661,23 +709,42 @@ class ParseLegal:
     #Ham nay giai quyet cac truong hop la : Bo luat/Luat nay, Diem nay/Khoan nay
 
     def _format_id(self, s: str) -> str:
-        # Xử lý Đ/đ riêng — giữ lại dạng thường
-        s = s.replace("Đ", "đ")
+        # Handle None or empty input
+        if not s or (isinstance(s, str) and not s.strip()):
+            return None
+        
+        s = str(s).strip()
+        
+        # Vietnamese diacritical normalization (remove accents but keep đ, ơ, ư)
+        # Map Vietnamese vowels with diacritics to base
+        vietnamese_map = {
+            'à': 'a', 'á': 'a', 'ả': 'a', 'ã': 'a', 'ạ': 'a',
+            'ă': 'a', 'ắ': 'a', 'ằ': 'a', 'ẳ': 'a', 'ẵ': 'a', 'ặ': 'a',
+            'â': 'a', 'ấ': 'a', 'ầ': 'a', 'ẩ': 'a', 'ẫ': 'a', 'ậ': 'a',
+            'è': 'e', 'é': 'e', 'ẻ': 'e', 'ẽ': 'e', 'ẹ': 'e',
+            'ê': 'e', 'ế': 'e', 'ề': 'e', 'ể': 'e', 'ễ': 'e', 'ệ': 'e',
+            'ì': 'i', 'í': 'i', 'ỉ': 'i', 'ĩ': 'i', 'ị': 'i',
+            'ò': 'o', 'ó': 'o', 'ỏ': 'o', 'õ': 'o', 'ọ': 'o',
+            'ô': 'o', 'ố': 'o', 'ồ': 'o', 'ổ': 'o', 'ỗ': 'o', 'ộ': 'o',
+            'ơ': 'o', 'ớ': 'o', 'ờ': 'o', 'ở': 'o', 'ỡ': 'o', 'ợ': 'o',
+            'ù': 'u', 'ú': 'u', 'ủ': 'u', 'ũ': 'u', 'ụ': 'u',
+            'ư': 'u', 'ứ': 'u', 'ừ': 'u', 'ử': 'u', 'ữ': 'u', 'ự': 'u',
+            'ỳ': 'y', 'ý': 'y', 'ỷ': 'y', 'ỹ': 'y', 'ỵ': 'y',
+            'Đ': 'd', 'đ': 'd'  # Keep đ as d (already lowercase in IDs)
+        }
+        
+        # Apply Vietnamese normalization
+        s_normalized = []
+        for ch in s.lower():
+            s_normalized.append(vietnamese_map.get(ch, ch))
+        s = ''.join(s_normalized)
 
-        # Bỏ dấu các ký tự còn lại (trừ đ)
-        # Tách từng ký tự, nếu là đ thì giữ, còn lại normalize bình thường
-        result = []
-        for ch in s:
-            if ch == "đ":
-                result.append("đ")
-            else:
-                normalized = unicodedata.normalize("NFKD", ch).encode("ascii", "ignore").decode("utf-8")
-                result.append(normalized)
-        s = "".join(result)
-
-        s = s.lower().strip()
-        s = re.sub(r"[^a-z0-9đ\-]+", "_", s)  # ← thêm đ vào whitelist
-        return s.strip("_")
+        # Remove invalid characters, keep only alphanumeric and underscore/hyphen
+        s = re.sub(r"[^a-z0-9\-]+", "_", s)
+        s = s.strip("_-")
+        
+        # Return None if result is empty
+        return s if s else None
 
     def _parse_list_items(self, prefix: str, search_text: str) -> list[str]:
         """Nhặt danh sách ID từ cụm như 'các khoản 1, 2 và 3'.
@@ -1092,4 +1159,16 @@ class ParseLegal:
             if full_ref and full_ref not in unique_refs:
                 unique_refs.append(full_ref)
 
-        return unique_refs
+        # Validate and clean references
+        # Remove references containing "none" and validate format
+        validated_refs = []
+        for ref in unique_refs:
+            # Skip if contains "none"
+            if "none" in ref.lower():
+                continue
+            # Skip if contains invalid characters or malformed structure
+            if not re.match(r"^[a-z0-9_\.]+$", ref.lower()):
+                continue
+            validated_refs.append(ref)
+
+        return validated_refs

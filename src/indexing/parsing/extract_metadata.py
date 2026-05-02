@@ -117,7 +117,7 @@ class Extractor:
         return f"{prefix} {ten_ngan}".strip() if prefix else ten_ngan
 
     def _extract_co_quan_ban_hanh(self, text: str) -> str:
-        header = text[:2000].upper()
+        header = text[:100].upper()
         for keyword, display in _CO_QUAN_LIST:
             if keyword in header:
                 return display

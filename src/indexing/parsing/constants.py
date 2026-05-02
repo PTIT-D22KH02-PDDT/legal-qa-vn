@@ -17,11 +17,6 @@ _CO_QUAN_LIST = [
     ("QUỐC HỘI",                       "Quốc Hội"),
     ("ỦY BAN THƯỜNG VỤ QUỐC HỘI",      "Ủy Ban Thường Vụ Quốc Hội"),
     ("THỦ TƯỚNG CHÍNH PHỦ",            "Thủ Tướng Chính Phủ"),
-    ("CHÍNH PHỦ",                       "Chính Phủ"),
-    ("NGÂN HÀNG NHÀ NƯỚC",             "Ngân Hàng Nhà Nước"),
-    ("KIỂM TOÁN NHÀ NƯỚC",             "Kiểm Toán Nhà Nước"),
-    ("VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO", "Viện Kiểm Sát Nhân Dân Tối Cao"),
-    ("TÒA ÁN NHÂN DÂN TỐI CAO",        "Tòa Án Nhân Dân Tối Cao"),
     ("BỘ TÀI CHÍNH",                    "Bộ Tài Chính"),
     ("BỘ TƯ PHÁP",                      "Bộ Tư Pháp"),
     ("BỘ CÔNG AN",                      "Bộ Công An"),
@@ -40,6 +35,11 @@ _CO_QUAN_LIST = [
     ("BỘ NỘI VỤ",                       "Bộ Nội Vụ"),
     ("BỘ VĂN HÓA",                      "Bộ Văn Hóa, Thể Thao Và Du Lịch"),
     ("BỘ KHOA HỌC VÀ CÔNG NGHỆ",       "Bộ Khoa Học Và Công Nghệ"),
+    ("CHÍNH PHỦ",                       "Chính Phủ"),
+    ("NGÂN HÀNG NHÀ NƯỚC",             "Ngân Hàng Nhà Nước"),
+    ("KIỂM TOÁN NHÀ NƯỚC",             "Kiểm Toán Nhà Nước"),
+    ("VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO", "Viện Kiểm Sát Nhân Dân Tối Cao"),
+    ("TÒA ÁN NHÂN DÂN TỐI CAO",        "Tòa Án Nhân Dân Tối Cao"),
     ("ỦY BAN NHÂN DÂN",                "Ủy Ban Nhân Dân"),
     ("HỘI ĐỒNG NHÂN DÂN",              "Hội Đồng Nhân Dân"),
 ]
@@ -110,3 +110,13 @@ ROMAN_NUM_MAP = {
     'ix': '9', 'IX': '9',
     'x': '10', 'X': '10',   
 }
+
+BOUNDARY_SECTION_PATTERNS = {
+    'phu_luc': r'(?i)^phụ\s+lục\s+(?:(i{1,3}|[a-zđ]|\d+))?(?:\s*[\.\:\)]|$)',
+    'muc_luc': r'(?i)^mục\s+lục(?:\s*[\.\:\)]|$)',
+    'tu_viet_tat': r'(?i)^(?:danh\s+mục\s+)?(?:từ|chữ)\s+viết\s+tắt(?:\s*[\.\:\)]|$)',
+    'noi_nhan': r'(?i)^nơi\s+nhận\s*[\:\.]?$',
+    'chu_ky': r'(?i)^(?:kt\.|kí\s+tên|chữ\s+ký)(?:\s|$)',
+}
+
+STOP_HEADING_TYPES = {'phu_luc', 'muc_luc', 'tu_viet_tat', 'noi_nhan', 'chu_ky'}

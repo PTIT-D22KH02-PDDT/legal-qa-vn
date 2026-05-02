@@ -5,7 +5,7 @@ from src.indexing.embedding import create_embedding_request
 from .reranker import CrossEncoderReranker, RemoteReranker
 from dataclasses import dataclass
 
-LEAF_NODE_TYPES = ['dieu', 'khoan', 'diem']
+LEAF_NODE_TYPES = ['dieu', 'khoan', 'diem', 'phu_luc_phan']
 
 logger = logging.getLogger(__name__)
 

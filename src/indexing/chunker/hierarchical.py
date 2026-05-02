@@ -6,12 +6,23 @@ from pathlib import Path
 from src.core.models import DocumentNode
 from .schemas import HierarchicalChunkInput
 from src.indexing.parsing import Extractor
+from .fixed_size import FixedSizeChunker
 
 
 class HierarchicalChunker:
-    def __init__(self):
-        """Initialize HierarchicalChunker."""
+    def __init__(self, appendix_chunk_size: int = 1500, appendix_chunk_overlap: int = 300):
+        """Initialize HierarchicalChunker.
+        
+        Args:
+            appendix_chunk_size: Size of chunks for appendices (phụ lục).
+            appendix_chunk_overlap: Overlap between appendix chunks.
+        """
         self.extractor = Extractor()
+        self.appendix_chunker = FixedSizeChunker(
+            chunk_size=appendix_chunk_size,
+            chunk_overlap=appendix_chunk_overlap,
+            separators=["\n\n", "\n", ". ", ";\t", "; ", ", ", " ", ""],
+        )
     
     def chunk(
             self,
@@ -77,7 +88,11 @@ class HierarchicalChunker:
 
         chunk = self._build_chunk(node=node, id_counts=id_counts, chunk_id_counters=chunk_id_counters)
         if chunk is not None:
-            chunks.append(chunk)
+            # Check if this is an appendix (phụ lục) with large content
+            if self._should_split_appendix(node):
+                chunks.extend(self._split_appendix(chunk, node, id_counts, chunk_id_counters))
+            else:
+                chunks.append(chunk)
 
         for child in self._get_children(node):
             chunks.extend(self._walk_node(node=child, id_counts=id_counts, chunk_id_counters=chunk_id_counters))
@@ -144,6 +159,90 @@ class HierarchicalChunker:
         if not isinstance(refs, list):
             return []
         return [str(ref).strip() for ref in refs if str(ref).strip()]
+    
+    def _should_split_appendix(self, node: Dict[str, Any]) -> bool:
+        """Check if node is an appendix (phụ lục) with content that should be split.
+        
+        Args:
+            node: The node to check.
+            
+        Returns:
+            True if node is an appendix with substantial content.
+        """
+        node_type = node.get("type", "").strip().lower()
+        content = self._as_clean_str(node.get("content"))
+        
+        # Check if this is an appendix type
+        is_appendix = node_type == "phu_luc"
+        
+        # Check if content is large enough to split (more than 500 chars)
+        has_substantial_content = content and len(content) > 500
+        
+        return is_appendix and has_substantial_content
+    
+    def _split_appendix(
+            self,
+            parent_chunk: DocumentNode,
+            node: Dict[str, Any],
+            id_counts: Dict[str, int],
+            chunk_id_counters: Dict[str, int],
+    ) -> List[DocumentNode]:
+        """Split an appendix into smaller sub-chunks.
+        
+        Args:
+            parent_chunk: The parent DocumentNode for the appendix.
+            node: The raw node dictionary.
+            id_counts: Duplicate ID counter.
+            chunk_id_counters: ID counter for tracking duplicates.
+            
+        Returns:
+            List of DocumentNode chunks (parent + sub-chunks).
+        """
+        result = []
+        
+        # Add parent chunk header
+        result.append(parent_chunk)
+        
+        # Split content into sub-chunks
+        content = self._as_clean_str(node.get("content"))
+        if not content:
+            return result
+        
+        # Use fixed-size chunker to split appendix content
+        try:
+            from langchain_text_splitters import RecursiveCharacterTextSplitter
+            
+            splitter = RecursiveCharacterTextSplitter(
+                chunk_size=1500,
+                chunk_overlap=300,
+                separators=["\n\n", "\n", ". ", ";\t", "; ", ", ", " ", ""],
+            )
+            text_chunks = splitter.split_text(content)
+            
+            # Create sub-chunks for each split
+            for idx, chunk_content in enumerate(text_chunks):
+                if not chunk_content.strip():
+                    continue
+                
+                sub_chunk_id = f"{parent_chunk.id}.phan_{idx + 1}"
+                sub_chunk = DocumentNode(
+                    id=sub_chunk_id,
+                    type="phu_luc_phan",  # Mark as appendix part
+                    parent_id=parent_chunk.id,
+                    title=None,
+                    parent_context=parent_chunk.title,  # Use parent title as context
+                    content=chunk_content.strip(),
+                    full_text=None,
+                    reference=[]
+                )
+                result.append(sub_chunk)
+        
+        except Exception as e:
+            # If splitting fails, just return parent chunk
+            print(f"Warning: Failed to split appendix {parent_chunk.id}: {e}")
+            return [parent_chunk]
+        
+        return result
     
     def create_document_node(self, file_path: str) -> tuple[Any, List[DocumentNode]]:
         """Process document and create chunks.

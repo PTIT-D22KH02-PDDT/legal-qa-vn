@@ -30,3 +30,5 @@ class ChunkType(str, Enum):
     dieu="dieu"
     khoan="khoan"
     diem="diem"
+    phu_luc="phu_luc"
+    phu_luc_phan="phu_luc_phan"
