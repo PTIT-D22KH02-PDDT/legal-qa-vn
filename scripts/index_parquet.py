@@ -111,7 +111,7 @@ class ParquetIndexer:
         )
 
 
-    def run(self, total_parts: int = 1, part_index: int = 0, limit_docs: int = None):
+    def run(self, total_parts: int = 1, part_index: int = 0, limit_docs: int = None, start_idx_offset: int = 0):
         logger.info("Đang khởi tạo dữ liệu Parquet...")
         lf_content = pl.scan_parquet(CONTENT_PATH)
         total_rows = lf_content.select(pl.len()).collect().item()
@@ -122,46 +122,68 @@ class ParquetIndexer:
         part_size = total_rows // total_parts
         start_row = part_index * part_size
         end_row = total_rows if part_index == total_parts - 1 else start_row + part_size
-            
+        
+        # Áp dụng offset để resume
+        current_start = start_row + start_idx_offset
+        if current_start >= end_row:
+            logger.info(f"Vị trí bắt đầu {current_start} đã vượt quá phạm vi của shard này ({end_row}). Dừng lại.")
+            return
+
         logger.info(f"Tổng: {total_rows} dòng. Máy này xử lý Part {part_index+1}/{total_parts}: từ dòng {start_row} đến {end_row}")
+        logger.info(f"=> Resume từ dòng: {current_start} (Offset: {start_idx_offset} trong shard)")
 
         num_workers = min(MAX_WORKERS, multiprocessing.cpu_count())
         
         # Thanh tiến trình tổng thể
-        pbar = tqdm(total=(end_row - start_row), desc=f"Tiến độ Part {part_index+1}/{total_parts}")
+        pbar = tqdm(total=(end_row - current_start), desc=f"Tiến độ Part {part_index+1}/{total_parts}")
 
-        with ProcessPoolExecutor(max_workers=num_workers, initializer=init_worker) as executor:
-            for start_idx in range(start_row, end_row, DOC_BATCH_SIZE):
-                current_batch_size = min(DOC_BATCH_SIZE, end_row - start_idx)
-                
-                df_batch = lf_content.slice(start_idx, current_batch_size).collect()
-                rows = df_batch.to_dicts()
-                
-                all_nodes_data = []
-                for result_list in tqdm(executor.map(process_single_row, rows, chunksize=50), 
-                                       total=len(rows), desc="Phân tích", leave=False):
-                    all_nodes_data.extend(result_list)
+        processed_in_shard = start_idx_offset
+        try:
+            with ProcessPoolExecutor(max_workers=num_workers, initializer=init_worker) as executor:
+                for batch_start in range(current_start, end_row, DOC_BATCH_SIZE):
+                    current_batch_size = min(DOC_BATCH_SIZE, end_row - batch_start)
+                    
+                    df_batch = lf_content.slice(batch_start, current_batch_size).collect()
+                    rows = df_batch.to_dicts()
+                    
+                    all_nodes_data = []
+                    for result_list in tqdm(executor.map(process_single_row, rows, chunksize=50), 
+                                           total=len(rows), desc="Phân tích", leave=False):
+                        all_nodes_data.extend(result_list)
 
-                all_nodes = [DocumentNode(**d) for d in all_nodes_data]
-                if not all_nodes:
-                    continue
+                    all_nodes = [DocumentNode(**d) for d in all_nodes_data]
+                    if not all_nodes:
+                        processed_in_shard += current_batch_size
+                        pbar.update(current_batch_size)
+                        continue
 
-                logger.info(f"Đang embedding {len(all_nodes)} chunks...")
-                dummy_root = DocumentNode(id="root_dummy")
-                all_nodes.insert(0, dummy_root)
+                    logger.info(f"Đang embedding {len(all_nodes)} chunks...")
+                    dummy_root = DocumentNode(id="root_dummy")
+                    all_nodes.insert(0, dummy_root)
 
-                embedding_pipeline = EmbeddingPipeline(chunk_documents=all_nodes)
-                # Sử dụng trực tiếp embed() của model như trong main.py
-                results = embedding_pipeline.run(lambda reqs: self.embedding_model.embed(reqs, batch_size=EMBED_BATCH_SIZE))
-                
-                logger.info(f"Đang lưu {len(results)} vector vào ChromaDB...")
-                vector_pipeline = VectorStorePipeline(embeddings=results)
-                vector_pipeline.run(self.chroma_store)
-                pbar.update(current_batch_size)
+                    embedding_pipeline = EmbeddingPipeline(chunk_documents=all_nodes)
+                    results = embedding_pipeline.run(lambda reqs: self.embedding_model.embed(reqs, batch_size=EMBED_BATCH_SIZE))
+                    
+                    logger.info(f"Đang lưu {len(results)} vector vào ChromaDB...")
+                    vector_pipeline = VectorStorePipeline(embeddings=results)
+                    vector_pipeline.run(self.chroma_store)
+                    
+                    processed_in_shard += current_batch_size
+                    pbar.update(current_batch_size)
 
-                # Giải phóng bộ nhớ triệt để
-                del all_nodes, results, all_nodes_data, df_batch, rows
-                gc.collect()
+                    # Giải phóng bộ nhớ triệt để
+                    del all_nodes, results, all_nodes_data, df_batch, rows
+                    gc.collect()
+
+        except Exception as e:
+            pbar.close()
+            resume_idx = processed_in_shard
+            logger.error("\n" + "!"*60)
+            logger.error(f"LỖI XẢY RA TẠI DÒNG TOÀN CỤC: {start_row + processed_in_shard}")
+            logger.error(f"LỖI CHI TIẾT: {e}")
+            logger.error(f"ĐỂ TIẾP TỤC CHẠY, HÃY THÊM THAM SỐ: --start-idx {resume_idx}")
+            logger.error("!"*60 + "\n")
+            raise e
 
         pbar.close()
         logger.info(f"\nHoàn thành Part {part_index+1}!")
@@ -172,9 +194,15 @@ if __name__ == "__main__":
     parser.add_argument("--part-index", type=int, default=0, help="Số thứ tự của máy này (0 đến total-parts - 1)")
     parser.add_argument("--limit", type=int, default=None, help="Giới hạn tổng số dòng (để test)")
     parser.add_argument("--output-dir", type=str, default=CHROMA_DIR, help="Thư mục lưu ChromaDB")
+    parser.add_argument("--start-idx", "-sid", type=int, default=0, help="Bắt đầu từ dòng thứ n trong shard này (để resume)")
     
     args = parser.parse_args()
     
     multiprocessing.freeze_support()
     indexer = ParquetIndexer(chroma_dir=args.output_dir)
-    indexer.run(total_parts=args.total_parts, part_index=args.part_index, limit_docs=args.limit)
+    indexer.run(
+        total_parts=args.total_parts, 
+        part_index=args.part_index, 
+        limit_docs=args.limit,
+        start_idx_offset=args.start_idx
+    )
