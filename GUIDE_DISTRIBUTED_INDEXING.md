@@ -36,7 +36,10 @@
     - Trung: Máy 3 - 5
     - Đại: Máy 6 - 8
     - Dương: Máy 9 - 11
+
 Sau khi chạy xong, zip các thư mục shard lại và tải lên drive/ gửi qua zalo
+**Lưu ý: Nhớ HOST embedding model trước khi indexing!**
+Code host: https://www.kaggle.com/code/hngphongkiu/host-nlp/edit/run/315827962
 
 ### Bước 3: Hợp nhất dữ liệu (Merge) (Cái này không cần làm)
 Sau khi tất cả các máy chạy xong, gom các thư mục `shard_x` về một chỗ và chạy:
@@ -46,7 +49,7 @@ uv run scripts/merge_chroma.py --shards shard_0 shard_1 shard_2 shard_3 shard_4 
 
 ---
 
-### 💡 Xử lý khi bị ngắt (Resume)
+### Xử lý khi bị ngắt (Resume)
 Nếu máy đang chạy mà bị ngắt (do Rate Limit ngrok, mất mạng, v.v.), bạn **không cần chạy lại từ đầu**.
 
 1.  **Xem thông báo lỗi**: Ở cuối màn hình log, code sẽ in ra chính xác tham số cần dùng.
