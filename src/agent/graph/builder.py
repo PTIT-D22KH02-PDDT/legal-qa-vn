@@ -115,7 +115,17 @@ def build_graph(
 
     compiled = g.compile(checkpointer=checkpointer)
     logger.info("[graph] compiled successfully")
+        # Vẽ và lưu graph ra file PNG để xem cấu trúc
+    # try:
+    #     graph_png = compiled.get_graph().draw_mermaid_png()
+    #     with open("legal_agent_graph.png", "wb") as f:
+    #         f.write(graph_png)
+    #     logger.info("[graph] image saved to legal_agent_graph.png")
+    # except Exception as e:
+    #     logger.warning(f"[graph] could not draw mermaid png: {e}")
+    
     return compiled
+
 
 
 def _make_sqlite_saver(db_path: str):
@@ -131,6 +141,9 @@ def _make_sqlite_saver(db_path: str):
             "`pip install langgraph-checkpoint-sqlite`"
         ) from e
     return SqliteSaver.from_conn_string(db_path)
+
+
+
 
 
 def build_default_graph(

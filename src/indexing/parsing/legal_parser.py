@@ -56,7 +56,7 @@ class ParseLegal:
         parser = ParseLegal(llm_client=client, use_llm_refs=True)
     """
 
-    def __init__(self, max_tokens: int = 1000, llm_client: Any | None = None, use_llm_refs: bool = False):
+    def __init__(self, max_tokens: int = 2046, llm_client: Any | None = None, use_llm_refs: bool = False):
         self.max_tokens = max_tokens
         self.vietnamese_num_map = VIETNAMESE_NUM_MAP
         self.roman_num_map = ROMAN_NUM_MAP
@@ -102,6 +102,7 @@ class ParseLegal:
         phan_viet = r"nhất|một|hai|ba|bốn|tư|năm|sáu|bảy|tám|chín|mười(?:\s+\w+)?|hai\s+mươi"
         chuong_muc_pattern = f"(?:{roman_1_30}|\\d+)"
         dieu_khoan_diem_id = r"[0-9a-zđ]+(?:\.[0-9a-zđ]+)*"
+        roman_only = rf"({roman_1_30})"
 
         patterns = []
 
@@ -114,6 +115,7 @@ class ParseLegal:
                 ("phan_num", rf"(?i)^phần\s+({roman_1_20_short}|\d+)(?:[\.\:\)]|$|\s|,)"),
                 ("chuong", rf"(?i)^chương\s+({chuong_muc_pattern})(?:[\.\:\)]|$|\s|,)"),
                 ("muc", rf"(?i)^mục\s+({chuong_muc_pattern})(?:[\.\:\)]|$|\s)"),
+                ("muc_roman", rf"^{roman_only}[\\\/.\)]\s*(.*)$"),
                 ("dieu", rf"(?i)^điều\s+({dieu_khoan_diem_id})(?:[\.\:\)\;]|$|\s)"),
                 ("khoan", rf"(?i)^khoản\s+({dieu_khoan_diem_id})(?:[\.\:\)\;]|$|\s)"),
                 ("diem", rf"(?i)^điểm\s+({dieu_khoan_diem_id})(?:[\.\:\)\;]|$|\s)"),
@@ -246,6 +248,18 @@ class ParseLegal:
                         dieu_node = self._extract_dieu(parsed_lines, i, context, parent_id=phan_id)
                         phan_con.append(dieu_node)
                         i = dieu_node["_end_idx"]
+
+                    elif dtype == "heading" and did in ["so_cap_1", "muc_roman"]:
+                        # Xử lý trường hợp Phần có các mục 1. 2. hoặc I. II. mà không dùng Điều
+                        node_type = "muc" if did == "muc_roman" else "dieu"
+                        node_id = f"{phan_id}.{node_type}_{draw}"
+                        context = {"luat_id": doc_id, "phan_id": phan_id, f"{node_type}_id": node_id}
+                        
+                        # Sử dụng hàm extract_dieu nhưng giả lập nó là mục/điều tự do
+                        generic_node = self._extract_dieu(parsed_lines, i, context, parent_id=phan_id)
+                        generic_node["type"] = node_type
+                        phan_con.append(generic_node)
+                        i = generic_node["_end_idx"]
 
                     else:
                         if dtype == "text":

@@ -45,7 +45,7 @@ EXAMPLE_QUERIES: List[str] = [
 class LegalQARunner:
     def __init__(
         self,
-        checkpointer_kind: str = "memory",
+        checkpointer_kind: str = "sqlite",
         enable_logging: bool = True,
     ):
         if enable_logging:

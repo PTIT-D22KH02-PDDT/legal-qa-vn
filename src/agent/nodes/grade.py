@@ -41,17 +41,19 @@ Trả lời CHÍNH XÁC một trong ba nhãn (chỉ nhãn, không giải thích)
 
 def _parse_grade(text: str) -> Grade:
     t = (text or "").strip().upper()
-    first = t.split()[0] if t else ""
-    if "OFF_TOPIC" in first or "OFF-TOPIC" in first:
-        return Grade.OFF_TOPIC
-    if "INSUFFICIENT" in first:
-        return Grade.INSUFFICIENT
-    if "SUFFICIENT" in first:
+    # Nếu model lặp lại prompt, ta chỉ lấy phần sau từ "ASSISTANT" hoặc dòng cuối
+    if "ASSISTANT" in t:
+        t = t.split("ASSISTANT")[-1].strip()
+    
+    # Ưu tiên kiểm tra SUFFICIENT trước vì nó là nhãn tích cực nhất
+    if "SUFFICIENT" in t and "INSUFFICIENT" not in t:
         return Grade.SUFFICIENT
     if "OFF_TOPIC" in t or "OFF-TOPIC" in t:
         return Grade.OFF_TOPIC
     if "INSUFFICIENT" in t:
         return Grade.INSUFFICIENT
+    
+    # Fallback mặc định
     return Grade.SUFFICIENT
 
 
