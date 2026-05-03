@@ -134,8 +134,10 @@ class ParquetIndexer:
 
         num_workers = min(MAX_WORKERS, multiprocessing.cpu_count())
         
-        # Thanh tiến trình tổng thể
-        pbar = tqdm(total=(end_row - current_start), desc=f"Tiến độ Part {part_index+1}/{total_parts}")
+        # Thanh tiến trình tổng thể - Hiển thị tiến độ tuyệt đối trong Shard
+        total_in_shard = end_row - start_row
+        pbar = tqdm(total=total_in_shard, desc=f"Tiến độ Part {part_index+1}/{total_parts}")
+        pbar.update(start_idx_offset)
 
         processed_in_shard = start_idx_offset
         try:
