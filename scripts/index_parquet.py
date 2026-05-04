@@ -33,10 +33,10 @@ CHROMA_DIR = "chroma_db"
 
 MAX_TOKENS_PER_CHUNK = 1900 
 CHUNK_OVERLAP_TOKENS = 200
-DOC_BATCH_SIZE = 500 
+DOC_BATCH_SIZE = 1000 
 MAX_WORKERS = 3
 
-EMBED_BATCH_SIZE = 128 
+EMBED_BATCH_SIZE = 256 
 
 def init_worker():
     global _parser, _chunker, _splitter, BeautifulSoup, RecursiveCharacterTextSplitter, create_chunk_embedding_text
