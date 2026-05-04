@@ -99,11 +99,11 @@ class RetrievalService:
         results = chroma_results if chroma_results else []
         
         # 4. Filter theo score threshold nếu cần
-        if request.score_threshold:
-            results = [
-                r for r in results 
-                if r.distance >= request.score_threshold
-            ]
+        # if request.score_threshold:
+        #     results = [
+        #         r for r in results 
+        #         if r.score >= request.score_threshold
+        #     ]
         
         return results
 

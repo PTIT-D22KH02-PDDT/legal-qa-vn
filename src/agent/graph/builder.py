@@ -3,8 +3,8 @@ Build & compile LangGraph cho Legal QA Agent.
 
 Topology:
 
-    START ──► analyze_query ──► plan_tools ──(dispatch_tools)──►
-        ├── execute_tool  (fan-out parallel qua Send)
+START ──► analyze_query ──► plan_tools ──(dispatch_tools)──►
+        ├── execute_tool_chain  (Plan 2: tuần tự từng bước)
         │      └──► grade_retrieval ──(route_after_grade)──►
         │               ├── rewrite_query ──► clear_retrieval ──► plan_tools
         │               │      (loop, ≤ MAX_REWRITES)
@@ -22,7 +22,7 @@ Thay đổi vs. phiên bản đầu:
 from __future__ import annotations
 
 import logging
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
@@ -30,10 +30,11 @@ from langgraph.graph import END, START, StateGraph
 from langchain_core.language_models import BaseChatModel
 
 from ..tools import LegalDocumentTools
+from ..config import get_agent_config
 from ..nodes import (
     build_analyze_node,
     build_clear_retrieval_node,
-    build_execute_node,
+    build_execute_tool_chain_node,
     build_generate_node,
     build_grade_node,
     build_plan_node,
@@ -47,10 +48,21 @@ from .state import AgentState
 logger = logging.getLogger(__name__)
 
 
+def _planner_config(override: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    try:
+        base = get_agent_config().get_planner_params()
+    except Exception:
+        base = {"enabled": True, "max_steps": 6}
+    if not override:
+        return base
+    return {**base, **override}
+
+
 def build_graph(
     llm: BaseChatModel,
     tools_provider: LegalDocumentTools,
     checkpointer: Optional[object] = None,
+    planner_config: Optional[Dict[str, Any]] = None,
 ):
     """
     Dựng & compile graph.
@@ -65,9 +77,14 @@ def build_graph(
     """
     g = StateGraph(AgentState)
 
+    pconf = _planner_config(planner_config)
+
     g.add_node("analyze_query", build_analyze_node(llm))
-    g.add_node("plan_tools", build_plan_node())
-    g.add_node("execute_tool", build_execute_node(tools_provider))
+    g.add_node("plan_tools", build_plan_node(llm, pconf))
+    g.add_node(
+        "execute_tool_chain",
+        build_execute_tool_chain_node(tools_provider),
+    )
     g.add_node("grade_retrieval", build_grade_node(llm, tools_provider))
     g.add_node("rewrite_query", build_rewrite_node(llm))
     g.add_node("clear_retrieval", build_clear_retrieval_node())
@@ -80,9 +97,9 @@ def build_graph(
     g.add_conditional_edges(
         "plan_tools",
         dispatch_tools,
-        ["execute_tool", "generate_answer"],
+        ["execute_tool_chain", "generate_answer"],
     )
-    g.add_edge("execute_tool", "grade_retrieval")
+    g.add_edge("execute_tool_chain", "grade_retrieval")
 
     g.add_conditional_edges(
         "grade_retrieval",
@@ -125,6 +142,7 @@ def build_default_graph(
     tools_provider: LegalDocumentTools,
     checkpointer_kind: str = "memory",  # "memory" | "sqlite" | "none"
     sqlite_path: str = "agent_checkpoints.sqlite",
+    planner_config: Optional[Dict[str, Any]] = None,
 ):
     """
     Convenience wrapper.
@@ -146,4 +164,7 @@ def build_default_graph(
     else:
         raise ValueError(f"Unknown checkpointer_kind: {checkpointer_kind}")
 
-    return build_graph(llm, tools_provider, checkpointer=checkpointer)
+    return build_graph(
+        llm, tools_provider, checkpointer=checkpointer,
+        planner_config=planner_config,
+    )

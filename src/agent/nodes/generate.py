@@ -14,6 +14,7 @@ from typing import Any, Callable, Dict, List
 from ..llms import ask_text
 from ..schemas import Grade
 from ..graph.state import AgentState
+from ..utils.retrieved_context import body_text_for_prompt_item
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +52,9 @@ def _format_context(chunks: List[Dict[str, Any]], max_chars: int = 6000) -> str:
             or (c.get("metadata") or {}).get("so_hieu")
             or ""
         )
-        text = c.get("text") or c.get("content") or c.get("display_text") or ""
+        text = body_text_for_prompt_item(c) or (
+            c.get("text") or c.get("content") or c.get("display_text") or ""
+        )
         header = f"[#{i}]"
         if title:
             header += f" {title}"

@@ -3,7 +3,7 @@ AgentState cho LangGraph của Legal QA Agent.
 
 Điểm quan trọng:
 - Các field list dùng *reducer* để LangGraph biết cách merge khi nhiều node
-  (đặc biệt là `execute_tool` fan-out qua `Send`) cùng ghi vào.
+  (có thể từ nhiều bước `execute_tool_chain` tuần tự) cùng ghi vào.
 - `retrieved_chunks` dùng reducer tuỳ biến `concat_or_reset` để `clear_retrieval`
   có thể xoá sạch state này trước khi loop lại (sau rewrite_query).
 - `total=False` cho phép partial update từ mỗi node.

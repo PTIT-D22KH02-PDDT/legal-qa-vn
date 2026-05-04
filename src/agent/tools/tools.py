@@ -464,13 +464,21 @@ class LegalDocumentTools:
     # ------------------------------------------------------------------
     # 3) get_specific_article  (với auto-resolve document_name → so_hieu)
     # ------------------------------------------------------------------
-    def get_specific_article(self, article_block: ArticleBlock) -> ToolOutput:
+    def get_specific_article(
+        self,
+        article_block: ArticleBlock,
+        include_references: bool = True,
+    ) -> ToolOutput:
         """Lấy nội dung chi tiết của một điều/khoản cụ thể.
 
         Hỗ trợ 2 nguồn nhận diện văn bản:
         - `article_block.so_hieu`: dùng trực tiếp (ưu tiên, deterministic).
         - `article_block.document_name`: fallback — tìm metadata có tên
           khớp nhất (fuzzy) để lấy `so_hieu`, rồi mới filter Chroma.
+
+        Khi `include_references` (mặc định True): nếu chunk gốc có
+        `metadata.reference`, tải thêm nội dung các chunk được tham chiếu
+        (cùng logic `search_legal_documents` + `nested references` ở execute).
         """
         tool_name = "get_specific_article"
         try:
@@ -504,10 +512,22 @@ class LegalDocumentTools:
                 )
 
             item = _chunk_to_item(results[0])
+            if include_references:
+                refs = self._fetch_reference_items(
+                    item, exclude_ids={item.get("chunk_id")} if item.get("chunk_id") else None,
+                )
+                if refs:
+                    item["references"] = refs
+
             display = (
                 f"**{item['title']}**\n\n{item['text']}\n\n"
                 f"Nguồn: {item.get('so_hieu') or 'N/A'}"
             )
+            for j, ref in enumerate(item.get("references") or [], 1):
+                display += (
+                    f"\n\n---\n**Tham chiếu {j}.** {ref.get('title', 'Chunk')}\n"
+                    f"{(ref.get('text') or '')[:1200]}"
+                )
             return ToolOutput(
                 tool_name=tool_name, success=True, items=[item],
                 display_text=display,
