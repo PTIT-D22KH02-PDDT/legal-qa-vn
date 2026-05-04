@@ -16,7 +16,8 @@ class DocumentRelationshipBuilder:
     def __init__(
         self,
         extract_metadata: bool = True,
-        index_documents: bool = True
+        index_documents: bool = True,
+        use_remote_api: bool = False
     ):  
         self.documents: Dict[FolderType, List[DocumentInfo]] = {}
         self.relations: List[DocumentRelation] = []
@@ -29,6 +30,7 @@ class DocumentRelationshipBuilder:
         }
         self.extract_metadata = extract_metadata
         self.index_documents = index_documents
+        self.use_remote_api = use_remote_api
     
     def _index_document(self, file_path: Path) -> Dict:
         """
@@ -53,7 +55,7 @@ class DocumentRelationshipBuilder:
             result = process_document(
                 file_path=str(file_path),
                 config=config,
-                use_remote_api=False  # Sử dụng local embedding model
+                use_remote_api=self.use_remote_api
             )
             
             if not result['success']:
@@ -258,7 +260,8 @@ class DocumentRelationshipBuilder:
 def build_relationships(
     parent_folder: Path,
     extract_metadata: bool = True,
-    index_documents: bool = False
+    index_documents: bool = False,
+    use_remote_api: bool = False
 ) -> Tuple[List[DocumentInfo], List[DocumentRelation]]:
     """
     Hàm tiện lợi để xây dựng quan hệ giữa các tài liệu
@@ -269,5 +272,9 @@ def build_relationships(
     Returns:
         Tuple[documents, relations]
     """
-    builder = DocumentRelationshipBuilder(extract_metadata=extract_metadata, index_documents=index_documents)
+    builder = DocumentRelationshipBuilder(
+        extract_metadata=extract_metadata,
+        index_documents=index_documents,
+        use_remote_api=use_remote_api
+    )
     return builder.run(parent_folder)

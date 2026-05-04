@@ -28,7 +28,7 @@ def example_save_to_database():
     logger.info("Step 2: Scan Folders & Build Relationships")
     logger.info("="*70)
     
-    parent_folder = Path(r"C:\Users\LAPTOP HP\Downloads\data_raw_law\dan_su")
+    parent_folder = Path(r"D:\project\data_raw_law\dan_su")
     
     if not parent_folder.exists():
         logger.error(f"Folder không tồn tại: {parent_folder}")
@@ -37,8 +37,9 @@ def example_save_to_database():
     # Scan folder structure
     docs, relations = build_relationships(
         parent_folder=parent_folder,
-        extract_metadata=True,
-        index_documents=False  # Có thể set True để index vào ChromaDB
+        extract_metadata=False,
+        index_documents=True,  # Có thể set True để index vào ChromaDB
+        use_remote_api=True
     )
     
     logger.info(f"✓ Found {len(docs)} documents")
