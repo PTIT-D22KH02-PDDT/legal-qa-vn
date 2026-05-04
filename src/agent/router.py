@@ -56,6 +56,12 @@ class ToolRouter:
         if analysis.is_specific and analysis.extracted_blocks:
             for block in analysis.extracted_blocks:
                 if block.dieu is not None:
+                    # Nếu có document_name nhưng chưa có so_hieu → phải search metadata trước
+                    if block.document_name and not block.so_hieu:
+                        tool_calls.append((
+                            "search_document_metadata",
+                            {"ten_van_ban": block.document_name}
+                        ))
                     tool_calls.append(
                         ("get_specific_article", {"article_block": block})
                     )

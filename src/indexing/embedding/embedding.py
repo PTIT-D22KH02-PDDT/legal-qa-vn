@@ -30,6 +30,10 @@ class EmbeddingPipeline:
                     full_text.append(chunk.parent_context)
                 if chunk.full_text:
                     full_text.append(chunk.full_text)
+                else :
+                    full_text.append(chunk.title) 
+                    full_text.append(chunk.content)
+
                 sec_meta = decode_section_id(section_id).model_dump(exclude_none=True)
                 metadata = {
                     "full_text": "\n".join(full_text),
