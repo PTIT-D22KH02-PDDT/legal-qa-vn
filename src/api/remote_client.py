@@ -23,7 +23,7 @@ class APIConfig:
     embed_api_url: str = os.getenv("HOST_NAME", "http://localhost:8000") + "/embed"
     rerank_api_url: str = os.getenv("HOST_NAME", "http://localhost:8000") + "/rerank"
     generate_api_url: str = os.getenv("HOST_NAME", "http://localhost:8000") + "/generate"
-    api_timeout: int = int(os.getenv("API_TIMEOUT", "120"))
+    api_timeout: int = 600
 
     def __post_init__(self):
         if not self.embed_api_url:
