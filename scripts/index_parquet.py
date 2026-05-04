@@ -90,9 +90,22 @@ def process_single_row(row: Dict[str, Any]) -> List[Dict[str, Any]]:
         nodes = _chunker.chunk(tree)
         
         results = []
+        seen_ids = set() # Theo dõi ID trong nội bộ một văn bản
+        
         for node in nodes:
             # Metadata bổ sung để ChromaDB có thể filter
             chunk_dict = node.model_dump()
+            
+            # ĐẢM BẢO ID DUY NHẤT: Nếu ID đã tồn tại, thêm hậu tố .1, .2
+            base_id = node.id
+            final_id = base_id
+            counter = 1
+            while final_id in seen_ids:
+                final_id = f"{base_id}.{counter}"
+                counter += 1
+            seen_ids.add(final_id)
+            chunk_dict["id"] = final_id
+
             chunk_dict.update({
                 "so_hieu": row.get("so_hieu"),
                 "co_quan_ban_hanh": row.get("co_quan_ban_hanh"),
@@ -109,7 +122,7 @@ def process_single_row(row: Dict[str, Any]) -> List[Dict[str, Any]]:
                 sub_texts = _splitter.split_text(node.content or "")
                 for i, sub_content in enumerate(sub_texts):
                     sub_chunk = chunk_dict.copy()
-                    sub_chunk["id"] = f"{node.id}_part_{i}"
+                    sub_chunk["id"] = f"{final_id}_part_{i}"
                     sub_chunk["content"] = sub_content
                     results.append(sub_chunk)
                     
@@ -175,7 +188,23 @@ class ParquetIndexer:
                                            total=len(rows), desc="Phân tích", leave=False):
                         all_nodes_data.extend(result_list)
 
+                    # HẬU KIỂM: Loại bỏ trùng lặp ID trong toàn bộ Batch
+                    unique_nodes_map = {}
+                    duplicate_count = 0
+                    for d in all_nodes_data:
+                        cid = d.get("id")
+                        if cid in unique_nodes_map:
+                            duplicate_count += 1
+                            # Nếu trùng giữa các văn bản, thêm hậu tố .batch.1
+                            d["id"] = f"{cid}.batch.{duplicate_count}"
+                        unique_nodes_map[d["id"]] = d
+                    
+                    if duplicate_count > 0:
+                        logger.warning(f"Phát hiện và xử lý {duplicate_count} ID trùng lặp trong batch.")
+                    
+                    all_nodes_data = list(unique_nodes_map.values())
                     all_nodes = [DocumentNode(**d) for d in all_nodes_data]
+                    
                     if not all_nodes:
                         processed_in_shard += current_batch_size
                         pbar.update(current_batch_size)
