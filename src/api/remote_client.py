@@ -97,32 +97,21 @@ class RemoteAPIClient:
         
         logger.debug(f"Embedding {len(texts)} texts")
         
-        max_retries = 5
-        retry_delay = 5  # giây
-        
-        for attempt in range(max_retries):
-            try:
-                response = self.client.post(
-                    self.config.embed_api_url,
-                    json={"texts": texts},
-                    timeout=self.config.api_timeout
-                )
-                data = self._handle_response(response, "embed")
-                
-                embeddings = np.array(data["embeddings"], dtype=np.float32)
-                logger.debug(f"Embedding result shape: {embeddings.shape}")
-                return embeddings
+        try:
+            response = self.client.post(
+                self.config.embed_api_url,
+                json={"texts": texts},
+                timeout=self.config.api_timeout
+            )
+            data = self._handle_response(response, "embed")
             
-            except APIError as e:
-                if attempt < max_retries - 1:
-                    logger.warning(f"Lỗi API (embed), đang thử lại lần {attempt + 1}/{max_retries} sau {retry_delay}s... Lỗi: {e}")
-                    time.sleep(retry_delay)
-                else:
-                    logger.error(f"Đã thử lại {max_retries} lần nhưng vẫn thất bại (embed).")
-                    raise
-            except Exception as e:
-                logger.error(f"Embedding failed with unexpected error: {str(e)}")
-                raise
+            embeddings = np.array(data["embeddings"], dtype=np.float32)
+            logger.debug(f"Embedding result shape: {embeddings.shape}")
+            return embeddings
+        
+        except Exception as e:
+            logger.error(f"Embedding failed: {str(e)}")
+            raise
     
     def embed_requests(self, requests: List) -> List:
         """
@@ -175,35 +164,25 @@ class RemoteAPIClient:
         
         logger.debug(f"Reranking {len(documents)} documents with query: {query[:50]}")
         
-        max_retries = 5
-        retry_delay = 5
-        
-        for attempt in range(max_retries):
-            try:
-                response = self.client.post(
-                    self.config.rerank_api_url,
-                    json={
-                        "query": query,
-                        "documents": documents,
-                        "top_k": top_k
-                    },
-                    timeout=self.config.api_timeout
-                )
-                data = self._handle_response(response, "rerank")
-                
-                results = data["results"]
-                logger.debug(f"Rerank returned {len(results)} results")
-                return results
+        try:
+            response = self.client.post(
+                self.config.rerank_api_url,
+                json={
+                    "query": query,
+                    "documents": documents,
+                    "top_k": top_k
+                },
+                timeout=self.config.api_timeout
+            )
+            data = self._handle_response(response, "rerank")
             
-            except APIError as e:
-                if attempt < max_retries - 1:
-                    logger.warning(f"Lỗi API (rerank), đang thử lại lần {attempt + 1}/{max_retries} sau {retry_delay}s... Lỗi: {e}")
-                    time.sleep(retry_delay)
-                else:
-                    raise
-            except Exception as e:
-                logger.error(f"Reranking failed: {str(e)}")
-                raise
+            results = data["results"]
+            logger.debug(f"Rerank returned {len(results)} results")
+            return results
+        
+        except Exception as e:
+            logger.error(f"Reranking failed: {str(e)}")
+            raise
     
     def rerank_pairs(self, pairs: List[tuple], top_k: int = None) -> List[float]:
         """
@@ -263,35 +242,25 @@ class RemoteAPIClient:
         
         logger.debug(f"Generating with prompt: {prompt[:50]}")
         
-        max_retries = 3
-        retry_delay = 5
-        
-        for attempt in range(max_retries):
-            try:
-                response = self.client.post(
-                    self.config.generate_api_url,
-                    json={
-                        "prompt": prompt,
-                        "max_length": max_length,
-                        "temperature": temperature
-                    },
-                    timeout=self.config.api_timeout
-                )
-                data = self._handle_response(response, "generate")
-                
-                answer = data["answer"]
-                logger.debug(f"Generated text length: {len(answer)}")
-                return answer
+        try:
+            response = self.client.post(
+                self.config.generate_api_url,
+                json={
+                    "prompt": prompt,
+                    "max_length": max_length,
+                    "temperature": temperature
+                },
+                timeout=self.config.api_timeout
+            )
+            data = self._handle_response(response, "generate")
             
-            except APIError as e:
-                if attempt < max_retries - 1:
-                    logger.warning(f"Lỗi API (generate), đang thử lại lần {attempt + 1}/{max_retries} sau {retry_delay}s... Lỗi: {e}")
-                    time.sleep(retry_delay)
-                else:
-                    raise
-            except Exception as e:
-                logger.error(f"Generation failed: {str(e)}")
-                raise
+            answer = data["answer"]
+            logger.debug(f"Generated text length: {len(answer)}")
+            return answer
+        
+        except Exception as e:
+            logger.error(f"Generation failed: {str(e)}")
+            raise
     
     def health_check(self) -> bool:
         """
