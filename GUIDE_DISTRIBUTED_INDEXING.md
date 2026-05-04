@@ -10,42 +10,38 @@
     uv sync
     ```
 3.  **Tải Dataset:**
-    ```bash
-    uv run scripts/load_dataset.py
-    ```
+    Dùng dataset tại: https://drive.google.com/drive/folders/1wxHOt3fLeyCPk4K7UytWsZgLrJicPXdC?usp=drive_link
 
 ### Bước 2: Chạy Indexing (Chọn đúng lệnh cho từng máy)
 
 **Các tham số quan trọng:**
 *   `--input` (hoặc `-i`): Đường dẫn file parquet đầu vào (tương đối hay tuyệt đối đều được). Mặc định là `data/data/content.parquet` (tính từ gốc dự án).
 *   `--total-parts`: Tổng số phần (máy) chia sẻ công việc (VD: 12).
-*   `--part-index`: Chỉ số của máy này (từ 0 đến 11).
+*   `--total-parts`: Tổng số phần (máy) chia sẻ công việc (VD: 9).
+*   `--part-index`: Chỉ số của máy này (từ 0 đến 8).
 *   `--output-dir`: Thư mục lưu kết quả (ChromaDB shard).
+*   `--start-idx` (hoặc `-sid`): Vị trí bắt đầu trong shard (dùng để resume khi bị lỗi).
 
 | Máy số | Lệnh chạy |
 | :--- | :--- |
-| **Máy 0** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 0 --output-dir "shard_0"` |
-| **Máy 1** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 1 --output-dir "shard_1"` |
-| **Máy 2** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 2 --output-dir "shard_2"` |
-| **Máy 3** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 3 --output-dir "shard_3"` |
-| **Máy 4** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 4 --output-dir "shard_4"` |
-| **Máy 5** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 5 --output-dir "shard_5"` |
-| **Máy 6** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 6 --output-dir "shard_6"` |
-| **Máy 7** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 7 --output-dir "shard_7"` |
-| **Máy 8** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 8 --output-dir "shard_8"` |
-| **Máy 9** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 9 --output-dir "shard_9"` |
-| **Máy 10** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 10 --output-dir "shard_10"` |
-| **Máy 11** | `uv run scripts/index_parquet.py --total-parts 12 --part-index 11 --output-dir "shard_11"` |
+| **Máy 0** | `uv run scripts/index_parquet.py --total-parts 9 --part-index 0 --output-dir "shard_0" --start-idx 0` |
+| **Máy 1** | `uv run scripts/index_parquet.py --total-parts 9 --part-index 1 --output-dir "shard_1" --start-idx 0` |
+| **Máy 2** | `uv run scripts/index_parquet.py --total-parts 9 --part-index 2 --output-dir "shard_2" --start-idx 0` |
+| **Máy 3** | `uv run scripts/index_parquet.py --total-parts 9 --part-index 3 --output-dir "shard_3" --start-idx 0` |
+| **Máy 4** | `uv run scripts/index_parquet.py --total-parts 9 --part-index 4 --output-dir "shard_4" --start-idx 0` |
+| **Máy 5** | `uv run scripts/index_parquet.py --total-parts 9 --part-index 5 --output-dir "shard_5" --start-idx 0` |
+| **Máy 6** | `uv run scripts/index_parquet.py --total-parts 9 --part-index 6 --output-dir "shard_6" --start-idx 0` |
+| **Máy 7** | `uv run scripts/index_parquet.py --total-parts 9 --part-index 7 --output-dir "shard_7" --start-idx 0` |
+| **Máy 8** | `uv run scripts/index_parquet.py --total-parts 9 --part-index 8 --output-dir "shard_8" --start-idx 0` |
 
 - Phân công
-    - Phong: Máy 0 - 2
-    - Trung: Máy 3 - 5
-    - Đại: Máy 6 - 8
-    - Dương: Máy 9 - 11
+    - Trung: Máy 0 - 2
+    - Đại: Máy 3 - 5
+    - Dương: Máy 6 - 8
 
 Sau khi chạy xong, zip các thư mục shard lại và tải lên drive/ gửi qua zalo
 **Lưu ý: Nhớ HOST embedding model trước khi indexing!**
-Code host: https://www.kaggle.com/code/hngphongkiu/host-nlp/edit/run/315827962
+Code host: https://www.kaggle.com/code/hngphongkiu/host-nlp
 
 ### Bước 3: Hợp nhất dữ liệu (Merge) (Cái này không cần làm)
 Sau khi tất cả các máy chạy xong, gom các thư mục `shard_x` về một chỗ và chạy:

@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ParquetIndexer")
 
 # --- Cấu hình ---
-CONTENT_PATH = os.path.join("data", "data", "content.parquet")
+CONTENT_PATH = os.path.join("data", "data", "content_filtered.parquet")
 COLLECTION_NAME = "legal_documents"
 CHROMA_DIR = "chroma_db"
 
@@ -63,10 +63,18 @@ def init_worker():
 def process_single_row(row: Dict[str, Any]) -> List[Dict[str, Any]]:
     try:
         from src.indexing.embedding.utils import create_chunk_embedding_text
-        doc_id = str(row["id"])
-        html_content = row["content_html"]
+        from bs4 import BeautifulSoup
+        
+        # 1. Sử dụng so_hieu làm ID
+        doc_id = str(row.get("so_hieu", ""))
+        if not doc_id or doc_id == "unknown":
+            doc_id = str(row.get("id", "unknown")) # Fallback về id nếu so_hieu rỗng
+        
+        html_content = row.get("content_html")
         if not html_content:
             return []
+
+        # 2. Làm sạch HTML (BeautifulSoup)
         soup = BeautifulSoup(html_content, "lxml")
         for tag in soup.find_all(['tr', 'td', 'p', 'div', 'br']):
             tag.append('\n')
@@ -74,23 +82,37 @@ def process_single_row(row: Dict[str, Any]) -> List[Dict[str, Any]]:
         text = soup.get_text(separator=" ")
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         clean_text = "\n".join(lines)
-        
+        if not clean_text:
+            return []
+
+        # 3. Phân tích cấu trúc và Chunking
         tree = _parser.build_json_tree(doc_id=doc_id, text=clean_text)
         nodes = _chunker.chunk(tree)
         
         results = []
         for node in nodes:
+            # Metadata bổ sung để ChromaDB có thể filter
+            chunk_dict = node.model_dump()
+            chunk_dict.update({
+                "so_hieu": row.get("so_hieu"),
+                "co_quan_ban_hanh": row.get("co_quan_ban_hanh"),
+                "loai_van_ban": row.get("loai_van_ban"),
+                "title_goc": row.get("title")
+            })
+
             embed_text = create_chunk_embedding_text(node)
-            # Kiểm tra độ dài bằng khoảng trắng
+            
+            # 4. Kiểm tra độ dài và xử lý nếu chunk quá lớn (Splitting fallback)
             if len(embed_text.split()) <= 2000:
-                results.append(node.model_dump())
+                results.append(chunk_dict)
             else:
                 sub_texts = _splitter.split_text(node.content or "")
                 for i, sub_content in enumerate(sub_texts):
-                    sub_node = node.model_copy()
-                    sub_node.id = f"{node.id}_part_{i}"
-                    sub_node.content = sub_content
-                    results.append(sub_node.model_dump())
+                    sub_chunk = chunk_dict.copy()
+                    sub_chunk["id"] = f"{node.id}_part_{i}"
+                    sub_chunk["content"] = sub_content
+                    results.append(sub_chunk)
+                    
         return results
     except Exception as e:
         print(f"Error processing doc {row.get('id')}: {e}")

@@ -152,6 +152,11 @@ def create_chunk_embedding_metadata(chunk: DocumentNode) -> dict[str, Any]:
     
     if chunk.full_text:
         full_text_parts.append(chunk.full_text)
+    else:
+        if chunk.title:
+            full_text_parts.append(chunk.title)
+        if chunk.content:
+            full_text_parts.append(chunk.content)
     
     metadata_base = {
         'full_text': '\n'.join(full_text_parts),

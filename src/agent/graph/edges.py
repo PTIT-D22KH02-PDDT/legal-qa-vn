@@ -1,7 +1,5 @@
 """
 Conditional edge functions cho LangGraph.
-
-Tách riêng để builder.py gọn và dễ test.
 """
 
 from __future__ import annotations
