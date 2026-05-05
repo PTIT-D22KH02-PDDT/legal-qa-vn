@@ -5,7 +5,7 @@ from src.indexing.embedding import create_embedding_request
 from .reranker import CrossEncoderReranker, RemoteReranker
 from dataclasses import dataclass
 
-LEAF_NODE_TYPES = ['dieu', 'khoan', 'diem']
+LEAF_NODE_TYPES = ['dieu', 'khoan', 'diem', 'phu_luc_phan']
 
 logger = logging.getLogger(__name__)
 
@@ -30,20 +30,29 @@ class SearchService:
 
     def _build_filter(
             self, 
-            filter_by_type: Optional[List[str]]
+            metadata_filter: Optional[Dict[str, Any]]
     ) -> Optional[Dict[str, Any]]:
         """
-        Xây dựng metadata filter cho ChromaDB query
+        Xây dựng ChromaDB 'where' clause từ metadata_filter dict.
+
+        Hỗ trợ các kiểu giá trị:
+          - list  -> {"$in": value}  (ví dụ: section_type=["dieu","khoan"])
+          - scalar -> {"$eq": value} (ví dụ: loai="luat")
+        Nhiều key sẽ được kết hợp bằng {"$and": [...]}.
         """
-        if not filter_by_type:
+        if not metadata_filter:
             return None
-        
-        # VD: {"section_type": {"$in": ["dieu", "khoan"]}}
-        return {
-            "section_type": {
-                "$in": filter_by_type
-            }
-        }
+
+        conditions = []
+        for key, value in metadata_filter.items():
+            if isinstance(value, list):
+                conditions.append({key: {"$in": value}})
+            else:
+                conditions.append({key: {"$eq": value}})
+
+        if len(conditions) == 1:
+            return conditions[0]
+        return {"$and": conditions}
 
     def _retrieve(
         self,
@@ -70,8 +79,10 @@ class SearchService:
             raise ValueError("Phải cung cấp query hoặc query_vector")
 
         # 2. Xây bộ lọc metadata
-        # Trước mắt là section_type
-        filter_metadata = self._build_filter(metadata_filter.get('section_type') if metadata_filter else LEAF_NODE_TYPES)
+        # Nếu caller không truyền filter, mặc định chỉ lấy leaf nodes (dieu/khoan/diem/phu_luc_phan)
+        # Nếu có filter, dùng trực tiếp — hỗ trợ mọi field metadata (section_type, loai, co_quan_ban_hanh, ...)
+        effective_filter = metadata_filter if metadata_filter is not None else {"section_type": LEAF_NODE_TYPES}
+        filter_metadata = self._build_filter(effective_filter)
 
         # 3. Truy vấn ChromaDB
         request = ChromaQueryRequest(

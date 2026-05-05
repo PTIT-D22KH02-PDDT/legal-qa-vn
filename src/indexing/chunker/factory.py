@@ -7,10 +7,9 @@ def create_chunker(strategy: str, **kwargs) -> FixedSizeChunker | HierarchicalCh
 
     if key == "fixed_size":
         return FixedSizeChunker(**kwargs)
+
     if key == "hierarchical":
-        if kwargs:
-            raise ValueError("Hierarchical chunker does not accept configuration kwargs")
-        return HierarchicalChunker()
+        return HierarchicalChunker(**kwargs)
 
     raise ValueError(
         "Unsupported chunking strategy. Use 'fixed_size' or 'hierarchical'."

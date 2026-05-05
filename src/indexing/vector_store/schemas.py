@@ -32,13 +32,11 @@ class ChromaUpsertRequest(BaseModel):
     
     Attributes:
         chunk_id: ID của chunk, lấy từ EmbeddingResult.chunk_id
-        chunk_index: Vị trí/thứ tự của chunk trong văn bản, dùng để kiểm tra thứ tự khi trả về kết quả embedding
         text: Nội dung của chunk, lấy từ EmbeddingResult.text
         vector: Vector embedding của chunk, lấy từ EmbeddingResult.vector
-        metadata: Metadata của chunk
+        metadata: Metadata của chunk (bao gồm cả chunk_index nếu có)
     """
     chunk_id: str
-    chunk_index: Optional[int] = None
     vector: List[float]         
     text: str                   
     metadata: Dict[str, Any] = Field(default_factory=dict)

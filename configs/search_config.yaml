@@ -36,6 +36,7 @@ rag:
 
 chunking:
   strategy: "hierarchical"
+  use_llm_refs: false
 
 embedding:
   model_dir: "models/Vietnamese_Embedding_v2"

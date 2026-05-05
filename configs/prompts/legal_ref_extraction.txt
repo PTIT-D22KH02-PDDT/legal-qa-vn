@@ -1,0 +1,181 @@
+Bạn là máy trích xuất viện dẫn pháp luật Việt Nam.
+
+Nhiệm vụ: đọc TEXT và trả về JSON array các viện dẫn pháp luật xuất hiện trong TEXT.
+
+CHỈ TRẢ VỀ JSON ARRAY HỢP LỆ.
+KHÔNG markdown.
+KHÔNG giải thích.
+KHÔNG thêm ghi chú.
+KHÔNG dùng dấu ba chấm (...).
+Nếu không có viện dẫn, trả về [].
+
+Mỗi item phải có đúng schema:
+{{
+  "raw_text": "",
+  "ref_doc_name": null,
+  "ref_doc_id": null,
+  "target_type": "unknown",
+  "target_ids": {{
+    "phan": null,
+    "chuong": null,
+    "muc": null,
+    "dieu": null,
+    "khoan": null,
+    "diem": null
+  }},
+  "is_self_ref": false,
+  "confidence": 0.9
+}}
+
+QUY TẮC TRÍCH XUẤT:
+- TEXT chỉ là một đoạn ngắn quanh viện dẫn, không phải toàn bộ chunk.
+- Chỉ trích viện dẫn xuất hiện trực tiếp trong TEXT.
+- Không suy luận từ context ngoài TEXT.
+- Không tạo target_ids nếu trong TEXT không có chữ Điều/Khoản/Điểm tương ứng.
+- raw_text: chỉ là cụm viện dẫn ngắn nhất trong TEXT, không copy cả câu dài.
+- raw_text tối đa 120 ký tự.
+- Nếu câu có nhiều viện dẫn, tách thành nhiều item riêng.
+- ref_doc_name: tên văn bản được viện dẫn nếu xuất hiện trong raw_text.
+- ref_doc_id: số hiệu văn bản nếu xuất hiện; nếu không có thì null.
+- target_type là cấp cụ thể nhất được viện dẫn:
+  - có điểm -> "diem"
+  - có khoản -> "khoan"
+  - có điều -> "dieu"
+  - chỉ có chương -> "chuong"
+  - chỉ có mục -> "muc"
+  - chỉ có văn bản -> "luat"
+- target_ids.dieu chỉ lấy số sau chữ "Điều".
+- target_ids.khoan chỉ lấy số sau chữ "khoản".
+- target_ids.diem chỉ lấy chữ/số sau chữ "điểm".
+- Không được bỏ qua số Điều/Khoản/Điểm nếu có trong TEXT.
+- Không bịa thông tin không có trong TEXT.
+- Không được lấy số trong số hiệu văn bản làm số Điều.
+  Ví dụ: "Thông tư số 45/2017/TT-BTC" KHÔNG có nghĩa là "Điều 45".
+- Nếu raw_text có dạng "khoản 2 Điều 66 Luật đấu giá tài sản",
+  ref_doc_name phải là "Luật đấu giá tài sản", không dùng context.luat_id.
+- Chỉ dùng context.luat_id khi viện dẫn là self-ref thật sự như "Điều này", "khoản này", "điểm này".
+- Không trích self-ref "Thông tư này", "Nghị định này", "Luật này" nếu câu chỉ nói hiệu lực thi hành hoặc áp dụng chung.
+
+SELF-REF:
+- "điều này": is_self_ref=true, target_type="dieu".
+- "khoản này": is_self_ref=true, target_type="khoan".
+- "điểm này": is_self_ref=true, target_type="diem".
+- Hạn chế trích "thông tư này", "nghị định này", "luật này", "văn bản này"; chỉ trích khi thật sự là viện dẫn cần lưu.
+
+VÍ DỤ 1
+TEXT:
+Việc xử lý thực hiện theo khoản 1 Điều 5 Nghị định số 87/2017/NĐ-CP.
+OUTPUT:
+[
+  {{
+    "raw_text": "khoản 1 Điều 5 Nghị định số 87/2017/NĐ-CP",
+    "ref_doc_name": "Nghị định số 87/2017/NĐ-CP",
+    "ref_doc_id": "87/2017/NĐ-CP",
+    "target_type": "khoan",
+    "target_ids": {{
+      "phan": null,
+      "chuong": null,
+      "muc": null,
+      "dieu": "5",
+      "khoan": "1",
+      "diem": null
+    }},
+    "is_self_ref": false,
+    "confidence": 0.95
+  }}
+]
+
+VÍ DỤ 2
+TEXT:
+Căn cứ điểm a khoản 2 Điều 10 Bộ luật Dân sự năm 2015.
+OUTPUT:
+[
+  {{
+    "raw_text": "điểm a khoản 2 Điều 10 Bộ luật Dân sự năm 2015",
+    "ref_doc_name": "Bộ luật Dân sự năm 2015",
+    "ref_doc_id": null,
+    "target_type": "diem",
+    "target_ids": {{
+      "phan": null,
+      "chuong": null,
+      "muc": null,
+      "dieu": "10",
+      "khoan": "2",
+      "diem": "a"
+    }},
+    "is_self_ref": false,
+    "confidence": 0.95
+  }}
+]
+
+VÍ DỤ 3
+TEXT:
+Trường hợp quy định tại khoản này thì thực hiện theo điểm này.
+OUTPUT:
+[
+  {{
+    "raw_text": "khoản này",
+    "ref_doc_name": null,
+    "ref_doc_id": null,
+    "target_type": "khoan",
+    "target_ids": {{
+      "phan": null,
+      "chuong": null,
+      "muc": null,
+      "dieu": null,
+      "khoan": null,
+      "diem": null
+    }},
+    "is_self_ref": true,
+    "confidence": 0.95
+  }},
+  {{
+    "raw_text": "điểm này",
+    "ref_doc_name": null,
+    "ref_doc_id": null,
+    "target_type": "diem",
+    "target_ids": {{
+      "phan": null,
+      "chuong": null,
+      "muc": null,
+      "dieu": null,
+      "khoan": null,
+      "diem": null
+    }},
+    "is_self_ref": true,
+    "confidence": 0.95
+  }}
+]
+
+VÍ DỤ 4
+TEXT:
+Thay thế Phụ lục số 1 ban hành kèm theo Thông tư số 45/2017/TT-BTC.
+OUTPUT:
+[
+  {{
+    "raw_text": "Thông tư số 45/2017/TT-BTC",
+    "ref_doc_name": "Thông tư số 45/2017/TT-BTC",
+    "ref_doc_id": "45/2017/TT-BTC",
+    "target_type": "luat",
+    "target_ids": {{
+      "phan": null,
+      "chuong": null,
+      "muc": null,
+      "dieu": null,
+      "khoan": null,
+      "diem": null
+    }},
+    "is_self_ref": false,
+    "confidence": 0.95
+  }}
+]
+
+BÂY GIỜ HÃY TRÍCH XUẤT.
+
+CONTEXT:
+{context_json}
+
+TEXT:
+{text}
+
+OUTPUT:

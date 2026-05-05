@@ -15,13 +15,14 @@ class VectorStorePipeline(BaseModel):
             if not embedding.chunk_id:
                 raise ValueError(f"EmbeddingResult thiếu chunk_id: {embedding}")
             metadata = dict(embedding.metadata or {})
+            # chunk_index được lưu trong metadata (không phải field riêng của ChromaUpsertRequest)
+            # để ChromaDB có thể persist và query được
             if embedding.chunk_index is not None:
                 metadata.setdefault("chunk_index", embedding.chunk_index)
 
             requests.append(
                 ChromaUpsertRequest(
                     chunk_id=embedding.chunk_id,
-                    chunk_index=embedding.chunk_index,
                     text=embedding.text,
                     vector=embedding.vector,
                     metadata=metadata
@@ -29,7 +30,7 @@ class VectorStorePipeline(BaseModel):
             )
         return requests
     
-    def run(self, store: ChromaStore, batch_size: int = None) -> None:
+    def run(self, store: ChromaStore, batch_size: int = 1000) -> None:
         """Upsert toàn bộ chunks vào ChromaStore"""
         requests = self._to_upsert_requests()
         if batch_size:

@@ -18,3 +18,5 @@ class ChunkMetadata(BaseModel):
     dieu: Optional[str] = None
     khoan: Optional[str] = None
     diem: Optional[str] = None
+    phu_luc: Optional[str] = None
+    phu_luc_phan: Optional[str] = None

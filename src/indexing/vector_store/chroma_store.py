@@ -73,16 +73,16 @@ class ChromaStore:
             ids=chunk_ids,
             include=['documents', 'metadatas']
         )
+        records = {}
         for chunk_id, document, metadata in zip(raw['ids'], raw['documents'], raw['metadatas']):
-            records = {
-                chunk_id: ChromaQueryResult(
-                    chunk_id=chunk_id,
-                    text=document,
-                    metadata=metadata or {},
-                    distance=None
+            records[chunk_id] = ChromaQueryResult(
+                chunk_id=chunk_id,
+                text=document,
+                metadata=metadata or {},
+                distance=None
             )
-        }
 
         return [
             records[chunk_id] for chunk_id in chunk_ids if chunk_id in records
         ]
+

@@ -76,6 +76,7 @@ def process_document(
         store_overrides = store_params or {}
 
         chunker_params = {
+            **{k: v for k, v in config_chunking.items() if v is not None},
             'strategy': config_chunking.get('strategy') or 'hierarchical',
             **kwargs.get('chunker_params', {}),
             **chunker_overrides,
@@ -114,7 +115,8 @@ def process_document(
 
         chunking_strategy = chunker_params.pop('strategy', 'fixed_size')
         if chunking_strategy.strip().lower() == 'hierarchical':
-            chunker_params = {}
+            allowed_hierarchical = {'appendix_chunk_size', 'appendix_chunk_overlap', 'use_llm_refs', 'llm_client'}
+            chunker_params = {k: v for k, v in chunker_params.items() if k in allowed_hierarchical}
 
         tqdm.write(f'[1/4] Chunking with strategy: {chunking_strategy}')
         chunker = create_chunker(strategy=chunking_strategy, **chunker_params)

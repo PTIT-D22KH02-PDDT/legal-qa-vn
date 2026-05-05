@@ -6,12 +6,34 @@ from pathlib import Path
 from src.core.models import DocumentNode
 from .schemas import HierarchicalChunkInput
 from src.indexing.parsing import Extractor
-
+from .fixed_size import FixedSizeChunker
 
 class HierarchicalChunker:
-    def __init__(self):
-        """Initialize HierarchicalChunker."""
-        self.extractor = Extractor()
+    def __init__(
+        self,
+        appendix_chunk_size: int = 1500,
+        appendix_chunk_overlap: int = 300,
+        use_llm_refs: bool = False,
+        llm_client=None,
+    ):
+        """Initialize HierarchicalChunker.
+
+        Args:
+            appendix_chunk_size: Size of chunks for appendices.
+            appendix_chunk_overlap: Overlap between appendix chunks.
+            use_llm_refs: Whether to use LLM-based legal reference extraction.
+            llm_client: Optional injected LLM client with generate(...).
+        """
+        self.extractor = Extractor(
+            use_llm_refs=use_llm_refs,
+            llm_client=llm_client,
+        )
+
+        self.appendix_chunker = FixedSizeChunker(
+            chunk_size=appendix_chunk_size,
+            chunk_overlap=appendix_chunk_overlap,
+            separators=["\n\n", "\n", ". ", ";\t", "; ", ", ", " ", ""],
+        )
     
     def chunk(
             self,
@@ -140,10 +162,31 @@ class HierarchicalChunker:
         return [child for child in children if isinstance(child, dict)]
 
     def _get_refs(self, node: Dict[str, Any]) -> List[str]:
+        """
+        Normalize references from parser.
+
+        Supports both:
+        - legacy format: ["doc.dieu_1.khoan_2"]
+        - structured format: [{"ref_id": "doc.dieu_1.khoan_2", ...}]
+        """
         refs = node.get("ref", [])
         if not isinstance(refs, list):
             return []
-        return [str(ref).strip() for ref in refs if str(ref).strip()]
+
+        normalized_refs: List[str] = []
+
+        for ref in refs:
+            if isinstance(ref, str):
+                ref_id = ref.strip()
+            elif isinstance(ref, dict):
+                ref_id = str(ref.get("ref_id") or "").strip()
+            else:
+                ref_id = ""
+
+            if ref_id and ref_id not in normalized_refs:
+                normalized_refs.append(ref_id)
+
+        return normalized_refs
     
     def create_document_node(self, file_path: str) -> tuple[Any, List[DocumentNode]]:
         """Process document and create chunks.

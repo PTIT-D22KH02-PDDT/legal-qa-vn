@@ -27,8 +27,8 @@ class RAGService:
     top_k_rerank: int = 5
     use_rerank: bool = True
 
-    max_context_length: int = 30000
-    max_answer_length: int = 8000
+    max_context_length: int = 8000
+    max_answer_length: int = 2000
     temperature: float = 0.5
 
     context_separator: str = "\n---\n"
@@ -125,8 +125,7 @@ class RAGService:
             )
 
         context = self._format_context(documents)
-        prompt = self._build_prompt(query=query, context=context)
-
+        logger.info("Context length: %d chars. Starting generation with LLM...", len(prompt))
         answer = self.api_client.generate(
             prompt=prompt,
             max_length=self.max_answer_length,

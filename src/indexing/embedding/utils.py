@@ -1,6 +1,6 @@
 """Embedding utilities."""
-
-from typing import Optional, List, Any
+import json
+from typing import Any
 from src.core.models import DocumentNode
 from .schemas import EmbeddingRequest
 from ..chunker.schemas import ChunkMetadata
@@ -14,6 +14,8 @@ SECTION_TYPE_NAMES = {
     'chuong': 'Chương',
     'phan': 'Phần',
     'muc': 'Mục',
+    'phu_luc': 'Phụ lục',
+    'phu_luc_phan': 'Phụ lục - Phần',
 }
 
 def _remove_chunk_suffix(level: str) -> str:
@@ -81,6 +83,21 @@ def decode_section_id(chunk_id: str) -> ChunkMetadata:
         if "_" not in level:
             continue
 
+        if level.startswith("phu_luc"):
+            section_type = "phu_luc"
+            parts = level.split("_", 2)
+            if len(parts) >= 3:
+                index = parts[2]
+            else:
+                index = "?"
+            
+            label = f'{SECTION_TYPE_NAMES.get(section_type, section_type)} {index}'
+            try:
+                setattr(metadata, section_type, label)
+            except Exception:
+                continue
+            continue
+        
         section_type, index = level.split("_", 1)
         index = ".".join(index.split("_"))
 
@@ -135,6 +152,11 @@ def create_chunk_embedding_metadata(chunk: DocumentNode) -> dict[str, Any]:
     
     if chunk.full_text:
         full_text_parts.append(chunk.full_text)
+    else:
+        if chunk.title:
+            full_text_parts.append(chunk.title)
+        if chunk.content:
+            full_text_parts.append(chunk.content)
     
     metadata_base = {
         'full_text': '\n'.join(full_text_parts),
@@ -147,7 +169,7 @@ def create_chunk_embedding_metadata(chunk: DocumentNode) -> dict[str, Any]:
             metadata[key] = value
     
     if chunk.reference:
-        metadata['reference'] = chunk.reference
+        metadata['reference'] = json.dumps(chunk.reference, ensure_ascii=False)
     
     if chunk.id:
         section_metadata = decode_section_id(chunk.id)
