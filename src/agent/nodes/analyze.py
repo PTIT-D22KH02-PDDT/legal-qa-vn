@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict
 
 from ..graph.state import AgentState
 from ..tools.llm_query_analyzer import LLMQueryAnalyzer, QueryAnalysisError
-
+from src.indexing.parsing.extract_metadata import Extractor
 logger = logging.getLogger(__name__)
 
 
@@ -26,6 +26,14 @@ def build_analyze_node(llm) -> Callable[[AgentState], Dict[str, Any]]:
                 analysis.in_scope, analysis.is_specific,
                 len(analysis.extracted_blocks), analysis.intent,
             )
+            
+            # Normalize so_hieu in all blocks (01/2019/NQ-HĐTP → 01_2019_nq_hdtp)
+            for block in analysis.extracted_blocks:
+                if block.so_hieu:
+                    logger.info("[analyze] Normalizing so_hieu: %r", block.so_hieu)
+                    extractor=Extractor()
+                    block.so_hieu = extractor._extract_so_hieu(block.so_hieu)
+            
             # Log detailed block info
             for idx, block in enumerate(analysis.extracted_blocks):
                 logger.info(
