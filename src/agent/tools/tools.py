@@ -328,6 +328,10 @@ class LegalDocumentTools:
            hoặc đóng vai trò truy vấn chính nếu không có so_hieu/ten_van_ban.
         """
         tool_name = "search_document_metadata"
+        logger.info(
+            "[%s] so_hieu=%r ten_van_ban=%r doc_type=%r org_unit=%r limit=%d",
+            tool_name, so_hieu, ten_van_ban, doc_type, org_unit, limit
+        )
         if not self.meta_repo:
             return ToolOutput(
                 tool_name=tool_name, success=False,
@@ -351,11 +355,17 @@ class LegalDocumentTools:
                 if row:
                     rows = [row]
                     used_filter = f"so_hieu={so_hieu}"
+                    logger.info("[%s] found by so_hieu: %s", tool_name, row.so_hieu)
 
             # 2) ten_van_ban (fuzzy)
             if not rows and ten_van_ban:
+                logger.info("[%s] searching by ten_van_ban: %r", tool_name, ten_van_ban)
                 rows = self.meta_repo.search_by_name(ten_van_ban, limit=max(limit * 3, 30))
                 used_filter = f"ten_van_ban~{ten_van_ban}"
+                logger.info("[%s] found %d rows by name search", tool_name, len(rows))
+                for idx, r in enumerate(rows[:3]):
+                    logger.info("[%s] result[%d] so_hieu=%s ten_van_ban=%s", 
+                               tool_name, idx, r.so_hieu, r.ten_van_ban)
 
             # 3) doc_type (hoặc dùng làm main query nếu chưa có)
             if not rows and doc_type:
@@ -393,7 +403,15 @@ class LegalDocumentTools:
                     s_so = _fuzzy_score(ten_van_ban, r.so_hieu or "")
                     scored.append((max(s_name, s_so), r))
                 scored.sort(key=lambda x: x[0], reverse=True)
-                rows_with_score = scored[:limit]
+                
+                # Smart limit: if top result has score >= 0.9, return only that 1
+                # Otherwise return up to limit results
+                if scored and scored[0][0] >= 0.9:
+                    logger.info("[%s] top score=%.2f >= 0.9 → return only 1 result", tool_name, scored[0][0])
+                    rows_with_score = scored[:1]
+                else:
+                    rows_with_score = scored[:limit]
+                
                 items = [
                     _metadata_row_to_item(r, score=score)
                     for score, r in rows_with_score

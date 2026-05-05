@@ -58,10 +58,19 @@ class ToolRouter:
                 if block.dieu is not None:
                     # Nếu có document_name nhưng chưa có so_hieu → phải search metadata trước
                     if block.document_name and not block.so_hieu:
+                        logger.info(
+                            "[router] Block has document_name='%s' but no so_hieu → "
+                            "add search_document_metadata first",
+                            block.document_name
+                        )
                         tool_calls.append((
                             "search_document_metadata",
-                            {"ten_van_ban": block.document_name}
+                            {"ten_van_ban": block.document_name, "limit": 5}
                         ))
+                    logger.info(
+                        "[router] Block dieu=%s → add get_specific_article",
+                        block.dieu
+                    )
                     tool_calls.append(
                         ("get_specific_article", {"article_block": block})
                     )
@@ -96,6 +105,11 @@ class ToolRouter:
                 ))
 
         logger.info("[router] tools=%s", [t[0] for t in tool_calls])
+        for idx, (tool_name, tool_input) in enumerate(tool_calls):
+            logger.info(
+                "[router] tool_call[%d] %s input=%s",
+                idx, tool_name, tool_input
+            )
         return tool_calls
 
     # ------------------------------------------------------------------

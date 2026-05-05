@@ -9,23 +9,35 @@ def chroma_filter_from_article_block(
     block: ArticleBlock,
     so_hieu: Optional[str],
 ) -> Dict[str, Any]:
-    """Dict filter cho `ChromaStore.query(where=...)`."""
-    out: Dict[str, Any] = {}
+    """Dict filter cho `ChromaStore.query(where=...)`.
+    
+    Chroma requires filters to be wrapped in an operator ($and, $or, etc).
+    If multiple conditions, wrap in $and.
+    """
+    conditions: list = []
+    
     if so_hieu:
-        out["so_hieu"] = so_hieu
+        conditions.append({"so_hieu": so_hieu})
     if block.dieu is not None:
-        out["dieu"] = block.dieu
+        conditions.append({"dieu": block.dieu})
     if block.khoan is not None:
-        out["khoan"] = block.khoan
+        conditions.append({"khoan": block.khoan})
     if block.diem:
-        out["diem"] = block.diem.strip()
+        conditions.append({"diem": block.diem.strip()})
     if block.phan is not None:
-        out["phan"] = block.phan
+        conditions.append({"phan": block.phan})
     if block.chuong is not None:
-        out["chuong"] = block.chuong
+        conditions.append({"chuong": block.chuong})
     if block.muc is not None:
-        out["muc"] = block.muc
-    return {k: v for k, v in out.items() if v is not None and v != ""}
+        conditions.append({"muc": block.muc})
+    
+    # Wrap in $and if multiple conditions, or return single condition directly
+    if not conditions:
+        return {}
+    elif len(conditions) == 1:
+        return conditions[0]
+    else:
+        return {"$and": conditions}
 
 
 def coverage_expected_from_article_block(

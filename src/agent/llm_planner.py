@@ -152,4 +152,10 @@ Trả về duy nhất object JSON theo schema đã dặn.
         logger.info("[llm_planner] empty/invalid plan from LLM → fallback to router")
     else:
         logger.info("[llm_planner] plan=%s", [s[0] for s in steps])
+        logger.info("[llm_planner] LLM raw response=%s", raw[:500] if raw else "empty")
+        for idx, (tool_name, tool_input) in enumerate(steps):
+            logger.info(
+                "[llm_planner] step[%d] tool=%s input=%s",
+                idx, tool_name, tool_input
+            )
     return steps

@@ -43,7 +43,10 @@ def _invoke_single_task(
     step_num: int,
 ) -> Dict[str, Any]:
     """Một lần gọi tool → {tool_results, retrieved_chunks, errors?}."""
-    logger.info("[execute] tool=%s step=%d", tool_name, step_num)
+    logger.info(
+        "[execute] tool=%s step=%d input=%s",
+        tool_name, step_num, tool_input
+    )
     start = time.time()
     tool = tools_dict.get(tool_name)
 
@@ -89,6 +92,19 @@ def _invoke_single_task(
                 ref_copy["_role"] = "reference"
                 ref_copy["_parent_chunk_id"] = main.get("chunk_id")
                 chunks.append(ref_copy)
+
+        # Log detailed output for debugging
+        logger.info(
+            "[execute_result] tool=%s success=%s items=%d",
+            tool_name, output.success, len(output.items)
+        )
+        if output.items:
+            for idx, item in enumerate(output.items[:3]):
+                if isinstance(item, dict):
+                    logger.info(
+                        "[execute_result] item[%d] so_hieu=%s ten_van_ban=%s",
+                        idx, item.get("so_hieu"), item.get("ten_van_ban")
+                    )
 
         step = AgentStep(
             step_number=step_num,

@@ -122,7 +122,7 @@ class DocumentMetadataRepository:
                 tên dài (vd "bộ luật dân sự" → token: bo, luat, dan, su).
             limit: số kết quả tối đa trả về (trước khi rerank phía caller).
         """
-        name = (name or "").strip()
+        name = (name.upper() or "").strip()
         if not name:
             return []
 

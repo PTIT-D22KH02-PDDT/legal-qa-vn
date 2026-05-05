@@ -26,6 +26,14 @@ def build_analyze_node(llm) -> Callable[[AgentState], Dict[str, Any]]:
                 analysis.in_scope, analysis.is_specific,
                 len(analysis.extracted_blocks), analysis.intent,
             )
+            # Log detailed block info
+            for idx, block in enumerate(analysis.extracted_blocks):
+                logger.info(
+                    "[analyze] block[%d] dieu=%s khoan=%s diem=%s "
+                    "document_name=%r so_hieu=%r",
+                    idx, block.dieu, block.khoan, block.diem,
+                    block.document_name, block.so_hieu
+                )
             return {
                 "analysis": analysis,
                 "original_query": state.get("original_query") or query,
