@@ -132,13 +132,10 @@ class Extractor:
                 if any(bu.startswith(s) for s in _STOP_STRUCTURE):
                     break
 
-                if len(bl) > 10 and sum(c.isupper() for c in bl) / len(bl) < 0.4:
-                    break
-
                 if not re.match(r"^[\-\s]+$", bl):
                     parts.append(bl)
 
-                if len(parts) >= 2:
+                if len(parts) >= 4:
                     break
 
         ten_ngan = " ".join(parts)

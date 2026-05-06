@@ -44,7 +44,7 @@ _CO_QUAN_LIST = [
     ("HỘI ĐỒNG NHÂN DÂN",              "Hội Đồng Nhân Dân"),
 ]
 
-_STOP_STRUCTURE = {"PHẦN", "CHƯƠNG", "MỤC", "ĐIỀU", "CĂN CỨ"}
+_STOP_STRUCTURE = {"PHẦN", "CHƯƠNG", "MỤC", "ĐIỀU", "CĂN CỨ", "THEO ĐỀ NGHỊ", "QUYẾT ĐỊNH:", "BỘ TRƯỞNG"}
 
 _RE_DIEU_THI_HANH = re.compile(
     r"^Điều\s+\d+[a-z]?\.\s+"
