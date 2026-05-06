@@ -2,17 +2,17 @@
     "summary": {
         "total": 100,
         "failed": 0,
-        "correct": 41,
-        "accuracy": 41.0
+        "correct": 45,
+        "accuracy": 45.0
     },
     "details": [
         {
             "id": 1,
             "question": "Khoản 9 Điều 4 Thông tư số 34/2017/TT-BCA của Bộ Công an quy định về nội dung nào sau đây?",
-            "predicted": "A",
+            "predicted": "B",
             "ground_truth": "A",
-            "is_correct": true,
-            "raw_response": "A"
+            "is_correct": false,
+            "raw_response": "B"
         },
         {
             "id": 2,
@@ -81,10 +81,10 @@
         {
             "id": 10,
             "question": "Điểm c Khoản 4 Điều 23 Thông tư số 35/2025/TT-BCA quy định về trường hợp nào khi sửa đổi hợp đồng trong quá trình thực hiện?",
-            "predicted": "D",
+            "predicted": "C",
             "ground_truth": "D",
-            "is_correct": true,
-            "raw_response": "D"
+            "is_correct": false,
+            "raw_response": "C"
         },
         {
             "id": 11,
@@ -129,10 +129,10 @@
         {
             "id": 16,
             "question": "Điểm d, Khoản 1, Điều 27 Nghị định số 67/2013/NĐ-CP do Chính phủ ban hành quy định về nội dung nào dưới đây?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "D",
             "is_correct": false,
-            "raw_response": "E"
+            "raw_response": "A"
         },
         {
             "id": 17,
@@ -145,10 +145,10 @@
         {
             "id": 18,
             "question": "Khoản 2 Điều 7 Thông tư 11/2015/TT-BKHCN quy định về hành vi nào sau đây?",
-            "predicted": "D",
+            "predicted": "N/A",
             "ground_truth": "D",
-            "is_correct": true,
-            "raw_response": "D"
+            "is_correct": false,
+            "raw_response": "E"
         },
         {
             "id": 19,
@@ -209,10 +209,10 @@
         {
             "id": 26,
             "question": "Khoản 1 Điều 15 Chương III Thông tư số 03/2024/TT-BTNMT của Bộ Tài nguyên và Môi trường quy định về nội dung nào sau đây?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "A",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "A"
         },
         {
             "id": 27,
@@ -241,10 +241,10 @@
         {
             "id": 30,
             "question": "Điều 15 Nghị định số 105/2017/NĐ-CP quy định quyền và nghĩa vụ nào của doanh nghiệp sản xuất rượu công nghiệp?",
-            "predicted": "D",
+            "predicted": "A",
             "ground_truth": "D",
-            "is_correct": true,
-            "raw_response": "D"
+            "is_correct": false,
+            "raw_response": "A"
         },
         {
             "id": 31,
@@ -321,18 +321,18 @@
         {
             "id": 40,
             "question": "Điểm c Khoản 2 Điều 39 Nghị định số 99/2022/NĐ-CP quy định hồ sơ đăng ký thay đổi đối với trường hợp nào sau đây?",
-            "predicted": "D",
+            "predicted": "N/A",
             "ground_truth": "D",
-            "is_correct": true,
-            "raw_response": "D"
+            "is_correct": false,
+            "raw_response": "E"
         },
         {
             "id": 41,
             "question": "Điểm d Khoản 3 Điều 12 Thông tư số 87/2011/TT-BQP do Bộ Quốc phòng ban hành quy định chi phí nào cho địa phương trong hợp đồng đào tạo?",
-            "predicted": "C",
+            "predicted": "N/A",
             "ground_truth": "C",
-            "is_correct": true,
-            "raw_response": "C"
+            "is_correct": false,
+            "raw_response": "E"
         },
         {
             "id": 42,
@@ -361,10 +361,10 @@
         {
             "id": 45,
             "question": "Điểm a, Khoản 1, Điều 5, Chương II của Thông tư số 172/2013/TT-BTC quy định nội dung chính nào của hợp đồng thuê bảo quản hàng dự trữ quốc gia?",
-            "predicted": "B",
+            "predicted": "N/A",
             "ground_truth": "B",
-            "is_correct": true,
-            "raw_response": "B"
+            "is_correct": false,
+            "raw_response": "E"
         },
         {
             "id": 46,
@@ -425,10 +425,10 @@
         {
             "id": 53,
             "question": "Điều 50 Luật số 49/2005/QH11 quy định về thời hạn thông báo trong trường hợp nào sau đây?",
-            "predicted": "N/A",
+            "predicted": "C",
             "ground_truth": "C",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "C"
         },
         {
             "id": 54,
@@ -449,10 +449,10 @@
         {
             "id": 56,
             "question": "Khoản 1 Điều 6 Thông tư số 26/2016/TT-BLĐTBXH quy định về nội dung nào sau đây?",
-            "predicted": "N/A",
+            "predicted": "D",
             "ground_truth": "D",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "D"
         },
         {
             "id": 57,
@@ -489,10 +489,10 @@
         {
             "id": 61,
             "question": "Điểm đ Khoản 1 Điều 20 Nghị định số 18/2019/NĐ-CP quy định về nội dung nào sau đây?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "A",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "A"
         },
         {
             "id": 62,
@@ -521,10 +521,10 @@
         {
             "id": 65,
             "question": "Khoản 1 Điều 38 Nghị định số 322/HĐBT ngày 18 tháng 10 năm 1991 quy định nội dung nào sau đây?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "A",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "A"
         },
         {
             "id": 66,
@@ -537,10 +537,10 @@
         {
             "id": 67,
             "question": "Điểm a Khoản 4 Điều 12 Nghị định số 12/2022/NĐ-CP quy định biện pháp khắc phục hậu quả nào đối với hành vi vi phạm trong lĩnh vực lao động?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "A",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "A"
         },
         {
             "id": 68,
@@ -553,10 +553,10 @@
         {
             "id": 69,
             "question": "Điểm a / Khoản 8 / Điều 41 / Mục 2 / Chương VI Thông tư số 50/2017/TT-BTC quy định nhiệm vụ nào của Ban kiểm soát khả năng thanh toán?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "A",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "A"
         },
         {
             "id": 70,
@@ -569,18 +569,18 @@
         {
             "id": 71,
             "question": "Khoản 1 Điều 55 Thông tư số 02/2017/TT-BTP quy định về điều kiện nào cho đăng ký dự thi vào ngạch Chấp hành viên sơ cấp?",
-            "predicted": "D",
+            "predicted": "C",
             "ground_truth": "C",
-            "is_correct": false,
-            "raw_response": "D"
+            "is_correct": true,
+            "raw_response": "C"
         },
         {
             "id": 72,
             "question": "Khoản 2 Điều 1 Thông tư số 22/2014/TT-BCA quy định về việc sử dụng biểu mẫu nào trong hoạt động nào của lực lượng Công an nhân dân?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "C",
             "is_correct": false,
-            "raw_response": "E"
+            "raw_response": "A"
         },
         {
             "id": 73,
@@ -609,10 +609,10 @@
         {
             "id": 76,
             "question": "Khoản 4 Điều 14 Nghị định số 166/2016/NĐ-CP quy định quyền gì của Tổ chức I-VAN trong lĩnh vực bảo hiểm xã hội?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "A",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "A"
         },
         {
             "id": 77,
@@ -625,18 +625,18 @@
         {
             "id": 78,
             "question": "Khoản 2 Điều 31 Luật 19/2012/QH13 quy định về nội dung nào liên quan đến hoạt động của cơ sở in xuất bản phẩm?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "A",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "A"
         },
         {
             "id": 79,
             "question": "Khoản 1 Điều 3 Nghị định số 97/2020/NĐ-CP quy định về việc gì liên quan đến vận chuyển hành khách bằng đường hàng không?",
-            "predicted": "C",
+            "predicted": "N/A",
             "ground_truth": "A",
             "is_correct": false,
-            "raw_response": "C"
+            "raw_response": "E"
         },
         {
             "id": 80,
@@ -665,10 +665,10 @@
         {
             "id": 83,
             "question": "Khoản 10 Điều 7 Thông tư số 07/2022/TT-BTC do Bộ Tài chính ban hành quy định về nội dung nào sau đây?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "A",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "A"
         },
         {
             "id": 84,
@@ -681,18 +681,18 @@
         {
             "id": 85,
             "question": "Khoản 10 Điều 3 Luật Thuế thu nhập cá nhân số 04/2007/QH12 quy định về loại thu nhập nào sau đây?",
-            "predicted": "N/A",
+            "predicted": "B",
             "ground_truth": "C",
             "is_correct": false,
-            "raw_response": "E"
+            "raw_response": "B"
         },
         {
             "id": 86,
             "question": "Khoản 4 Điều 35 Nghị định số 118/2013/NĐ-CP quy định nghĩa vụ nào của Kiểm soát viên?",
-            "predicted": "N/A",
+            "predicted": "A",
             "ground_truth": "A",
-            "is_correct": false,
-            "raw_response": "E"
+            "is_correct": true,
+            "raw_response": "A"
         },
         {
             "id": 87,
@@ -793,18 +793,18 @@
         {
             "id": 99,
             "question": "Khoản 10, Điều 3 Luật Thuế thu nhập cá nhân số 04/2007/QH12 quy định về loại thu nhập nào sau đây?",
-            "predicted": "N/A",
+            "predicted": "B",
             "ground_truth": "D",
             "is_correct": false,
-            "raw_response": "E"
+            "raw_response": "B"
         },
         {
             "id": 100,
             "question": "Điểm đ Khoản 3 Điều 7 Nghị định số 94/2024/NĐ-CP quy định về điều gì trong thị trường bất động sản?",
-            "predicted": "D",
+            "predicted": "N/A",
             "ground_truth": "D",
-            "is_correct": true,
-            "raw_response": "D"
+            "is_correct": false,
+            "raw_response": "E"
         }
     ]
 }

@@ -79,6 +79,11 @@ def evaluate():
                 use_rerank=True,
                 top_k_rerank=5,
             )
+            # search_results = search_service.search(
+            #     query=query,
+            #     top_k_retrieve=5,
+            #     use_rerank=False,
+            # )
 
             # Định dạng context kèm metadata hierarchy
             context_parts = []
@@ -108,6 +113,7 @@ def evaluate():
         prompt += f"Câu hỏi: {query}\n"
         prompt += f"Đáp án:\n{item.get('answers', '')}\n"
         prompt += "Dựa vào ngữ cảnh trên, đáp án đúng (Chỉ ghi chữ cái A, B, C hoặc D):"
+        prompt += "\n\n**LƯU Ý QUAN TRỌNG**: Chỉ trả lời bằng một chữ cái duy nhất: A, B, C, hoặc D . Chỉ được dựa vào NGỮ CẢNH TÌM KIẾM ĐƯỢC để trả lời câu hỏi, nếu ngữ cảnh không phù hợp thì để là E. KHÔNG được giải thích, KHÔNG được thêm bất kỳ text nào khác. Không lặp lại câu hỏi."
 
         try:
             # Generate answer
@@ -173,7 +179,7 @@ def evaluate():
     logger.info("=" * 50)
 
     # Save results to file
-    output_file = PROJECT_ROOT / "evaluation" / "evaluation_result_1.4_rerank5_top20.json"
+    output_file = PROJECT_ROOT / "evaluation" / "evaluation_result_1.4_rerank5_top20_1.json"
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump({
             "summary": {

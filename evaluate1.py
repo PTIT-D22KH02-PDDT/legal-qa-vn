@@ -104,7 +104,6 @@ def evaluate():
         except Exception as e:
             logger.error(f"Search failed for question {question_id}: {e}")
             context_text = "Không tìm thấy ngữ cảnh liên quan."
-
         # BƯỚC 2: BUILD PROMPT - Kết hợp Context vào Prompt
         prompt = f"{EXAMPLE_REASONING}\n\n"
         prompt += "--- NGỮ CẢNH TÌM KIẾM ĐƯỢC (CONTEXT) ---\n"
@@ -114,7 +113,7 @@ def evaluate():
         prompt += f"Câu hỏi: {query}\n"
         prompt += f"Danh sách đáp án:\n{item.get('answers', '')}\n"
         prompt += "\nHãy dựa vào NGỮ CẢNH trên (nếu có) và kiến thức pháp luật để suy luận và đưa ra đáp án đúng nhất vào trong thẻ <output>."
-        prompt+="\nBắt buộc suy luận trong thẻ <think>, và CHỈ ĐIỀN 1 CHỮ CÁI A, B, C, D vào thẻ <output>."
+        prompt+="\nBắt buộc suy luận trong thẻ <think>, và CHỈ ĐIỀN 1 CHỮ CÁI A, B, C, D vào thẻ <output>. Và LƯU Ý chỉ được dựa vào NGỮ CẢNH TÌM KIẾM ĐƯỢC để trả lời câu hỏi, nếu ngữ cảnh không phù hợp thì để trống <output>."
         prompt+="\n\n<think>"
         try:
             # Generate answer with more tokens for reasoning
@@ -194,7 +193,7 @@ def evaluate():
     logger.info("=" * 50)
 
     # Save results to file
-    output_file = PROJECT_ROOT / "evaluation" / "evaluation_results_3.1_rerank5_top_20.json"
+    output_file = PROJECT_ROOT / "evaluation" / "evaluation_results_3.1_rerank5_top20.json"
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump({
             "summary": {
