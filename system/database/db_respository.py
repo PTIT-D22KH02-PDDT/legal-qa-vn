@@ -95,6 +95,12 @@ class DocumentMetadataRepository:
         """Lấy danh sách văn bản theo loại."""
         return self.session.query(DocumentMetadataDB).filter_by(loai=loai).all()
 
+    def search_by_linh_vuc(self, linh_vuc: str, limit: int = 10) -> List[DocumentMetadataDB]:
+        """Tìm kiếm văn bản theo lĩnh vực (sử dụng ILIKE để không phân biệt hoa thường)."""
+        return self.session.query(DocumentMetadataDB).filter(
+            DocumentMetadataDB.linh_vuc.ilike(f"%{linh_vuc}%")
+        ).limit(limit).all()
+
     def get_all(self, limit: int = 10) -> List[DocumentMetadataDB]:
         """Lấy danh sách văn bản."""
         return self.session.query(DocumentMetadataDB).limit(limit).all()

@@ -29,6 +29,7 @@ class DocumentMetadataDB(Base):
     ngay_ban_hanh = Column(String(20), nullable=True)
     ngay_co_hieu_luc = Column(String(20), nullable=True)
     so_dieu = Column(Integer, default=0)
+    linh_vuc = Column(String(255), nullable=True)
     
     # File tracking
     file_path = Column(String(500), nullable=True)
