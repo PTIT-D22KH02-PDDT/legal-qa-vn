@@ -8,7 +8,7 @@ from .db_respository import (
     get_session,
     DocumentMetadataRepository,
 )
-from src.system.schemas import DocumentInfo
+from system.schemas import DocumentInfo
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class DocumentDatabaseService:
                     continue
                 
                 if self.metadata_repo.exists(metadata.so_hieu):
-                    self.metadata_repo.update(metadata.so_hieu)
+                    self.metadata_repo.update(metadata)
                     logger.info(f"Updated metadata: {metadata.so_hieu}")
                 else:
                     self.metadata_repo.create(metadata)

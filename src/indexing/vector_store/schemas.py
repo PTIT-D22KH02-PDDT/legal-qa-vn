@@ -57,7 +57,7 @@ class ChromaQueryRequest(BaseModel):
     query_vector: Optional[List[float]] = None  
     top_k: int = Field(5, ge=1, le=100, description="Số lượng kết quả trả về")
     metadata_filter: Optional[Dict[str, Any]] = None
-    score_threshold: Optional[float] = Field(None, description="Ngưỡng điểm số để lọc kết quả, chỉ trả về các kết quả có điểm số thấp hơn ngưỡng này")
+    distance_threshold: Optional[float] = Field(None, description="Ngưỡng khoảng cách để lọc kết quả, chỉ trả về các kết quả có khoảng cách nhỏ hơn ngưỡng này")
 
     @model_validator(mode='after')
     def validate_query(self):

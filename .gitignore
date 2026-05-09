@@ -72,3 +72,4 @@ chunk/
 json/
 mark_down/
 models/
+database/legal_documents.db
