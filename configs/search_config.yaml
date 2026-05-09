@@ -1,7 +1,7 @@
 pipeline:
   retrieval:
     default_top_k: 10
-    score_threshold: null
+    distance_threshold: null
     default_filter_types: null
 
   rerank:
@@ -16,14 +16,14 @@ search:
     use_rerank: true
 
   remote:
-    top_k_retrieve: 60
+    top_k_retrieve: 20
     top_k_rerank: 5
     use_remote_embedding: true
     use_rerank: true
     use_remote_rerank: true
 
 rag:
-  top_k_retrieve: 10
+  top_k_retrieve: 20
   top_k_rerank: 5
   use_rerank: true
   use_remote_embedding: true
@@ -31,8 +31,8 @@ rag:
   prompt_template_path: "configs/prompts/rag_answer_prompt.txt"
   max_context_length: 30000
   max_answer_length: 8000
-  temperature: 0.5
-  score_threshold: null
+  temperature: 0.1
+  distance_threshold: null
 
 chunking:
   strategy: "hierarchical"
@@ -50,7 +50,7 @@ vector_store:
   collection_name: "legal_documents"
   is_persist: true
   persist_directory: "chroma_db"
-  distance_metric: "ip"
+  distance_metric: "cosine"
 
 reranker:
   model_dir: "AITeamVN/Vietnamese_Reranker"

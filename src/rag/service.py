@@ -29,7 +29,7 @@ class RAGService:
 
     max_context_length: int = 8000
     max_answer_length: int = 2000
-    temperature: float = 0.5
+    temperature: float = 0.1
 
     context_separator: str = "\n---\n"
 
@@ -101,7 +101,7 @@ class RAGService:
         top_k_rerank: int | None = None,
         use_rerank: bool | None = None,
         filter_by_type: list[str] | None = None,
-        score_threshold: float | None = None,
+        distance_threshold: float | None = None,
     ) -> RAGResult:
         metadata_filter = (
             {"section_type": filter_by_type} if filter_by_type else None
@@ -112,7 +112,7 @@ class RAGService:
             top_k_retrieve=top_k_retrieve or self.top_k_retrieve,
             top_k_rerank=top_k_rerank or self.top_k_rerank,
             use_rerank=use_rerank if use_rerank is not None else self.use_rerank,
-            score_threshold=score_threshold,
+            distance_threshold=distance_threshold,
             metadata_filter=metadata_filter,
         )
 
@@ -125,7 +125,8 @@ class RAGService:
             )
 
         context = self._format_context(documents)
-        logger.info("Context length: %d chars. Starting generation with LLM...", len(prompt))
+        prompt = self._build_prompt(query, context)
+        logger.info("Context length: %d chars. Starting generation with LLM...", len(context))
         answer = self.api_client.generate(
             prompt=prompt,
             max_length=self.max_answer_length,

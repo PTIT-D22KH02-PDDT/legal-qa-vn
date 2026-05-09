@@ -44,6 +44,8 @@ def _invoke_single_task(
 ) -> Dict[str, Any]:
     """Một lần gọi tool → {tool_results, retrieved_chunks, errors?}."""
     logger.info("[execute] tool=%s step=%d", tool_name, step_num)
+    if tool_input:
+        logger.info("[execute] tool_input=%s", tool_input)
     start = time.time()
     tool = tools_dict.get(tool_name)
 
@@ -90,6 +92,32 @@ def _invoke_single_task(
                 ref_copy["_parent_chunk_id"] = main.get("chunk_id")
                 chunks.append(ref_copy)
 
+        item_count = len(output.items)
+        kinds: Dict[str, int] = {}
+        sample_ids: List[str] = []
+        for it in output.items:
+            if not isinstance(it, dict):
+                continue
+            kind = str(it.get("kind") or "unknown")
+            kinds[kind] = kinds.get(kind, 0) + 1
+            cid = it.get("chunk_id") or it.get("id")
+            if cid and len(sample_ids) < 3:
+                sample_ids.append(str(cid))
+
+        logger.info(
+            "[execute] tool=%s items=%d kinds=%s sample_ids=%s",
+            tool_name,
+            item_count,
+            kinds,
+            sample_ids,
+        )
+        if not item_count:
+            logger.info(
+                "[execute] tool=%s empty output (display_text=%r)",
+                tool_name,
+                (output.display_text or "")[:200],
+            )
+
         step = AgentStep(
             step_number=step_num,
             reasoning=f"Execute {tool_name}",
@@ -101,7 +129,7 @@ def _invoke_single_task(
                 results=[
                     {
                         "display_text": output.display_text,
-                        "item_count": len(output.items),
+                        "item_count": item_count,
                     }
                 ],
                 error=output.error,

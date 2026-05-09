@@ -38,6 +38,11 @@ def build_plan_node(
             return {"tool_plan": []}
 
         router_calls: List[Tuple[str, Dict[str, Any]]] = router.route(analysis)
+        if router_calls:
+            logger.info(
+                "[plan] router_calls=%s",
+                [{"tool": n, "input": i} for n, i in router_calls],
+            )
         tool_calls: List[Tuple[str, Dict[str, Any]]] = list(router_calls)
 
         if use_llm and analysis.in_scope and analysis.intent != Intent.CALCULATE:
@@ -48,6 +53,10 @@ def build_plan_node(
                 )
                 if planned:
                     tool_calls = planned
+                    logger.info(
+                        "[plan] llm_plan=%s",
+                        [{"tool": n, "input": i} for n, i in planned],
+                    )
             except Exception as e:
                 logger.warning("[plan] LLM planner failed, use router: %s", e)
 

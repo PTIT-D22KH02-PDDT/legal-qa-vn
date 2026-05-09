@@ -17,6 +17,10 @@ class DatabaseConfig:
         if db_type == "sqlite":
             if db_path is None:
                 db_path = str(Path(__file__).resolve().parents[2] / "database" / "legal_documents.db")
+            
+            # Đảm bảo thư mục chứa file db tồn tại
+            Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+            
             self.db_url = f"sqlite:///{db_path}"
         elif db_type == "postgresql":
             if db_path is None:
@@ -97,6 +101,19 @@ class DocumentMetadataRepository:
 
     def exists(self, so_hieu: str) -> bool:
         return self.get_by_so_hieu(so_hieu) is not None
+
+    def update(self, metadata: DocumentMetadata) -> Optional[DocumentMetadataDB]:
+        db_metadata = self.get_by_so_hieu(metadata.so_hieu)
+        if db_metadata:
+            db_metadata.ten_van_ban = metadata.ten_van_ban
+            db_metadata.loai = metadata.loai
+            db_metadata.co_quan_ban_hanh = metadata.co_quan_ban_hanh
+            db_metadata.ngay_ban_hanh = metadata.ngay_ban_hanh
+            db_metadata.ngay_co_hieu_luc = metadata.ngay_co_hieu_luc
+            db_metadata.file_path = metadata.file_path
+            db_metadata.so_dieu = metadata.so_dieu
+            self.session.commit()
+        return db_metadata
 
 class DocumentLegacyRepository:
     """CRUD operations for DocumentLegacy"""

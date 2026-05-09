@@ -10,9 +10,9 @@ Triết lý mới (sau khi schema đơn giản còn `in_scope` + `is_specific`):
                                    `dieu`. Không kèm `search_legal_documents`
                                    để tránh nhiễu.
 4. Ngược lại (general)           → `search_legal_documents` (semantic).
-5. Bổ sung: (Hiện tại đã vô hiệu hóa do không còn dùng Database)
-   - search_document_metadata (disabled)
-   - find_related_documents (disabled)
+5. Bổ sung:
+   - `needs_metadata_search`     → `search_document_metadata`.
+   - `needs_relationship_check`  → `find_related_documents` (khi có document_name).
 """
 
 from __future__ import annotations
@@ -56,6 +56,21 @@ class ToolRouter:
         if analysis.is_specific and analysis.extracted_blocks:
             for block in analysis.extracted_blocks:
                 if block.dieu is not None:
+                    # Nếu có document_name nhưng chưa có so_hieu → phải search metadata trước
+                    if block.document_name and not block.so_hieu:
+                        logger.info(
+                            "[router] Block has document_name='%s' but no so_hieu → "
+                            "add search_document_metadata first",
+                            block.document_name
+                        )
+                        tool_calls.append((
+                            "search_document_metadata",
+                            {"ten_van_ban": block.document_name, "limit": 5}
+                        ))
+                    logger.info(
+                        "[router] Block dieu=%s → add get_specific_article",
+                        block.dieu
+                    )
                     tool_calls.append(
                         ("get_specific_article", {"article_block": block})
                     )
@@ -71,16 +86,37 @@ class ToolRouter:
                 },
             ))
 
-        # 5. (Bỏ qua metadata search và relationship check vì không có DB)
+        # 5. Metadata search (ví dụ "có bao nhiêu luật X?")
+        if analysis.needs_metadata_search:
+            tool_calls.append((
+                "search_document_metadata",
+                {"doc_type": None, "ten_van_ban": None},
+            ))
+
+        # 6. Relationship check (sửa đổi/thay thế/hiệu lực)
+        if analysis.needs_relationship_check:
+            doc_id = _first_doc_identifier(analysis.extracted_blocks)
+            if doc_id:
+                tool_calls.append((
+                    "find_related_documents",
+                    {"doc_id": doc_id, "relation_type": None},
+                ))
         
         logger.info("[router] tools=%s", [t[0] for t in tool_calls])
+        for idx, (tool_name, tool_input) in enumerate(tool_calls):
+            logger.info(
+                "[router] tool_call[%d] %s input=%s",
+                idx, tool_name, tool_input
+            )
         return tool_calls
 
     # ------------------------------------------------------------------
     def get_tool_explanation(self, tool_name: str) -> str:
         explanations = {
             "search_legal_documents": "Tìm kiếm tài liệu bằng vector similarity",
+            "search_document_metadata": "Tìm kiếm metadata của tài liệu",
             "get_specific_article": "Lấy nội dung điều khoản cụ thể",
+            "find_related_documents": "Tìm tài liệu liên quan (sửa đổi, bổ sung, v.v.)",
             "find_cross_references": "Tìm các tham chiếu chéo",
         }
         return explanations.get(tool_name, "Tool không xác định")

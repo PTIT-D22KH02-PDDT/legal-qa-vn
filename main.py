@@ -341,7 +341,7 @@ def handle_rag():
 
         result = rag_service.answer(
             query=query,
-            score_threshold=rag_config.get("score_threshold"),
+            distance_threshold=rag_config.get("distance_threshold"),
         )
 
         logger.info("=" * 70)

@@ -60,7 +60,7 @@ class SearchService:
         query_vector: Optional[List[float]] = None,
         top_k: int = 10,
         metadata_filter: Optional[Dict[str, Any]] = None,
-        score_threshold: Optional[float] = None
+        distance_threshold: Optional[float] = None
     ) -> List[ChromaQueryResult]:
         """
         Retrieve điều khoản từ ChromaDB dựa trên query
@@ -90,15 +90,16 @@ class SearchService:
             query_vector=query_vector,
             top_k=top_k,
             metadata_filter=filter_metadata,
-            score_threshold=score_threshold
+            distance_threshold=distance_threshold
         )
         
         results = self.chroma_store.query(request) or []
         
-        # 4. Filter theo score_threshold
-        if score_threshold is not None:
+        # 4. Filter theo distance_threshold
+        # Note: Với metric "cosine", distance nhỏ = similar, nên dùng <=
+        if distance_threshold is not None:
             results = [
-                r for r in results if r.distance <= score_threshold
+                r for r in results if r.distance <= distance_threshold
             ]
         
         return results
@@ -111,7 +112,7 @@ class SearchService:
             top_k_rerank: Optional[int] = None,
             metadata_filter: Optional[Dict[str, Any]] = None,
             use_rerank: bool = False,
-            score_threshold: Optional[float] = None
+            distance_threshold: Optional[float] = None
     ) -> List[ChromaQueryResult]:
         """
         Search documents
@@ -123,7 +124,7 @@ class SearchService:
             top_k_rerank: Số lượng kết quả sau khi rerank
             metadata_filter: Bộ lọc metadata
             use_rerank: Có sử dụng rerank hay không
-            score_threshold: Ngưỡng distance để lọc kết quả retrieve
+            distance_threshold: Ngưỡng distance để lọc kết quả retrieve
         
         Returns:
             list[ChromaQueryResult]: Danh sách kết quả sau khi retrieve và rerank (nếu có)
@@ -133,14 +134,14 @@ class SearchService:
             raise ValueError("use_rerank=True nhưng không có reranker nào được truyền vào")
         
         # 1. Retrieve
-        logger.info(f"Search query={query} with top_k_retrieve={top_k_retrieve}, score_threshold={score_threshold}, rerank={use_rerank}")
+        logger.info(f"Search query={query} with top_k_retrieve={top_k_retrieve}, distance_threshold={distance_threshold}, rerank={use_rerank}")
 
         candidates = self._retrieve(
             query=query,
             query_vector=query_vector,
             top_k=top_k_retrieve,
             metadata_filter=metadata_filter,
-            score_threshold=score_threshold
+            distance_threshold=distance_threshold
         )
 
         if not candidates:
@@ -168,7 +169,7 @@ class SearchService:
         top_k_retrieve: int = 10,
         top_k_rerank: Optional[int] = None,
         use_rerank: bool = False,
-        score_threshold: Optional[float] = None
+        distance_threshold: Optional[float] = None
     ) -> List[ChromaQueryResult]:
         """
         Search documents với filter theo section_type
@@ -179,7 +180,7 @@ class SearchService:
             top_k_retrieve: Số lượng kết quả retrieve ban đầu
             top_k_rerank: Số lượng kết quả sau khi rerank
             use_rerank: Có sử dụng rerank hay không
-            score_threshold: Ngưỡng distance để lọc kết quả retrieve
+            distance_threshold: Ngưỡng distance để lọc kết quả retrieve
         
         Returns:
             list[ChromaQueryResult]: Danh sách kết quả sau khi retrieve và rerank (nếu có)
@@ -191,5 +192,5 @@ class SearchService:
             top_k_rerank=top_k_rerank,
             metadata_filter=metadata_filter,
             use_rerank=use_rerank,
-            score_threshold=score_threshold
+            distance_threshold=distance_threshold
     )
