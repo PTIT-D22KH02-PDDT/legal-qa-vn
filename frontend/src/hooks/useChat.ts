@@ -100,10 +100,13 @@ export const useChat = () => {
 
     // Gọi API thật tới backend api_server.py
     try {
-      const response = await fetch('http://localhost:8001/api/chat', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+      console.log(apiUrl)
+      const response = await fetch(`${apiUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true'
         },
         body: JSON.stringify({
           query: currentInput,
