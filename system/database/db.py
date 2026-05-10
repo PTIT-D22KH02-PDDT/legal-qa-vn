@@ -38,7 +38,10 @@ class DocumentMetadataDB(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     indexed = Column(Integer, default=0)
-    
+
+    # Trạng thái hiệu lực: 1 = Còn hiệu lực, 0 = Hết hiệu lực
+    trang_thai = Column(Integer, default=1, nullable=True)
+
     def __repr__(self):
         return f"<DocumentMetadata({self.so_hieu}, {self.ten_van_ban})>"
 

@@ -589,3 +589,5 @@ class LegalAgentTools:
             main_chunk.chunk_id, len(top_refs), len(valid_ref_chunks), score_threshold, max_refs,
         )
         return top_refs
+
+

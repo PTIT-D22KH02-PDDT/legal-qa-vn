@@ -175,6 +175,10 @@ def create_chunk_embedding_metadata(chunk: DocumentNode) -> dict[str, Any]:
         section_metadata = decode_section_id(chunk.id)
         metadata.update(_model_to_dict(section_metadata))
 
+    # Trạng thái hiệu lực mặc định: 1 = Còn hiệu lực
+    # Dùng để lọc khi văn bản bị thay thế (trang_thai = 0 = Hết hiệu lực)
+    metadata['trang_thai'] = 1
+
     return metadata
 
 def create_embedding_request(
