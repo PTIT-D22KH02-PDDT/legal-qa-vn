@@ -125,6 +125,7 @@ class RAGService:
             )
 
         context = self._format_context(documents)
+        prompt = self._build_prompt(query, context)
         logger.info("Context length: %d chars. Starting generation with LLM...", len(prompt))
         answer = self.api_client.generate(
             prompt=prompt,
