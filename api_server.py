@@ -109,10 +109,67 @@ def list_documents():
         if db_service:
             db_service.close()
 
+@app.get("/api/documents/search")
+def search_documents(query: str = ""):
+    """Tìm kiếm văn bản theo số hiệu hoặc tên để chọn quan hệ."""
+    db_service = None
+    try:
+        db_service = DocumentDatabaseService()
+        # Tìm kiếm trong SQLite
+        from sqlalchemy import or_
+        from system.database.db import DocumentMetadataDB
+        
+        session = db_service.metadata_repo.session
+        results = session.query(DocumentMetadataDB).filter(
+            or_(
+                DocumentMetadataDB.so_hieu.ilike(f"%{query}%"),
+                DocumentMetadataDB.ten_van_ban.ilike(f"%{query}%")
+            )
+        ).limit(20).all()
+        
+        return [
+            {"so_hieu": doc.so_hieu, "ten_van_ban": doc.ten_van_ban} 
+            for doc in results
+        ]
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if db_service:
+            db_service.close()
+
+@app.get("/api/relation-types")
+def get_relation_types():
+    """Lấy danh sách các loại quan hệ hiện có trong DB."""
+    db_service = None
+    try:
+        db_service = DocumentDatabaseService()
+        session = db_service.metadata_repo.session
+        from system.database.db import DocumentRelationDB
+        from sqlalchemy import func
+        
+        # Lấy distinct relation_type
+        results = session.query(DocumentRelationDB.relation_type).distinct().all()
+        types = [r[0] for r in results if r[0]]
+        
+        # Nếu DB trống, trả về một số loại mặc định
+        if not types:
+            types = ["Thay thế", "Sửa đổi, bổ sung", "Hướng dẫn", "Căn cứ"]
+            
+        return types
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if db_service:
+            db_service.close()
+
 @app.post("/api/replace-document")
 async def replace_document(
     file: UploadFile = File(...),
-    replaced_so_hieu: str = Form(...)
+    replaced_so_hieu: str = Form(...),
+    relation_type: str = Form("Thay thế"),
+    description: str = Form("")
 ):
     replace_service = None
     try:
@@ -129,7 +186,12 @@ async def replace_document(
         chroma_store = build_chroma_store()
         
         replace_service = ReplaceFileService(chroma_store=chroma_store)
-        result = replace_service.process(new_file_path=file_path, replaced_so_hieu=replaced_so_hieu)
+        # Cập nhật loại quan hệ tùy chỉnh
+        result = replace_service.process(
+            new_file_path=file_path, 
+            replaced_so_hieu=replaced_so_hieu,
+            relation_type=relation_type
+        )
         
         return result
     except Exception as e:

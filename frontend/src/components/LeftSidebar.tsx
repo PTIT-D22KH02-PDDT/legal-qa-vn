@@ -1,8 +1,11 @@
+import React, { useState } from 'react';
 import { Home, Sparkles, MessageSquare, LogOut, FileEdit } from 'lucide-react';
 import './LeftSidebar.css';
-import DocumentReplacement from './DocumentReplacement';
+import DocumentRelationModal from './DocumentRelationModal';
 
 const LeftSidebar: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="left-sidebar">
       <div className="sidebar-top">
@@ -32,9 +35,17 @@ const LeftSidebar: React.FC = () => {
           <div className="section-title">
             <span>QUẢN LÝ VĂN BẢN</span>
           </div>
-          <DocumentReplacement />
+          <div className="nav-item" onClick={() => setIsModalOpen(true)}>
+            <FileEdit className="nav-icon" size={18} />
+            <span>Liên kết văn bản</span>
+          </div>
         </div>
       </div>
+
+      <DocumentRelationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
 
       <div className="sidebar-bottom">
         <div className="nav-item">
