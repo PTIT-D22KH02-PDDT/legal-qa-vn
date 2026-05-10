@@ -88,10 +88,32 @@ class DocumentMetadataRepository:
         return self.session.query(DocumentMetadataDB).filter_by(so_hieu=so_hieu).first()
     
     def search_by_name(self, name: str, limit: int = 10) -> List[DocumentMetadataDB]:
-        """Tìm kiếm văn bản theo tên (sử dụng LIKE)."""
-        return self.session.query(DocumentMetadataDB).filter(
+        """Tìm kiếm văn bản theo tên (sử dụng LIKE). Bổ sung fallback upper/lower cho tiếng Việt."""
+        # Query 1: ilike mặc định
+        results = self.session.query(DocumentMetadataDB).filter(
             DocumentMetadataDB.ten_van_ban.ilike(f"%{name}%")
         ).limit(limit).all()
+        
+        # Nếu không có kết quả, thử chuyển toàn bộ sang chữ in hoa 
+        # (do SQLite ilike không hỗ trợ case-insensitive tiếng Việt có dấu)
+        if not results:
+            results = self.session.query(DocumentMetadataDB).filter(
+                DocumentMetadataDB.ten_van_ban.like(f"%{name.upper()}%")
+            ).limit(limit).all()
+            
+        # Thử chuyển toàn bộ sang chữ thường
+        if not results:
+            results = self.session.query(DocumentMetadataDB).filter(
+                DocumentMetadataDB.ten_van_ban.like(f"%{name.lower()}%")
+            ).limit(limit).all()
+            
+        # Thử viết hoa chữ cái đầu (Title Case)
+        if not results:
+            results = self.session.query(DocumentMetadataDB).filter(
+                DocumentMetadataDB.ten_van_ban.like(f"%{name.title()}%")
+            ).limit(limit).all()
+            
+        return results
 
     def get_by_loai(self, loai: str) -> List[DocumentMetadataDB]:
         """Lấy danh sách văn bản theo loại."""

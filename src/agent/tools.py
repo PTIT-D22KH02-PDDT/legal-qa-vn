@@ -402,7 +402,7 @@ class LegalAgentTools:
                     rows = [row]
 
             elif ten_van_ban:
-                candidates = self.meta_repo.search_by_name(ten_van_ban.strip(), limit=limit * 3)
+                candidates = self.meta_repo.search_by_name(ten_van_ban.upper().strip(), limit=limit * 3)
                 if candidates:
                     scored = [
                         (
