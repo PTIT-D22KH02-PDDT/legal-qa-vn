@@ -216,12 +216,20 @@ def run_migrations():
             if unique_docs:
                 print(f"Saving {len(unique_docs)} documents to SQLite...")
                 from src.core.models import DocumentMetadata
+                from system.database.db_respository import DocumentMetadataRepository
+                
+                # Khởi tạo repository với session mới
+                session = db_manager.get_session()
+                repo = DocumentMetadataRepository(session)
+                
                 for doc_meta in unique_docs.values():
                     try:
                         meta = DocumentMetadata.model_validate(doc_meta)
-                        db_manager.metadata_repo.create(meta)
+                        repo.create(meta)
                     except Exception as e:
                         print(f"  Error saving {doc_meta.get('so_hieu')}: {e}")
+                
+                session.close()
                 print("✓ Re-sync completed.")
         else:
             print(f"✓ SQLite already has {stats['total_documents']} documents. No re-sync needed.")
