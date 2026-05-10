@@ -1,13 +1,13 @@
 .doc-replace-container {
-  padding: 1.5rem;
+  padding: 1rem;
   background: var(--bg-sidebar);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin: 1rem;
+  margin: 0.5rem 0;
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .doc-replace-container h3 {

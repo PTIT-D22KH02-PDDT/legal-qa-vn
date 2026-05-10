@@ -1,16 +1,15 @@
 .left-sidebar {
-  width: 250px;
+  width: 280px;
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px 16px;
+  padding: 20px 12px;
   flex-shrink: 0;
 }
 
 .sidebar-header {
-  margin-bottom: 24px;
   padding-left: 12px;
 }
 
