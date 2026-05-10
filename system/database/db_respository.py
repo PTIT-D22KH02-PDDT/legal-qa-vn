@@ -225,6 +225,12 @@ class DocumentRelationRepository:
         self.session.commit()
         return deleted
 
+    def get_relations_by_entity(self, so_hieu: str):
+        """Lấy tất cả các quan hệ mà văn bản tham gia (cả start và end)."""
+        relations_start = self.session.query(DocumentRelationDB).filter(DocumentRelationDB.entity_start == so_hieu).all()
+        relations_end = self.session.query(DocumentRelationDB).filter(DocumentRelationDB.entity_end == so_hieu).all()
+        return relations_start, relations_end
+
 class DocumentContentRepository:
     """CRUD operations for DocumentContent"""
     def __init__(self, session: Session):

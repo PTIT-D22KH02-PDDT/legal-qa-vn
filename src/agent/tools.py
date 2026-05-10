@@ -29,8 +29,8 @@ from typing import Any, Dict, List, Optional
 from src.api import RemoteAPIClient
 from src.indexing.vector_store import ChromaQueryRequest, ChromaQueryResult, ChromaStore
 from src.search.search import SearchService
-from system.database.db_respository import DocumentMetadataRepository
-from system.database.db import DocumentMetadataDB
+from system.database.db_respository import DocumentMetadataRepository, DocumentRelationRepository
+from system.database.db import DocumentMetadataDB, DocumentRelationDB
 from src.indexing.parsing.extract_metadata import Extractor
 from .schemas import DocumentItem, ToolOutput
 
@@ -161,11 +161,13 @@ class LegalAgentTools:
         self,
         search_service: SearchService,
         chroma_store: ChromaStore,
+        relation_repo: Optional[DocumentRelationRepository] = None,
         meta_repo: Optional[DocumentMetadataRepository] = None,
         api_client: Optional[RemoteAPIClient] = None,
     ) -> None:
         self.search_service = search_service
         self.chroma_store = chroma_store
+        self.relation_repo = relation_repo
         self.meta_repo = meta_repo
         self.api_client = api_client  # Dùng để gọi LLM trong _evaluate_refs
 
@@ -448,6 +450,68 @@ class LegalAgentTools:
                 display_text=f"Lỗi khi tra cứu văn bản: {e}",
             )
 
+    def doc_relation_search(
+        self,
+        so_hieu: str
+    ) -> ToolOutput:
+        """
+        Tra cứu quan hệ của một văn bản (bị thay thế, sửa đổi, hiệu lực).
+        """
+        tool_name = "doc_relation_search"
+
+        if not self.meta_repo:
+            return ToolOutput(
+                tool_name=tool_name,
+                success=False,
+                display_text="Database SQLite chưa được khởi tạo.",
+            )
+
+        try:
+            # 1. Lấy thông tin metadata cơ bản (để biết còn hiệu lực không)
+            doc_row = self.meta_repo.get_by_so_hieu(so_hieu)
+            if not doc_row:
+                return ToolOutput(
+                    tool_name=tool_name,
+                    success=False,
+                    display_text=f"Không tìm thấy văn bản nào có số hiệu '{so_hieu}' trong hệ thống.",
+                )
+            
+            doc_item = DocumentItem.from_orm_row(doc_row)
+            
+            # 2. Tìm các mối quan hệ thông qua Repository
+            relations_start, relations_end = self.relation_repo.get_relations_by_entity(so_hieu)
+            
+            # 3. Xây dựng nội dung Context
+            lines = [
+                f"Thông tin về văn bản '{doc_item.ten_van_ban or so_hieu}':",
+                doc_item.to_display(),
+                "\n--- CÁC MỐI QUAN HỆ ---"
+            ]
+            
+            if not relations_start and not relations_end:
+                lines.append("Không tìm thấy mối quan hệ sửa đổi/thay thế nào trong hệ thống.")
+            else:
+                for rel in relations_start:
+                    lines.append(f"- Văn bản này {rel.relation_type} văn bản {rel.entity_end}")
+                for rel in relations_end:
+                    lines.append(f"- Văn bản này bị/được {rel.relation_type} bởi văn bản {rel.entity_start}")
+                    
+            return ToolOutput(
+                tool_name=tool_name,
+                success=True,
+                documents=[doc_item], # đính kèm doc_item để lỡ node sau cần dùng
+                display_text="\n".join(lines)
+            )
+
+        except Exception as e:
+            logger.exception("[doc_relation_search] Lỗi: %s", e)
+            return ToolOutput(
+                tool_name=tool_name,
+                success=False,
+                error=str(e),
+                display_text=f"Lỗi khi tra cứu quan hệ văn bản: {e}",
+            )
+
     #Hàm đánh giá xem việc lấy thồn tin từ viện dẫn của 1 chunk có cần thiết hay không
     #Đang làm là lấy query + chunk chính + tất cả chunk tham chiếu để đánh giá (LLM as a judge)
     #Vấn đề: nếu chunk chính đã đầy đủ thông tin thì không cần lấy tham chiếu nữa
@@ -589,5 +653,4 @@ class LegalAgentTools:
             main_chunk.chunk_id, len(top_refs), len(valid_ref_chunks), score_threshold, max_refs,
         )
         return top_refs
-
 
