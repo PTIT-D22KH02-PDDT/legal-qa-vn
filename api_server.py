@@ -63,7 +63,7 @@ def init_services(req: ChatRequest):
 @app.post("/api/chat", response_model=ChatResponse)
 def chat_endpoint(req: ChatRequest):
     try:
-        # init_services(req)
+        init_services(req)
         result = rag_service.answer(query=req.query)
         
         # Trích xuất các source documents để làm citation
