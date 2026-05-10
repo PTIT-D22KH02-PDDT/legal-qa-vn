@@ -174,7 +174,7 @@ class LegalAgentTools:
         query: str,
         top_k_retrieve: int = 50,
         top_k_rerank: Optional[int] = 5,
-        use_rerank: bool = False,
+        use_rerank: bool = True
     ) -> ToolOutput:
         """
         Tìm kiếm ngữ nghĩa (semantic search) trong ChromaDB.

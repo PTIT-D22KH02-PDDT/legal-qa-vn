@@ -70,3 +70,18 @@ class DocumentLegacyDB(Base):
     
     def __repr__(self):
         return f"<DocumentLegacy({self.so_hieu}, {self.ten_van_ban})>"
+
+class DocumentRelationDB(Base):
+    """ORM model cho DocumentRelation (Quan hệ giữa các văn bản)"""
+    __tablename__ = 'document_relation'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    entity_start = Column(String(255), nullable=True)
+    entity_end = Column(String(255), nullable=True)
+    relation_type = Column(String(100), nullable=True)
+    description = Column(String(1000), nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<DocumentRelation({self.entity_start} -> {self.entity_end})>"

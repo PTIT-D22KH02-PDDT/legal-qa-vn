@@ -96,7 +96,7 @@ def process_document(
             'collection_name': 'legal_documents',
             'is_persist': True,
             'persist_directory': str(root_dir / "chroma_db"),
-            'distance_metric': 'ip',
+            'distance_metric': 'cosine',
             **{k: v for k, v in config_vector_store.items() if v is not None},
             **kwargs.get('store_params', {}),
             **store_overrides,
@@ -129,7 +129,7 @@ def process_document(
 
         if use_remote_api:
             tqdm.write('      Using remote embedding API')
-            api_client = RemoteAPIClient()
+            api_client = kwargs.get('api_client') or RemoteAPIClient()
             embedding_model = RemoteEmbeddingModel(api_client)
         else:
             onnx_params = {k: v for k, v in embedding_params.items() if k != 'batch_size'}

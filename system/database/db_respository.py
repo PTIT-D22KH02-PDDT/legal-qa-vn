@@ -5,7 +5,8 @@ from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import Session, sessionmaker
 import logging
 from datetime import datetime
-from .db import DocumentMetadataDB, DocumentContentDB, DocumentLegacyDB, Base
+from .db import DocumentMetadataDB, DocumentContentDB, DocumentLegacyDB, DocumentRelationDB, Base
+from src.core.models import DocumentRelation
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +77,8 @@ class DocumentMetadataRepository:
             ngay_ban_hanh=metadata.ngay_ban_hanh,
             ngay_co_hieu_luc=metadata.ngay_co_hieu_luc,
             file_path=metadata.file_path,
-            so_dieu=metadata.so_dieu
+            so_dieu=metadata.so_dieu, 
+            linh_vuc = getattr(metadata, 'linh_vuc', 'chưa xác định')
         )
         self.session.add(db_metadata)
         self.session.commit()
@@ -121,6 +123,15 @@ class DocumentMetadataRepository:
             self.session.commit()
         return db_metadata
 
+    def update_trang_thai(self, so_hieu: str, trang_thai: int) -> bool:
+        """Cập nhật trạng thái hiệu lực của văn bản (1=còn hiệu lực, 0=hết hiệu lực)."""
+        db_metadata = self.get_by_so_hieu(so_hieu)
+        if not db_metadata:
+            return False
+        db_metadata.trang_thai = trang_thai
+        self.session.commit()
+        return True
+
 class DocumentLegacyRepository:
     """CRUD operations for DocumentLegacy"""
     def __init__(self, session: Session):
@@ -146,6 +157,73 @@ class DocumentLegacyRepository:
     
     def exists(self, so_hieu: str) -> bool:
         return self.get_by_so_hieu(so_hieu) is not None
+
+class DocumentRelationRepository:
+    """CRUD operations for DocumentRelation"""
+    def __init__(self, session: Session):
+        self.session = session
+
+    def exists_triple(
+        self,
+        entity_start: Optional[str],
+        entity_end: Optional[str],
+        relation_type: str,
+    ) -> bool:
+        row = (
+            self.session.query(DocumentRelationDB)
+            .filter_by(
+                entity_start=entity_start,
+                entity_end=entity_end,
+                relation_type=relation_type,
+            )
+            .first()
+        )
+        return row is not None
+    
+    def create(self, relation: DocumentRelation) -> DocumentRelationDB:
+        # Xử lý enum relation_type nếu cần
+        rel_type = relation.relation_type.value if hasattr(relation.relation_type, 'value') else str(relation.relation_type)
+        
+        db_relation = DocumentRelationDB(
+            entity_start=relation.entity_start,
+            entity_end=relation.entity_end,
+            relation_type=rel_type,
+            description=relation.description
+        )
+        self.session.add(db_relation)
+        self.session.commit()
+        return db_relation
+
+    def delete_by_id(self, relation_id: int) -> bool:
+        """Xóa một quan hệ theo khóa chính `id`. Trả về True nếu đã xóa được bản ghi."""
+        row = self.session.query(DocumentRelationDB).filter_by(id=relation_id).first()
+        if row is None:
+            return False
+        self.session.delete(row)
+        self.session.commit()
+        return True
+
+    def delete_by_triple(
+        self,
+        entity_start: Optional[str],
+        entity_end: Optional[str],
+        relation_type: str,
+    ) -> int:
+        """
+        Xóa mọi quan hệ trùng bộ (entity_start, entity_end, relation_type).
+        Trả về số dòng đã xóa.
+        """
+        deleted = (
+            self.session.query(DocumentRelationDB)
+            .filter_by(
+                entity_start=entity_start,
+                entity_end=entity_end,
+                relation_type=relation_type,
+            )
+            .delete(synchronize_session=False)
+        )
+        self.session.commit()
+        return deleted
 
 class DocumentContentRepository:
     """CRUD operations for DocumentContent"""

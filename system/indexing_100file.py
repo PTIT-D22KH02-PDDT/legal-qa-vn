@@ -4,34 +4,52 @@ from src.indexing.embedding import RemoteEmbeddingModel
 from src.indexing.chunker import create_chunker
 from src.indexing.parsing.legal_parser import ParseLegal
 from  src.indexing.parsing.extract_metadata import Extractor
+from typing import Optional
+
 from tqdm import tqdm
 import time
 from pathlib import Path
+from sqlalchemy.orm import Session
 from src.indexing.embedding import EmbeddingPipeline
 from system.schemas import DocumentInfo
 from system.database.db_respository import init_database
 from system.database.db_service import DocumentDatabaseService
 
 
-COLLECTION_NAME="legal_documents"
-CHROMA_DIR="chroma_db"
+_DEFAULT_CHROMA_DIR = "chroma_db"
+_DEFAULT_COLLECTION_NAME = "legal_documents"
+
 
 class Indexing:
-    def __init__(self, chroma_dir : str=CHROMA_DIR):
+    def __init__(
+        self,
+        chroma_store: ChromaStore = None,
+        session: Optional[Session] = None,
+    ):
         self.api_client= RemoteAPIClient()
         self.embeddingmodel=RemoteEmbeddingModel(self.api_client)
-        self.chroma_store = ChromaStore(ChromaConfig(
-            collection_name=COLLECTION_NAME,
-            is_persist=True,
-            persist_directory=chroma_dir,
-            distance_metric='cosine'
-        ))
+        if chroma_store is None:
+            self.chroma_store = ChromaStore(ChromaConfig(
+                collection_name=_DEFAULT_COLLECTION_NAME,
+                is_persist=True,
+                persist_directory=_DEFAULT_CHROMA_DIR,
+                distance_metric="cosine",
+            ))
+        else:
+            self.chroma_store = chroma_store
+        self.chroma_collection_name = self.chroma_store.config.collection_name
         self.parser = ParseLegal()
         self.chunker=  create_chunker(strategy="hierarchical")
         self.extractor = Extractor()
-        self.db_manager=init_database()
-        self.session=self.db_manager.get_session()
-        self.db_service=DocumentDatabaseService(self.session)
+        if session is None:
+            self.db_manager = init_database()
+            self.session = self.db_manager.get_session()
+            self._owns_session = True
+        else:
+            self.db_manager = None
+            self.session = session
+            self._owns_session = False
+        self.db_service = DocumentDatabaseService(self.session, chroma_store=self.chroma_store)
     def run_single_file(self, file_path: str):
         tqdm.write(f'Indexing file: {file_path}')
         info, chunks=self.chunker.create_document_node(file_path=file_path)
@@ -44,21 +62,30 @@ class Indexing:
         # Luu document metadata vao db
         saved_count, saved_so_hieu = self.db_service.save_documents([doc_info])
         tqdm.write(f'      Saved metadata for {saved_count} documents with so_hieu: {", ".join(saved_so_hieu)}')
-        # chunks_count = len(chunks)
-        # tqdm.write(f'      Generated {chunks_count} chunks')
-        # tqdm.write('[1/3] Generating embeddings')
-        # batch_size = 64
-        # embedding_pipeline=EmbeddingPipeline(chunk_documents=chunks)
-        # embeddings=embedding_pipeline.run(lambda reqs: self.embeddingmodel.embed(reqs, batch_size=batch_size))
-        # embeddings_count = len(embeddings)
-        # tqdm.write(f'      Generated {embeddings_count} embeddings')
-        # tqdm.write('[2/3] Storing in ChromaDB')
-        # vector_store_pipeline = VectorStorePipeline(
-        #     embeddings=embeddings
-        # )
-        # vector_store_pipeline.run(self.chroma_store)
-        # tqdm.write(f'      Upserted to collection: {COLLECTION_NAME}')
-        # tqdm.write('[3/3] Done')
+        chunks_count = len(chunks)
+        tqdm.write(f'      Generated {chunks_count} chunks')
+        tqdm.write('[1/3] Generating embeddings')
+        batch_size = 64
+        embedding_pipeline=EmbeddingPipeline(chunk_documents=chunks)
+        embeddings=embedding_pipeline.run(lambda reqs: self.embeddingmodel.embed(reqs, batch_size=batch_size))
+        embeddings_count = len(embeddings)
+        tqdm.write(f'      Generated {embeddings_count} embeddings')
+        tqdm.write('[2/3] Storing in ChromaDB')
+        vector_store_pipeline = VectorStorePipeline(
+            embeddings=embeddings
+        )
+        vector_store_pipeline.run(self.chroma_store)
+        tqdm.write(f'      Upserted to collection: {self.chroma_collection_name}')
+        tqdm.write('[3/3] Done')
+        return {
+            "success": True,
+            "chunks_count": chunks_count,
+            "embeddings_count": embeddings_count,
+            "metadata": info.model_dump() if info else {},
+            "collection": self.chroma_collection_name,
+            "file_path": file_path,
+            "metadata_saved_count": saved_count,
+        }
 
     def run_directory(self, directory_path: str):
         """Index tất cả file trong thư mục (không đệ quy)"""
@@ -104,9 +131,10 @@ class Indexing:
         self.close()
 
     def close(self):
-        """Close the database connection"""
-        if hasattr(self, 'session') and self.session:
+        """Đóng session chỉ khi Indexing tự tạo session (không truyền từ ngoài)."""
+        if getattr(self, "_owns_session", False) and self.session:
             self.session.close()
+            self.session = None
             tqdm.write('Database connection closed.')
 
 
