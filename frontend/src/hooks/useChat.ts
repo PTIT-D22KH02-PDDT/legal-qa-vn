@@ -18,22 +18,8 @@ export const useChat = () => {
   const [sessions, setSessions] = useState<Session[]>([
     {
       id: '1',
-      title: 'Luật thừa kế, hàng thừa kế',
-      messages: [
-        {
-          id: '1',
-          role: 'user',
-          content: 'luật thừa kế, hàng thừa kế đầu tiên là gì',
-          time: '05:54:55 14/04/2026'
-        },
-        {
-          id: '2',
-          role: 'ai',
-          citation: 'Căn cứ vào Điều 651 Bộ luật Dân sự của Quốc hội, số 91/2015/QH13 có hiệu lực từ ngày 01/01/2017 thì hàng thừa kế đầu tiên (hàng thừa kế thứ nhất) được quy định như sau:\n\n1. Những người thừa kế theo pháp luật được quy định theo thứ tự sau đây:\na) Hàng thừa kế thứ nhất gồm: vợ, chồng, cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi, con đẻ, con nuôi của người chết;',
-          content: 'Theo quy định trên, hàng thừa kế thứ nhất bao gồm: vợ, chồng, cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi, con đẻ, con nuôi của người chết.',
-          time: '05:55:01 14/04/2026'
-        }
-      ]
+      title: 'Cuộc trò chuyện mới',
+      messages: []
     }
   ]);
   

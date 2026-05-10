@@ -1,4 +1,5 @@
 import uvicorn
+import traceback
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -70,6 +71,7 @@ def chat_endpoint(req: ChatRequest):
             context=context
         )
     except Exception as e:
+        traceback.print_exc() # In chi tiết lỗi ra console của Kaggle
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
