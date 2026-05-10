@@ -13,15 +13,20 @@ Documents dùng DocumentItem DTO để tách khỏi ORM session.
 Helper nội bộ:
 - _get_base_chunk_id      — Chuẩn hóa chunk_id, loại bỏ hậu tố __dup_N.
 - _filter_redundant_chunks — Loại bỏ các chunk con khi tổ tiên đã có trong kết quả.
+
+Method trong LegalAgentTools:
+- _evaluate_refs — Đánh giá độ cần thiết của các chunk tham chiếu bằng LLM.
 """
 from __future__ import annotations
 
+import json
 import logging
 import re
 import unicodedata
 from difflib import SequenceMatcher
 from typing import Any, Dict, List, Optional
 
+from src.api import RemoteAPIClient
 from src.indexing.vector_store import ChromaQueryRequest, ChromaQueryResult, ChromaStore
 from src.search.search import SearchService
 from system.database.db_respository import DocumentMetadataRepository
@@ -157,10 +162,12 @@ class LegalAgentTools:
         search_service: SearchService,
         chroma_store: ChromaStore,
         meta_repo: Optional[DocumentMetadataRepository] = None,
+        api_client: Optional[RemoteAPIClient] = None,
     ) -> None:
         self.search_service = search_service
         self.chroma_store = chroma_store
         self.meta_repo = meta_repo
+        self.api_client = api_client  # Dùng để gọi LLM trong _evaluate_refs
 
     def vector_search(
         self,
@@ -202,7 +209,6 @@ class LegalAgentTools:
                     display_text="Không tìm thấy thông tin liên quan.",
                 )
 
-            chunks = _filter_redundant_chunks(chunks)
 
             return ToolOutput(
                 tool_name=tool_name,
@@ -441,3 +447,145 @@ class LegalAgentTools:
                 error=str(e),
                 display_text=f"Lỗi khi tra cứu văn bản: {e}",
             )
+
+    #Hàm đánh giá xem việc lấy thồn tin từ viện dẫn của 1 chunk có cần thiết hay không
+    #Đang làm là lấy query + chunk chính + tất cả chunk tham chiếu để đánh giá (LLM as a judge)
+    #Vấn đề: nếu chunk chính đã đầy đủ thông tin thì không cần lấy tham chiếu nữa
+    def _evaluate_refs(
+        self,
+        query: str,
+        main_chunk: ChromaQueryResult,
+        score_threshold: float = 6.0,
+        max_refs: int = 3,
+    ) -> List[ChromaQueryResult]:
+        """Đánh giá và lọc các chunk tham chiếu (references) của một chunk chính.
+
+        Đây là một LLM-as-a-judge: LLM đọc (Query + Chunk chính + Tất cả chunks tham chiếu)
+        và chấm điểm mOc độ cần thiết của từng tham chiếu dưới dạng điểm số 0–10.
+        Chỉ giữ lại các tham chiếu có điểm ≥ score_threshold.
+
+        Quy trình 3 bước:
+          1. Pre-filter (code logic): loại bỏ ref có quan hệ h᳗ hàng với chunk chính (tổ tiên/con cháu).
+          2. Batch fetch (ChromaDB): loại bỏ ref_id không tồn tại trong DB (lỗi parse).
+          3. LLM grading: gọi LLM 1 lần duy nhất với toàn bộ ref còn lại.
+
+        Args:
+            query: Câu hỏi gốc của người dùng.
+            main_chunk: Chunk chính cần đánh giá tham chiếu.
+            score_threshold: Ngưỡng điểm tối thiểu để giữ lại một tham chiếu (0–10).
+            max_refs: Số lượng tham chiếu tối đa giữ lại sau khi đánh giá.
+
+        Returns:
+            Danh sách các ChromaQueryResult tham chiếu được chấp nhận, sắp xếp theo điểm giảm dần.
+            Trả về danh sách rỗng nếu không có api_client hoặc không có tham chiếu hợp lệ.
+        """
+        if self.api_client is None:
+            logger.debug("[_evaluate_refs] Không có api_client, bỏ qua bước đánh giá tham chiếu.")
+            return []
+
+        # --- Lấy danh sách ref_id từ metadata ---
+        raw_refs: List[str] = []
+        ref_field = main_chunk.metadata.get("reference")
+        if ref_field:
+            try:
+                parsed = json.loads(ref_field)
+                if isinstance(parsed, list):
+                    raw_refs = [str(r).strip() for r in parsed if r]
+            except (json.JSONDecodeError, TypeError):
+                logger.warning("[_evaluate_refs] Không parse được trường 'reference' của chunk '%s'.", main_chunk.chunk_id)
+
+        if not raw_refs:
+            return []
+
+        # ---
+        # Bước 1: Pre-filter — Loại bỏ ref có quan hệ họ hàng (tổ tiên/con cháu)
+        # Logic: nếu main_id là tiền tố của ref_id (ref là con cháu),
+        #        hoặc ref_id là tiền tố của main_id (ref là tổ tiên),
+        #        thì thông tin đã bãn hm trong nhau → không cần đánh giá.
+        # ---
+        main_base_id = _get_base_chunk_id(main_chunk.chunk_id)
+        candidate_ref_ids: List[str] = []
+        for ref_id in raw_refs:
+            ref_base_id = _get_base_chunk_id(ref_id)
+            is_ancestor = main_base_id.startswith(ref_base_id + ".")
+            is_descendant = ref_base_id.startswith(main_base_id + ".")
+            if is_ancestor or is_descendant:
+                logger.debug(
+                    "[_evaluate_refs] Bỏ qua ref họ hàng '%s' (ỡng/con/cháu) với chunk '%s'.",
+                    ref_id, main_chunk.chunk_id,
+                )
+                continue
+            candidate_ref_ids.append(ref_id)
+
+        if not candidate_ref_ids:
+            return []
+
+        # ---
+        # Bước 2: Batch fetch — Loại bỏ ref_id không tồn tại trong ChromaDB (lỗi parse)
+        # ---
+        fetched_chunks: List[ChromaQueryResult] = self.chroma_store.get_by_ids(candidate_ref_ids)
+        ref_by_id: Dict[str, ChromaQueryResult] = {c.chunk_id: c for c in fetched_chunks}
+
+        valid_ref_chunks: List[ChromaQueryResult] = []
+        for ref_id in candidate_ref_ids:
+            chunk = ref_by_id.get(ref_id)
+            if chunk is None:
+                logger.debug("[_evaluate_refs] ref_id '%s' không tồn tại trong DB (lỗi parse).", ref_id)
+            else:
+                valid_ref_chunks.append(chunk)
+
+        if not valid_ref_chunks:
+            return []
+
+        # ---
+        # Bước 3: LLM Grading — Gọi LLM 1 lần duy nhất để chấm điểm toàn bộ tham chiếu
+        # ---
+        refs_block = "\n".join(
+            f'[{chunk.chunk_id}]\n{chunk.metadata.get("full_text") or chunk.text}'
+            for chunk in valid_ref_chunks
+        )
+        prompt = (
+            "Bạn là một chuyên gia pháp lý. Nhiệm vụ của bạn là đánh giá xem các \"Nội dung tham chiếu\" "
+            "dưới đây có cần thiết để bổ sung cho \"Nội dung chính\" nhằm trả lời "
+            "\"Câu hỏi của người dùng\" hay không.\n\n"
+            f"Câu hỏi của người dùng:\n{query}\n\n"
+            f"Nội dung chính:\n{main_chunk.metadata.get('full_text') or main_chunk.text}\n\n"
+            f"Các nội dung tham chiếu cần đánh giá:\n{refs_block}\n\n"
+            "Hãy chấm điểm mức độ CẦN THIẾT của từng tham chiếu trên thang điểm 0 đến 10 "
+            "(0 = hoàn toàn không liên quan, 10 = bắt buộc phải có để hiểu nội dung chính).\n"
+            "Chỉ trả về JSON thuần túy, không giải thích, không markdown. Định dạng:\n"
+            "{{\"<chunk_id_1>\": <score>, \"<chunk_id_2>\": <score>, ...}}"
+        )
+
+        try:
+            raw_response = self.api_client.generate(
+                prompt=prompt,
+                max_length=256,
+                temperature=0.0,
+            )
+            scores: Dict[str, Any] = json.loads(raw_response)
+        except (json.JSONDecodeError, Exception) as e:
+            logger.warning("[_evaluate_refs] LLM trả về kết quả không hợp lệ: %s", e)
+            return []
+
+        # Lọc và sắp xếp theo điểm giảm dần
+        scored_refs: List[tuple[float, ChromaQueryResult]] = []
+        for chunk in valid_ref_chunks:
+            raw_score = scores.get(chunk.chunk_id)
+            try:
+                score = float(raw_score)
+            except (TypeError, ValueError):
+                logger.debug("[_evaluate_refs] Không đọc được điểm cho ref '%s', bỏ qua.", chunk.chunk_id)
+                continue
+
+            if score >= score_threshold:
+                scored_refs.append((score, chunk))
+
+        scored_refs.sort(key=lambda x: x[0], reverse=True)
+        top_refs = [chunk for _, chunk in scored_refs[:max_refs]]
+
+        logger.info(
+            "[_evaluate_refs] Chunk '%s': %d/%d tham chiếu đạt ngưỡng %.1f (giữ tối đa %d).",
+            main_chunk.chunk_id, len(top_refs), len(valid_ref_chunks), score_threshold, max_refs,
+        )
+        return top_refs
