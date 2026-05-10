@@ -183,10 +183,53 @@ def run_migrations():
                 print("✓ ChromaDB migration completed.")
             else:
                 print("✓ ChromaDB chunks already have 'trang_thai'.")
+        # 3. Sync ChromaDB -> SQLite if SQLite is empty
+        print("Checking if SQLite needs re-sync from ChromaDB...")
+        from system.database.db_service import DocumentDatabaseService
+        db_service = DocumentDatabaseService()
+        stats = db_service.get_stats()
+        if stats['total_documents'] == 0 and total > 0:
+            print(f"SQLite is empty but ChromaDB has {total} chunks. Starting re-sync...")
+            # Lấy toàn bộ unique so_hieu từ ChromaDB
+            # Vì số lượng chunk lớn, ta lấy theo lô
+            unique_docs = {} # so_hieu -> metadata
+            offset = 0
+            batch_size = 1000
+            while offset < total:
+                b = collection.get(limit=batch_size, offset=offset, include=["metadatas"])
+                for m in b["metadatas"]:
+                    if m and m.get("so_hieu") and m.get("so_hieu") not in unique_docs:
+                        unique_docs[m.get("so_hieu")] = {
+                            'so_hieu': m.get('so_hieu'),
+                            'ten_van_ban': m.get('ten_van_ban', 'Chưa xác định'),
+                            'loai': m.get('loai', 'Văn bản'),
+                            'co_quan_ban_hanh': m.get('co_quan_ban_hanh'),
+                            'ngay_ban_hanh': m.get('ngay_ban_hanh'),
+                            'ngay_co_hieu_luc': m.get('ngay_co_hieu_luc'),
+                            'file_path': m.get('file_path'),
+                            'indexed': 1,
+                            'trang_thai': m.get('trang_thai', 1)
+                        }
+                offset += len(b["ids"])
+                print(f"  Scanned {offset}/{total} chunks, found {len(unique_docs)} unique documents.")
+            
+            if unique_docs:
+                print(f"Saving {len(unique_docs)} documents to SQLite...")
+                from src.core.models import DocumentMetadata
+                for doc_meta in unique_docs.values():
+                    try:
+                        meta = DocumentMetadata.model_validate(doc_meta)
+                        db_manager.metadata_repo.create(meta)
+                    except Exception as e:
+                        print(f"  Error saving {doc_meta.get('so_hieu')}: {e}")
+                print("✓ Re-sync completed.")
+        else:
+            print(f"✓ SQLite already has {stats['total_documents']} documents. No re-sync needed.")
+        
     except Exception as e:
-        print(f"Error during migration: {e}")
+        print(f"Error during migration/sync: {e}")
         traceback.print_exc()
-    print("--- Migrations Finished ---\n")
+    print("--- Migrations & Sync Finished ---\n")
 
 if __name__ == "__main__":
     run_migrations()
