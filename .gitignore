@@ -72,3 +72,6 @@ chunk/
 json/
 mark_down/
 models/
+
+
+**/node_modules
