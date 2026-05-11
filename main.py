@@ -210,7 +210,7 @@ def handle_index_remote():
         logger.error("Indexing failed: %s", exc, exc_info=True)
 
 
-def handle_search_local():
+def handle_search_local(search_service=None):
     """Search using local embedding and optional local reranker."""
     logger.info("[LOCAL SEARCH]")
 
@@ -225,12 +225,13 @@ def handle_search_local():
     use_rerank = search_config["use_rerank"]
 
     try:
-        search_service = build_search_service(
-            use_remote_embedding=False,
-            use_rerank=use_rerank,
-            use_remote_rerank=False,
-            app_config=APP_CONFIG,
-        )
+        if search_service is None:
+            search_service = build_search_service(
+                use_remote_embedding=False,
+                use_rerank=use_rerank,
+                use_remote_rerank=False,
+                app_config=APP_CONFIG,
+            )
 
         results = search_service.search(
             query=query,
@@ -245,7 +246,7 @@ def handle_search_local():
         logger.error("Search failed: %s", exc, exc_info=True)
 
 
-def handle_search_remote_rerank():
+def handle_search_remote_rerank(search_service=None):
     """
     Search using local embedding and remote reranker.
 
@@ -269,12 +270,13 @@ def handle_search_remote_rerank():
     use_remote_rerank = search_config["use_remote_rerank"]
 
     try:
-        search_service = build_search_service(
-            use_remote_embedding=use_remote_embedding,
-            use_rerank=use_rerank,
-            use_remote_rerank=use_remote_rerank,
-            app_config=APP_CONFIG,
-        )
+        if search_service is None:
+            search_service = build_search_service(
+                use_remote_embedding=use_remote_embedding,
+                use_rerank=use_rerank,
+                use_remote_rerank=use_remote_rerank,
+                app_config=APP_CONFIG,
+            )
 
         results = search_service.search(
             query=query,
@@ -289,7 +291,7 @@ def handle_search_remote_rerank():
         logger.error("Search failed: %s", exc, exc_info=True)
 
 
-def handle_rag():
+def handle_rag(search_service=None, api_client=None):
     """Run full RAG: search + generate answer."""
     from src.api import RemoteAPIClient
     from src.rag import RAGService
@@ -318,14 +320,16 @@ def handle_rag():
     use_remote_rerank = rag_config["use_remote_rerank"]
 
     try:
-        search_service = build_search_service(
-            use_remote_embedding=use_remote_embedding,
-            use_rerank=use_rerank,
-            use_remote_rerank=use_remote_rerank,
-            app_config=APP_CONFIG,
-        )
+        if search_service is None:
+            search_service = build_search_service(
+                use_remote_embedding=use_remote_embedding,
+                use_rerank=use_rerank,
+                use_remote_rerank=use_remote_rerank,
+                app_config=APP_CONFIG,
+            )
 
-        api_client = RemoteAPIClient()
+        if api_client is None:
+            api_client = RemoteAPIClient()
 
         rag_service = RAGService(
             search_service=search_service,
@@ -353,11 +357,205 @@ def handle_rag():
         logger.error("RAG failed: %s", exc, exc_info=True)
 
 
+def setup_workflow_dependencies():
+    """Khởi tạo dependencies cho LangGraph workflow."""
+    from src.indexing.embedding.remote_embedding import RemoteEmbeddingModel
+    from src.indexing.vector_store.chroma_store import ChromaStore
+    from src.indexing.vector_store.schemas import ChromaConfig
+    from src.search.reranker import RemoteReranker
+    from src.search.search import SearchService
+    from system.database.db_respository import (
+        DatabaseConfig,
+        DatabaseManager,
+        DocumentMetadataRepository,
+        DocumentRelationRepository,
+    )
+    from src.agent.tools import LegalAgentTools
+    from src.api.remote_client import RemoteAPIClient
+    from src.api.nvidia_api_client import OpenAICompatibleClient
+
+    logger.info("[Initializing Workflow Dependencies]")
+    
+    COLLECTION_NAME = "legal_documents"
+    CHROMA_DIR = "chroma_db"
+    
+    try:
+        # Init Chroma
+        chroma_store = ChromaStore(ChromaConfig(
+            collection_name=COLLECTION_NAME,
+            is_persist=True,
+            persist_directory=CHROMA_DIR,
+            distance_metric='cosine'
+        ))
+        
+        # Init API
+        api_client = RemoteAPIClient()
+        embedding_model = RemoteEmbeddingModel(api_client)
+        reranker = RemoteReranker(api_client)
+        
+        search_service = SearchService(
+            chroma_store=chroma_store,
+            embedding_model=embedding_model,
+            reranker=reranker
+        )
+        
+        # Database
+        db_config = DatabaseConfig()
+        db_manager = DatabaseManager(db_config)
+        session = db_manager.get_session()
+        meta_repo = DocumentMetadataRepository(session)
+        relation_repo = DocumentRelationRepository(session)
+        
+        # Tools
+        retriever = LegalAgentTools(
+            search_service=search_service,
+            chroma_store=chroma_store,
+            meta_repo=meta_repo,
+            relation_repo=relation_repo,
+            api_client=api_client
+        )
+        
+        # LLM Client
+        llm = OpenAICompatibleClient()
+        
+        logger.info("✓ All workflow dependencies initialized")
+        
+        return {
+            "llm": llm,
+            "db_client": db_manager,
+            "retriever": retriever,
+            "doc_retriever": retriever,
+        }
+    except Exception as exc:
+        logger.error("Failed to initialize workflow dependencies: %s", exc, exc_info=True)
+        raise
+
+
+def run_workflow_query(question: str, deps: dict):
+    """Chạy workflow LangGraph cho một câu hỏi."""
+    from src.agent.graph import build_graph
+    from src.agent.state import initial_state
+    
+    logger.info("=" * 70)
+    logger.info("Question: %s", question)
+    logger.info("=" * 70)
+    
+    try:
+        # Build graph
+        logger.info("[1] Building graph...")
+        graph = build_graph(
+            llm=deps["llm"],
+            db_client=deps["db_client"],
+            retriever=deps["retriever"],
+            doc_retriever=deps["doc_retriever"],
+        )
+        logger.info("✓ Graph built successfully")
+        
+        # Initialize state
+        logger.info("[2] Initializing state...")
+        initial = initial_state(question)
+        logger.info("✓ Initial state created")
+        
+        # Run workflow
+        logger.info("[3] Running workflow...")
+        result = graph.invoke(initial)
+        logger.info("✓ Workflow completed")
+        
+        # Display results
+        logger.info("[4] WORKFLOW RESULTS:")
+        logger.info("-" * 70)
+        
+        if result.get("answer"):
+            logger.info("ANSWER:\n%s", result['answer'])
+        else:
+            logger.info("ANSWER: (None)")
+        
+        if result.get("sub_questions"):
+            logger.info("SUB-QUESTIONS: %d", len(result['sub_questions']))
+            for i, sq in enumerate(result["sub_questions"], 1):
+                logger.info("  %d. %s (intent=%s)", i, sq.query, sq.intent)
+        
+        return result
+        
+    except Exception as exc:
+        logger.error("Workflow failed: %s", exc, exc_info=True)
+        return None
+
+
+def handle_workflow_interactive(workflow_deps=None):
+    """Mode tương tác: nhập câu hỏi và workflow trả lời."""
+    logger.info("=" * 70)
+    logger.info("WORKFLOW INTERACTIVE MODE")
+    logger.info("=" * 70)
+    logger.info("(Nhập 'quit', 'exit', hoặc 'q' để thoát)\n")
+    
+    if workflow_deps is None:
+        try:
+            workflow_deps = setup_workflow_dependencies()
+        except Exception as exc:
+            logger.error("Failed to setup dependencies: %s", exc)
+            return
+    
+    while True:
+        try:
+            question = input("\n📝 Câu hỏi của bạn: ").strip()
+            
+            if question.lower() in ['quit', 'exit', 'q']:
+                logger.info("\nTạm biệt! 👋\n")
+                break
+            
+            if not question:
+                logger.warning("⚠ Vui lòng nhập câu hỏi.\n")
+                continue
+            
+            # Run workflow
+            result = run_workflow_query(question, workflow_deps)
+            
+            if result is None:
+                logger.error("❌ Workflow thất bại. Vui lòng thử lại.\n")
+                continue
+            
+            logger.info("\n")
+        
+        except KeyboardInterrupt:
+            logger.info("\n\nTạm biệt! 👋\n")
+            break
+        except Exception as exc:
+            logger.error("❌ Lỗi: %s", exc, exc_info=True)
+            continue
+
+
 def main():
-    """Interactive CLI."""
+    """Interactive CLI with shared dependencies."""
     logger.info("=" * 70)
     logger.info("Legal Document Search System")
     logger.info("=" * 70)
+
+    # Setup shared dependencies once
+    logger.info("\n[Initializing shared dependencies...]")
+    search_service = None
+    api_client = None
+    workflow_deps = None
+    
+    try:
+        from src.api import RemoteAPIClient
+        
+        # Initialize search service (reusable for modes 3, 4, 5)
+        search_service = build_search_service(
+            use_remote_embedding=True,
+            use_rerank=True,
+            use_remote_rerank=True,
+            app_config=APP_CONFIG,
+        )
+        logger.info("✓ Search service initialized\n")
+        
+        # Initialize API client (reusable for RAG mode)
+        api_client = RemoteAPIClient()
+        logger.info("✓ API client initialized\n")
+        
+    except Exception as exc:
+        logger.warning("⚠ Could not pre-initialize search service: %s", exc)
+        logger.info("  (Will initialize on-demand for each search)\n")
 
     while True:
         logger.info("")
@@ -367,26 +565,41 @@ def main():
         logger.info("  3. Search with local embedding/local rerank")
         logger.info("  4. Search with optional remote embedding + remote rerank")
         logger.info("  5. Full RAG")
+        logger.info("  6. Workflow Interactive Mode (LangGraph)")
         logger.info("  0. Exit")
 
-        choice = input("\nChoose option (0-5): ").strip()
+        choice = input("\nChoose option (0-6): ").strip()
 
         if choice == "0":
             logger.info("Goodbye!")
             break
 
-        if choice == "1":
-            handle_index_local()
-        elif choice == "2":
-            handle_index_remote()
-        elif choice == "3":
-            handle_search_local()
-        elif choice == "4":
-            handle_search_remote_rerank()
-        elif choice == "5":
-            handle_rag()
-        else:
-            logger.warning("Invalid option.")
+        try:
+            if choice == "1":
+                handle_index_local()
+            elif choice == "2":
+                handle_index_remote()
+            elif choice == "3":
+                handle_search_local(search_service)
+            elif choice == "4":
+                handle_search_remote_rerank(search_service)
+            elif choice == "5":
+                handle_rag(search_service, api_client)
+            elif choice == "6":
+                # Lazy initialize workflow deps only if needed
+                if workflow_deps is None:
+                    logger.info("[Initializing workflow dependencies...]")
+                    try:
+                        workflow_deps = setup_workflow_dependencies()
+                        logger.info("✓ Workflow dependencies initialized\n")
+                    except Exception as exc:
+                        logger.error("Failed to initialize workflow: %s", exc)
+                        continue
+                handle_workflow_interactive(workflow_deps)
+            else:
+                logger.warning("Invalid option.")
+        except Exception as exc:
+            logger.error("Error in mode: %s", exc, exc_info=True)
 
 
 if __name__ == "__main__":
