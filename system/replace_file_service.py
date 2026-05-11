@@ -14,7 +14,6 @@ from src.indexing.vector_store import ChromaStore
 from system.indexing_100file import Indexing
 from system.database.db_respository import init_database
 from system.database.db_service import DocumentDatabaseService
-from src.indexing.parsing.extract_metadata import Extractor
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +52,6 @@ class ReplaceFileService:
             "chroma_deactivated": 0,
             "relation_saved": False,
         }
-        extractor=Extractor()
-        replaced_so_hieu=extractor._extract_so_hieu(replaced_so_hieu.strip())
 
         # Chuyển display text → enum value để lưu vào DB
         relation_enum = display_to_enum_value(relation_type.strip())

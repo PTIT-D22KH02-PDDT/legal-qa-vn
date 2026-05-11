@@ -145,28 +145,41 @@ def search_documents(query: str = ""):
     """Tìm kiếm văn bản theo số hiệu hoặc tên để chọn quan hệ."""
     from src.indexing.parsing.extract_metadata import Extractor
     extractor = Extractor()
-    so_hieu = extractor._slug_so_hieu(query)
+    so_hieu = extractor._extract_so_hieu(query)
     
     db_service = None
     try:
         db_service = DocumentDatabaseService()
-        # Tìm kiếm trong SQLite
         from sqlalchemy import or_
         from system.database.db import DocumentMetadataDB
         
         session = db_service.metadata_repo.session
+        
+        # Build search conditions
+        search_conditions = []
+        if so_hieu:
+            search_conditions.append(DocumentMetadataDB.so_hieu.ilike(f"%{so_hieu}%"))
+        if query:
+            search_conditions.append(DocumentMetadataDB.ten_van_ban.ilike(f"%{query.upper()}%"))
+        
+        # Nếu không có điều kiện search, trả về rỗng
+        if not search_conditions:
+            return []
+        
+        # Query với filter active documents (trang_thai = 1)
         results = session.query(DocumentMetadataDB).filter(
-            or_(
-                DocumentMetadataDB.so_hieu.ilike(f"%{so_hieu}%"),
-                DocumentMetadataDB.ten_van_ban.ilike(f"%{query}%")
-            )
-        ).limit(20).all()
+            DocumentMetadataDB.trang_thai == 1,  # Chỉ lấy văn bản active
+            or_(*search_conditions)
+        ).limit(100).all()  # Tăng từ 20 → 100
+        
+        print(f"[Search Documents] Query='{query}', SO_HIEU='{so_hieu}', Found={len(results)} results")
         
         return [
             {"so_hieu": doc.so_hieu, "ten_van_ban": doc.ten_van_ban} 
             for doc in results
         ]
     except Exception as e:
+        print(f"[Search Documents Error] {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
     finally:
