@@ -11,11 +11,12 @@ Các trường dùng `Annotated[List, operator.add]` sẽ được LangGraph
 from __future__ import annotations
 
 import operator
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Dict, Any
 
 from typing_extensions import TypedDict
 
 from .schemas import Intent, ToolOutput, SubQuestion
+from src.indexing.vector_store import ChromaQueryResult
 
 
 class AgentState(TypedDict, total=False):
@@ -61,6 +62,23 @@ class AgentState(TypedDict, total=False):
     Danh sách các đoạn context text đã format, tích lũy từ tool_outputs.
     Node generate sẽ join list này để tạo context đầy đủ cho LLM.
     """
+    
+    context_chunks: Annotated[List[ChromaQueryResult], operator.add]
+    """
+    Danh sách chunks đã được đánh giá và lọc từ evaluate_chunks_node.
+    Dùng trong generate_response_node để gọi _evaluate_refs và mở rộng context.
+    """
+    
+    sub_question_contexts: Optional[Dict[str, Dict[str, Any]]]
+    """
+    Mapping từ mỗi sub_question query → context riêng của nó.
+    Được tạo bởi merge_results_node.
+    Cấu trúc: {
+        "câu hỏi con 1": {"context_text": [...], "context_chunks": [...]},
+        "câu hỏi con 2": {"context_text": [...], "context_chunks": [...]}
+    }
+    """
+    
     answer: Optional[str]
     """Câu trả lời cuối cùng được tạo ra bởi LLM."""
 
@@ -87,6 +105,8 @@ def initial_state(question: str, max_iterations: int = 2) -> AgentState:
         keywords=[],
         tool_outputs=[],
         context_text=[],
+        context_chunks=[],
+        sub_question_contexts=None,
         answer=None,
         error=None,
     )

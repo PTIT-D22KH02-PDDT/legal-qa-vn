@@ -11,6 +11,7 @@ from src.agent.nodes import(
     make_general_node,
     make_doc_relation_node,
     make_evaluate_chunks_node,
+    make_merge_results_node,
     make_generate_response_node,
 )
 import logging
@@ -64,7 +65,8 @@ def build_graph(
     workflow.add_node("general", make_general_node(retriever, llm))
     workflow.add_node("doc_relation", make_doc_relation_node(retriever, llm))
     workflow.add_node("evaluate_chunks", make_evaluate_chunks_node(llm))
-    workflow.add_node("generate_response", make_generate_response_node(llm))
+    workflow.add_node("merge_results", make_merge_results_node())
+    workflow.add_node("generate_response", make_generate_response_node(retriever, llm))
 
     # 2. Luồng thực thi: Bắt đầu -> Analyze
     workflow.add_edge(START, "analyze")
@@ -82,17 +84,22 @@ def build_graph(
         ]
     )
 
-    # 4. Gom các nhánh (trừ fallback) về node evaluate_chunks
-    # workflow.add_edge("doc_retrieve", "evaluate_chunks")
-    workflow.add_edge("legal_query", "evaluate_chunks")
-    workflow.add_edge("general", "evaluate_chunks")
-    workflow.add_edge("doc_relation", "evaluate_chunks")
+    # 4. Gom các nhánh về node merge_results để tổ chức context:
+    # - legal_query, doc_relation, general: tìm kiếm song song → gom vào merge_results
+    # - merge_results: tổ chức context theo từng sub_question → truyền sang generate_response
+    # workflow.add_edge("doc_retrieve", "merge_results")
+    workflow.add_edge("legal_query", "merge_results")
+    workflow.add_edge("doc_relation", "merge_results")
     
+    # general node qua evaluate_chunks để lọc chunks -> sau đó qua merge_results
+    workflow.add_edge("general", "evaluate_chunks")
+    workflow.add_edge("evaluate_chunks", "merge_results")
+
     # Nhánh fallback (câu hỏi không rõ ràng) trả về answer luôn và đi thẳng tới END
     workflow.add_edge("fallback", END)
 
-    # 5. Đánh giá chunks -> Sinh câu trả lời -> END
-    workflow.add_edge("evaluate_chunks", "generate_response")
+    # 5. merge_results -> generate_response -> END
+    workflow.add_edge("merge_results", "generate_response")
     workflow.add_edge("generate_response", END)
 
     compiled = workflow.compile()

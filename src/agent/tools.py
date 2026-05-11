@@ -32,7 +32,8 @@ from src.search.search import SearchService
 from system.database.db_respository import DocumentMetadataRepository, DocumentRelationRepository
 from system.database.db import DocumentMetadataDB, DocumentRelationDB
 from src.indexing.parsing.extract_metadata import Extractor
-from .schemas import DocumentItem, ToolOutput
+from .schemas import DocumentItem, RefEvaluationResult, RefScore, ToolOutput
+from .prompts import EVALUATE_REFS_PROMPT
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +177,8 @@ class LegalAgentTools:
         query: str,
         top_k_retrieve: int = 50,
         top_k_rerank: Optional[int] = 5,
-        use_rerank: bool = True
+        use_rerank: bool = True,
+        trang_thai: Optional[int] = 1
     ) -> ToolOutput:
         """
         Tìm kiếm ngữ nghĩa (semantic search) trong ChromaDB.
@@ -197,20 +199,36 @@ class LegalAgentTools:
         """
         tool_name = "vector_search"
         try:
-            chunks: List[ChromaQueryResult] = self.search_service.search(
+            metadata_filter = {"section_type": ['dieu', 'khoan', 'diem']}
+            if trang_thai is not None:
+                metadata_filter["trang_thai"] = trang_thai
+                
+            # 1. Lấy kết quả từ ChromaDB (Retrieve)
+            candidates: List[ChromaQueryResult] = self.search_service._retrieve(
                 query=query,
-                top_k_retrieve=top_k_retrieve,
-                top_k_rerank=top_k_rerank,
-                use_rerank=use_rerank,
+                top_k=top_k_retrieve,
+                metadata_filter=metadata_filter,
             )
 
-            if not chunks:
+            if not candidates:
                 return ToolOutput(
                     tool_name=tool_name,
                     success=False,
                     display_text="Không tìm thấy thông tin liên quan.",
                 )
 
+            # 2. Filter redundant (Lọc trùng cha/con) TRƯỚC KHI rerank
+            filtered_chunks = _filter_redundant_chunks(candidates)
+
+            # 3. Rerank (Chấm điểm và sắp xếp lại bằng mô hình Cross-Encoder)
+            if use_rerank and self.search_service.reranker:
+                chunks = self.search_service.reranker.rerank(
+                    query=query,
+                    documents=filtered_chunks,
+                    top_k=top_k_rerank or len(filtered_chunks)
+                )
+            else:
+                chunks = filtered_chunks[:top_k_rerank] if top_k_rerank else filtered_chunks
 
             return ToolOutput(
                 tool_name=tool_name,
@@ -247,6 +265,7 @@ class LegalAgentTools:
         parent_id: Optional[str] = None,
         # --- Điều khiển kết quả ---
         top_k: int = 1,
+        trang_thai: Optional[int] = 1,
     ) -> ToolOutput:
         """
         Tìm kiếm chính xác theo bộ lọc metadata trong ChromaDB (không qua embedding).
@@ -315,6 +334,9 @@ class LegalAgentTools:
             if parent_id:
                 conditions.append({"parent_id": {"$eq": parent_id.strip()}})
 
+            if trang_thai is not None:
+                conditions.append({"trang_thai": {"$eq": trang_thai}})
+
             if not conditions:
                 return ToolOutput(
                     tool_name=tool_name,
@@ -339,7 +361,7 @@ class LegalAgentTools:
                     display_text="Không tìm thấy điều khoản theo tiêu chí đã cho.",
                 )
 
-            # chunks = _filter_redundant_chunks(chunks)
+            chunks = _filter_redundant_chunks(chunks)
 
             return ToolOutput(
                 tool_name=tool_name,
@@ -520,6 +542,7 @@ class LegalAgentTools:
     def _evaluate_refs(
         self,
         query: str,
+        nvidia_client:Any,
         main_chunk: ChromaQueryResult,
         score_threshold: float = 6.0,
         max_refs: int = 3,
@@ -531,7 +554,7 @@ class LegalAgentTools:
         Chỉ giữ lại các tham chiếu có điểm ≥ score_threshold.
 
         Quy trình 3 bước:
-          1. Pre-filter (code logic): loại bỏ ref có quan hệ h᳗ hàng với chunk chính (tổ tiên/con cháu).
+          1. Pre-filter (code logic): loại bỏ ref có quan hệ họ hàng với chunk chính (tổ tiên/con cháu).
           2. Batch fetch (ChromaDB): loại bỏ ref_id không tồn tại trong DB (lỗi parse).
           3. LLM grading: gọi LLM 1 lần duy nhất với toàn bộ ref còn lại.
 
@@ -549,7 +572,7 @@ class LegalAgentTools:
             logger.debug("[_evaluate_refs] Không có api_client, bỏ qua bước đánh giá tham chiếu.")
             return []
 
-        # --- Lấy danh sách ref_id từ metadata ---
+        # Lấy danh sách ref_id từ metadata
         raw_refs: List[str] = []
         ref_field = main_chunk.metadata.get("reference")
         if ref_field:
@@ -563,12 +586,10 @@ class LegalAgentTools:
         if not raw_refs:
             return []
 
-        # ---
         # Bước 1: Pre-filter — Loại bỏ ref có quan hệ họ hàng (tổ tiên/con cháu)
         # Logic: nếu main_id là tiền tố của ref_id (ref là con cháu),
         #        hoặc ref_id là tiền tố của main_id (ref là tổ tiên),
         #        thì thông tin đã bãn hm trong nhau → không cần đánh giá.
-        # ---
         main_base_id = _get_base_chunk_id(main_chunk.chunk_id)
         candidate_ref_ids: List[str] = []
         for ref_id in raw_refs:
@@ -586,9 +607,7 @@ class LegalAgentTools:
         if not candidate_ref_ids:
             return []
 
-        # ---
         # Bước 2: Batch fetch — Loại bỏ ref_id không tồn tại trong ChromaDB (lỗi parse)
-        # ---
         fetched_chunks: List[ChromaQueryResult] = self.chroma_store.get_by_ids(candidate_ref_ids)
         ref_by_id: Dict[str, ChromaQueryResult] = {c.chunk_id: c for c in fetched_chunks}
 
@@ -603,33 +622,28 @@ class LegalAgentTools:
         if not valid_ref_chunks:
             return []
 
-        # ---
         # Bước 3: LLM Grading — Gọi LLM 1 lần duy nhất để chấm điểm toàn bộ tham chiếu
-        # ---
         refs_block = "\n".join(
             f'[{chunk.chunk_id}]\n{chunk.metadata.get("full_text") or chunk.text}'
             for chunk in valid_ref_chunks
         )
         prompt = (
-            "Bạn là một chuyên gia pháp lý. Nhiệm vụ của bạn là đánh giá xem các \"Nội dung tham chiếu\" "
-            "dưới đây có cần thiết để bổ sung cho \"Nội dung chính\" nhằm trả lời "
-            "\"Câu hỏi của người dùng\" hay không.\n\n"
-            f"Câu hỏi của người dùng:\n{query}\n\n"
-            f"Nội dung chính:\n{main_chunk.metadata.get('full_text') or main_chunk.text}\n\n"
-            f"Các nội dung tham chiếu cần đánh giá:\n{refs_block}\n\n"
-            "Hãy chấm điểm mức độ CẦN THIẾT của từng tham chiếu trên thang điểm 0 đến 10 "
-            "(0 = hoàn toàn không liên quan, 10 = bắt buộc phải có để hiểu nội dung chính).\n"
-            "Chỉ trả về JSON thuần túy, không giải thích, không markdown. Định dạng:\n"
-            "{{\"<chunk_id_1>\": <score>, \"<chunk_id_2>\": <score>, ...}}"
+            EVALUATE_REFS_PROMPT
+            + f"\n\nCâu hỏi của người dùng:\n{query}\n\n"
+            + f"Nội dung chính:\n{main_chunk.metadata.get('full_text') or main_chunk.text}\n\n"
+            + f"Các nội dung tham chiếu cần đánh giá:\n{refs_block}"
         )
 
+        valid_chunk_ids = [c.chunk_id for c in valid_ref_chunks]
         try:
-            raw_response = self.api_client.generate(
-                prompt=prompt,
-                max_length=256,
-                temperature=0.0,
-            )
-            scores: Dict[str, Any] = json.loads(raw_response)
+            # raw_response = self.api_client.generate(
+            #     prompt=prompt,
+            #     max_length=512,
+            #     temperature=0.0,
+            # )
+            raw_response = nvidia_client.generate(prompt=prompt)
+            eval_result = RefEvaluationResult.from_llm_response(raw_response, valid_chunk_ids)
+            scores_by_id: Dict[str, RefScore] = {e.chunk_id: e for e in eval_result.evaluations}
         except (json.JSONDecodeError, Exception) as e:
             logger.warning("[_evaluate_refs] LLM trả về kết quả không hợp lệ: %s", e)
             return []
@@ -637,15 +651,17 @@ class LegalAgentTools:
         # Lọc và sắp xếp theo điểm giảm dần
         scored_refs: List[tuple[float, ChromaQueryResult]] = []
         for chunk in valid_ref_chunks:
-            raw_score = scores.get(chunk.chunk_id)
-            try:
-                score = float(raw_score)
-            except (TypeError, ValueError):
-                logger.debug("[_evaluate_refs] Không đọc được điểm cho ref '%s', bỏ qua.", chunk.chunk_id)
+            ref_score = scores_by_id.get(chunk.chunk_id)
+            if ref_score is None:
+                logger.debug("[_evaluate_refs] LLM không trả về điểm cho ref '%s', bỏ qua.", chunk.chunk_id)
                 continue
 
-            if score >= score_threshold:
-                scored_refs.append((score, chunk))
+            logger.debug(
+                "[_evaluate_refs] ref '%s' | score=%.1f | reasoning='%s'",
+                chunk.chunk_id, ref_score.score, ref_score.reasoning,
+            )
+            if ref_score.score >= score_threshold:
+                scored_refs.append((ref_score.score, chunk))
 
         scored_refs.sort(key=lambda x: x[0], reverse=True)
         top_refs = [chunk for _, chunk in scored_refs[:max_refs]]
@@ -655,4 +671,5 @@ class LegalAgentTools:
             main_chunk.chunk_id, len(top_refs), len(valid_ref_chunks), score_threshold, max_refs,
         )
         return top_refs
+
 

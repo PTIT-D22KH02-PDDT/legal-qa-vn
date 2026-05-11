@@ -8,8 +8,10 @@ Chứa các kiểu dữ liệu dùng chung giữa state, tools, và nodes:
 """
 from __future__ import annotations
 
+import json
+import re
 from enum import Enum
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -96,7 +98,68 @@ class DocumentItem(BaseModel):
         ]
         return "\n".join(parts)
 
+
+class RefScore(BaseModel):
+    """Kết quả chấm điểm của một chunk tham chiếu do LLM đánh giá."""
+    chunk_id: str = Field(description="ID của chunk tham chiếu")
+    reasoning: str = Field(description="Giải thích ngắn lý do chấm điểm")
+    score: float = Field(description="Điểm số từ 0.0 đến 10.0")
+
+
+class RefEvaluationResult(BaseModel):
+    """Tập hợp kết quả chấm điểm của nhiều chunk tham chiếu."""
+    evaluations: List[RefScore] = Field(default_factory=list)
+
+    @classmethod
+    def from_llm_response(cls, raw_response: str, valid_chunk_ids: List[str]) -> "RefEvaluationResult":
+        """Parse JSON từ LLM response, có fallback Regex chống LLM bọc markdown."""
+        clean = raw_response.strip()
+        match = re.search(r"```(?:json)?(.*?)```", clean, re.DOTALL)
+        if match:
+            clean = match.group(1).strip()
+
+        json_dict = json.loads(clean)
+        result = cls.model_validate(json_dict)
+
+        # Chỉ giữ lại các đánh giá có chunk_id hợp lệ
+        result.evaluations = [
+            e for e in result.evaluations if e.chunk_id in valid_chunk_ids
+        ]
+        return result
+
+
+
+class ChunkRelevance(BaseModel):
+    """Kết quả đánh giá Yes/No cho một chunk."""
+    chunk_id: str = Field(description="ID của chunk được đánh giá")
+    relevant: bool = Field(description="True nếu chunk trực tiếp liên quan đến câu hỏi, False nếu không")
+    reason: str = Field(description="Lý do ngắn gọn (1 câu) cho quyết định này")
+
+
+class ChunkEvaluationResult(BaseModel):
+    """Tập hợp kết quả đánh giá Yes/No cho danh sách chunks."""
+    evaluations: List[ChunkRelevance] = Field(default_factory=list)
+
+    @classmethod
+    def from_llm_response(cls, raw_response: str, valid_chunk_ids: List[str]) -> "ChunkEvaluationResult":
+        """Parse JSON từ LLM response, có fallback Regex chống LLM bọc markdown."""
+        clean = raw_response.strip()
+        match = re.search(r"```(?:json)?(.*?)```", clean, re.DOTALL)
+        if match:
+            clean = match.group(1).strip()
+
+        json_dict = json.loads(clean)
+        result = cls.model_validate(json_dict)
+
+        # Chỉ giữ lại các đánh giá có chunk_id hợp lệ
+        result.evaluations = [
+            e for e in result.evaluations if e.chunk_id in valid_chunk_ids
+        ]
+        return result
+
+
 class ToolOutput(BaseModel):
+
     """
     Output chuẩn trả về từ mọi tool.
 
