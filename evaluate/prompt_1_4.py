@@ -41,6 +41,7 @@ Hãy xuất kết quả theo đúng định dạng ví dụ sau:
 """
 
 EXAMPLE = """
+Bạn là một chuyên gia trả lời câu hỏi trắc nghiệm pháp luật Việt Nam.
 Nhiệm vụ của bạn là trả lời câu hỏi trắc nghiệm sau, chỉ cần chọn đáp án và không cần giải thích gì thêm.
 Chỉ đưa ra kết quả, không cần giải thích. Không lặp lại câu hỏi
 
@@ -55,6 +56,7 @@ Chỉ trả lời: A hoặc B hoặc C hoặc D
 """
 
 EXAMPLE_FEWSHOT = """
+Bạn là một chuyên gia trả lời câu hỏi trắc nghiệm pháp luật Việt Nam.
 Nhiệm vụ của bạn là trả lời câu hỏi trắc nghiệm sau, chỉ cần chọn đáp án và không cần giải thích gì thêm.
 Chỉ đưa ra kết quả, không cần giải thích.
 
@@ -77,6 +79,7 @@ Câu hỏi: Điểm a Khoản 1 Điều 1 Nghị định số 113/2007/NĐ-CP qu
 
 
 EXAMPLE_EN = """
+You are an expert in answering multiple-choice questions on Vietnamese law.
 • Instruction: “Read the following question and choose the correct answer. Only select the answer; no explanation is needed.”
 • Question: “According to Clause 1, Article 2 of the 2015 Civil Code, what is stipulated regarding the scope of application and the effectiveness of the Civil Procedure Code?”
 • Answers:

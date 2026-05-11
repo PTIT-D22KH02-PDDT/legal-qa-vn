@@ -10,10 +10,14 @@ except ImportError:
 import json
 import logging
 import time
+import re
 from pathlib import Path
 from tqdm import tqdm
-
-from src.api.remote_client import RemoteAPIClient
+from main import setup_workflow_dependencies
+from src.api.nvidia_api_client import OpenAICompatibleClient
+from src.agent.graph import build_graph
+from src.agent.state import initial_state
+from evaluate.prompt_3_1 import EXAMPLE_REASONING, EXAMPLE_FEWSHOT
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -24,7 +28,7 @@ def evaluate():
     logger.info("Starting evaluation...")
     
     # Load dataset
-    dataset_path = PROJECT_ROOT / "evaluation" / "loc_3_1_100.jsonl"
+    dataset_path = PROJECT_ROOT / "evaluate" / "loc_3_1_100.jsonl"
     if not dataset_path.exists():
         logger.error(f"Dataset file not found: {dataset_path}")
         return
@@ -38,7 +42,7 @@ def evaluate():
     logger.info(f"Loaded {len(data)} questions from {dataset_path}")
     
     # Load ground truth
-    gt_path = PROJECT_ROOT / "evaluation" / "ground_truth1.json"
+    gt_path = PROJECT_ROOT / "evaluate" / "ground_truth1.json"
     ground_truths = {}
     if gt_path.exists():
         with open(gt_path, "r", encoding="utf-8") as f:
@@ -53,58 +57,43 @@ def evaluate():
     correct_count = 0
     failed_count = 0
 
-    from evaluation.prompt_3_1 import EXAMPLE_REASONING, EXAMPLE_FEWSHOT
-    from main import build_search_service # Dùng hàm build có sẵn từ main.py
-    import re
-
-    # Khởi tạo SearchService
-    search_service = build_search_service(
-        use_remote_embedding=True,
-        use_rerank=True,
-        use_remote_rerank=True
+    # Khởi tạo workflow dependencies
+    deps = setup_workflow_dependencies()
+    
+    # Build graph
+    graph = build_graph(
+        llm=deps["llm"],
+        db_client=deps["db_client"],
+        retriever=deps["retriever"],
+        doc_retriever=deps["doc_retriever"],
     )
     
-    api_client = RemoteAPIClient()
-
-    logger.info("Starting RAG Evaluation (Search + Reasoning + Few-shot)...")
+    api_client = OpenAICompatibleClient()
+    logger.info("Starting RAG Evaluation (Graph Search + Reasoning Prompt)...")
     
     for idx, item in enumerate(tqdm(data, desc="Evaluating")):
         question_id = idx + 1
         query = item.get('question', '')
         
-        # BƯỚC 1: SEARCH - Chỉ search, không rerank (giống evaluate.py)
         try:
-            # search_results = search_service.search(
-            #     query=query,
-            #     top_k_retrieve=5,
-            #     use_rerank=False,
-            # )
-            search_results = search_service.search(
-                query=query,
-                top_k_retrieve=20,
-                use_rerank=True,
-                top_k_rerank=5,
-            )
-
-            # Gom context lại và định dạng
-            context_parts = []
-            for i, res in enumerate(search_results, 1):
-                meta = res.metadata or {}
-                hierarchy = ["modau","diem", "khoan", "dieu", "muc", "chuong", "phan","phu_luc","phu_luc_phan", "so_hieu"]
-                ref_parts = [str(meta[k]) for k in hierarchy if meta.get(k)]
-                ref_display = " ".join(ref_parts) or res.chunk_id
-                context_text_content = meta.get('full_text') or res.text
-                context_parts.append(f"[Nguồn {i}]: {ref_display}\n{context_text_content}")
-            context_text = "\n\n".join(context_parts)
-            # Truncate context to avoid exceeding the LLM's 8000 token limit
+            # 1. Invoke graph để lấy context từ search
+            initial = initial_state(query)
+            result = graph.invoke(initial)
+            
+            # 2. Lấy context từ kết quả graph
+            context_text = ""
+            if result.get("context_text"):
+                context_text = "\n\n".join(result["context_text"])
+            
             if len(context_text) > 15000:
-                logger.warning(f"Truncating context for question {question_id} from {len(context_text)} chars to 15000 chars.")
-                context_text = context_text[:15000] + "\n...[Ngữ cảnh đã bị cắt bớt do giới hạn độ dài]..."
+                logger.warning(f"Truncating context for question {question_id}")
+                context_text = context_text[:15000] + "\n...[Ngữ cảnh đã bị cắt bớt]..."
 
         except Exception as e:
-            logger.error(f"Search failed for question {question_id}: {e}")
+            logger.error(f"Graph search failed for question {question_id}: {e}")
             context_text = "Không tìm thấy ngữ cảnh liên quan."
-        # BƯỚC 2: BUILD PROMPT - Kết hợp Context vào Prompt
+
+        # 3. BUILD PROMPT - Kết hợp Context vào Prompt
         prompt = f"{EXAMPLE_REASONING}\n\n"
         prompt += "--- NGỮ CẢNH TÌM KIẾM ĐƯỢC (CONTEXT) ---\n"
         prompt += f"{context_text}\n\n"
@@ -112,35 +101,31 @@ def evaluate():
         prompt += f"Nhiệm vụ: {item.get('instruction', '')}\n"
         prompt += f"Câu hỏi: {query}\n"
         prompt += f"Danh sách đáp án:\n{item.get('answers', '')}\n"
-        prompt += "\nHãy dựa vào NGỮ CẢNH trên (nếu có) và kiến thức pháp luật để suy luận và đưa ra đáp án đúng nhất vào trong thẻ <output>."
-        prompt+="\nBắt buộc suy luận trong thẻ <think>, và CHỈ ĐIỀN 1 CHỮ CÁI A, B, C, D vào thẻ <output>. Và LƯU Ý chỉ được dựa vào NGỮ CẢNH TÌM KIẾM ĐƯỢC để trả lời câu hỏi, nếu ngữ cảnh không phù hợp thì để trống <output>."
-        prompt+="\n\n<think>"
+        prompt += "\nHãy dựa vào NGỮ CẢNH trên (nếu có) để suy luận và đưa ra đáp án vào thẻ <output>."
+        prompt += "\nBắt buộc suy luận trong thẻ <think>, và CHỈ ĐIỀN 1 CHỮ CÁI A, B, C, D vào thẻ <output>."
+        prompt += "\n\n<think>"
+
         try:
-            # Generate answer with more tokens for reasoning
-            predicted_answer = api_client.generate(prompt=prompt, max_length=2048, temperature=0.1)
+            # 4. Call LLM
+            predicted_answer = api_client.generate(prompt=prompt)
             
-            # Extract answer from <output>...</output>
-            # Extract answer from <output>...</output> (Relaxed to allow trailing text inside or outside tag)
+            # 5. Extract A/B/C/D từ answer
             match = re.search(r'<output>\s*([A-D])', predicted_answer, re.IGNORECASE)
             if match:
                 predicted_char = match.group(1).upper()
             else:
-                # Fallback: look for "Đáp án là A", "OUTPUT: A", "Answer: A"
                 fallback_match = re.search(r'(?:đáp án|chọn|là|output|answer)\s*[:]?\s*([A-D])\b', predicted_answer, re.IGNORECASE)
                 if fallback_match:
                     predicted_char = fallback_match.group(1).upper()
                 else:
-                    # Look for [A], (A), **A**
                     bracket_match = re.search(r'[\(\[\*]+([A-D])[\)\]\*]+', predicted_answer)
                     if bracket_match:
                         predicted_char = bracket_match.group(1).upper()
                     else:
-                        # Last resort: just try to find any A/B/C/D if it's very short
                         clean_ans = predicted_answer.strip().upper()
                         if len(clean_ans) == 1 and clean_ans in 'ABCD':
                             predicted_char = clean_ans
                         else:
-                            # Try to find the very last standalone A, B, C, D near the end of the text
                             last_match = re.findall(r'\b([A-D])\b', predicted_answer[-50:].upper())
                             if last_match:
                                 predicted_char = last_match[-1]
@@ -175,11 +160,6 @@ def evaluate():
                 "raw_response": str(e)
             })
 
-        # To avoid rate limiting or overwhelming the server, sleep slightly if needed
-        # time.sleep(0.5)
-        
-    api_client.close()
-
     total_valid = len(data) - failed_count
     accuracy = (correct_count / total_valid) * 100 if total_valid > 0 else 0
 
@@ -194,6 +174,8 @@ def evaluate():
 
     # Save results to file
     output_file = PROJECT_ROOT / "evaluation" / "evaluation_results_3.1_rerank5_top20.json"
+    import os
+    os.makedirs(output_file.parent, exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump({
             "summary": {

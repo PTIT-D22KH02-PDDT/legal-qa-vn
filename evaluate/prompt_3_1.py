@@ -52,6 +52,7 @@ QUY TẮC CHÍNH (bắt buộc):
 BẮT BUỘC: Trả về **chỉ** JSON theo cấu trúc đã nêu, không có bất kỳ giải thích hoặc văn bản nào khác.
 """
 EXAMPLE = """
+Bạn là một chuyên gia trả lời câu hỏi trắc nghiệm pháp luật Việt Nam.
 Nhiệm vụ của bạn là trả lời câu hỏi trắc nghiệm sau, chỉ cần chọn đáp án và không cần giải thích gì thêm.
 Chỉ đưa ra kết quả, không cần giải thích. Không thêm các token thuộc về giải thích, suy luận như </think> hoặc ***Giải thích***.
 
@@ -66,6 +67,7 @@ Chỉ trả lời: A hoặc B hoặc C hoặc D
 """
 
 EXAMPLE_REASONING = """
+Bạn là một chuyên gia trả lời câu hỏi trắc nghiệm pháp luật Việt Nam.
 Nhiệm vụ của bạn là đọc câu hỏi trắc nghiệm pháp luật tiếng Việt và chọn đáp án đúng (A, B, C hoặc D). Để trả lời được câu hỏi, bạn phải suy nghĩ và đưa ra lập luận cho câu trả lời.
 
 ***ĐỊNH DẠNG CỦA OUTPUT***
@@ -92,11 +94,12 @@ Ví dụ đúng:
 
 Ví dụ sai:
 Đáp án là A
-<output>A – tôi chọn đáp án này</output>
+<output>A - tôi chọn đáp án này</output>
 A. Đây là đáp án đúng vì...
 """
 
 EXAMPLE_FEWSHOT = """
+Bạn là một chuyên gia trả lời câu hỏi trắc nghiệm pháp luật Việt Nam.
 Nhiệm vụ của bạn là trả lời câu hỏi trắc nghiệm sau, chỉ cần chọn đáp án và không cần giải thích gì thêm.
 Chỉ đưa ra kết quả, không cần giải thích. Không thêm các token thuộc về giải thích, suy luận như </think> hoặc ***Giải thích***.
 

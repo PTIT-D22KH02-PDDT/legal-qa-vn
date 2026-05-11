@@ -1,0 +1,722 @@
+{
+    "summary": {
+        "total": 89,
+        "failed": 0,
+        "correct": 82,
+        "accuracy": 92.13483146067416
+    },
+    "details": [
+        {
+            "id": 1,
+            "question": "Hình thức xử lý tài sản do chủ sở hữu tự nguyện chuyển giao quyền sở hữu cho Nhà nước Việt Nam?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Để xác định hình thức xử lý tài sản do chủ sở hữu tự nguyện chuyển giao quyền sở hữu cho Nhà nước Việt Nam, ta cần tham khảo điều 45 của Nghị định 77/2025/NĐ-CP. Điều 45 quy định các hình thức xử lý tài sản, trong đó khoản 1 nêu rõ “Giao tài sản cho cơ quan quản lý chuyên ngành quản lý, xử lý theo quy định tại khoản 1 Điều 8 Nghị định này.” Do đó, câu trả lời đúng là Khoản 1 Điều 8 Nghị định 77/2025/NĐ-CP.</think>\n<output>C</output>"
+        },
+        {
+            "id": 2,
+            "question": "Có yêu cầu phải có báo cáo đánh giá ảnh hưởng của việc điều chỉnh giá điện đến chi phí mua điện của khách hàng sử dụng điện trong hồ sơ phương án giá bán lẻ điện bình quân trong năm không?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Trong văn bản 72/2025/NĐ-CP, mục 1 Mục 1, Điều 5, khoản 2, được liệt kê các nội dung của hồ sơ phương án giá bán lẻ điện bình quân. Trong danh sách này, có mục “báo cáo đánh giá ảnh hưởng của việc điều chỉnh giá điện đến chi phí mua điện của khách hàng sử dụng điện”. Điều này chứng tỏ rằng yêu cầu báo cáo đánh giá ảnh hưởng đã được quy định trong Khoản 2, Điều 6 của Nghị định 72/2025/NĐ-CP. Các lựa chọn khác (Khoản 3 Điều 8 Nghị định 88/2022/NĐ-CP; Khoản 4 Điều 10 Nghị định 55/2023/NĐ-CP; Khoản 1 Điều 5 Nghị định 11/2021/NĐ-CP) không đề cập đến yêu cầu báo cáo đánh giá ảnh hưởng như vậy. Do đó đáp án đúng là D.</think>\n<output>D</output>"
+        },
+        {
+            "id": 3,
+            "question": "Cơ cấu tổ chức của Hội đồng nhân dân gồm các cơ quan nào?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Cơ cấu tổ chức của Hội đồng nhân dân gồm các cơ quan nào?” ta cần tham khảo nội dung pháp luật quy định về cơ cấu tổ chức của Hội đồng nhân dân. Trong ngữ cảnh pháp lý được cung cấp, có một đoạn cụ thể từ Luật Tổ chức chính quyền địa phương năm 2025 (được ghi là “[72_2025_qh15]” và “[72_2025_qh15.chuong_v.muc_1.dieu_29]”) mô tả chi tiết: “Cơ cấu tổ chức của Hội đồng nhân dân gồm Thường trực Hội đồng nhân dân, các Ban của Hội đồng nhân dân, Tổ đại biểu Hội đồng nhân dân và các đại biểu Hội đồng nhân dân.” Đây chính là nội dung mà câu hỏi đang yêu cầu. Các lựa chọn khác (A, B, C) đề cập đến các khoản điều của các luật khác (Luật Giao thông đường bộ, Luật Công an nhân dân, Luật Đất đai) và không liên quan đến cơ cấu tổ chức của Hội đồng nhân dân. Do đó, đáp án đúng là lựa chọn D, vì nó trùng khớp với nội dung “Khoản 1 Điều 29 Luật Tổ chức chính quyền địa phương 2025 số 72/2025/QH15” mà đã được nêu trong ngữ cảnh pháp lý. \n</think>\n<output>D</output>"
+        },
+        {
+            "id": 4,
+            "question": "Năm 2025 đất không sử dụng bao lâu thì bị thu hồi đất?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Trong Luật Đất đai 2024, Điều 81 Khoản 8 quy định rõ ràng rằng đất được Nhà nước giao, cho thuê, chuyển mục đích sử dụng, công nhận quyền sử dụng đất, hoặc nhận chuyển nhượng quyền sử dụng đất để thực hiện dự án đầu tư mà không được sử dụng trong thời hạn 12 tháng liên tục sẽ bị thu hồi. Điều này chính xác nhất khớp với câu hỏi “Năm 2025 đất không sử dụng bao lâu thì bị thu hồi đất?”. Các lựa chọn khác (Khoản 5 Điều 60 Luật Đất đai 2022; Khoản 3 Điều 45 Luật Đất đai 2021; Khoản 1 Điều 22 Luật Đất đai 2020) không đề cập đến thời hạn 12 tháng liên tục cho việc không sử dụng đất. Do đó, đáp án đúng là Khoản 8 Điều 81 Luật Đất đai 2024.</think>\n<output>D</output>"
+        },
+        {
+            "id": 5,
+            "question": "Đơn vị kinh doanh vận tải sử dụng hợp đồng vận tải bằng hợp đồng điện tử phải đáp ứng điều kiện gì?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Đơn vị kinh doanh vận tải sử dụng hợp đồng vận tải bằng hợp đồng điện tử phải đáp ứng điều kiện gì?”, ta cần xác định điều khoản nào trong Nghị định 158/2024/NĐ-CP quy định điều kiện sử dụng hợp đồng điện tử.  \n\nTrong phần “NGỮ CẢNH PHÁP LÝ” có đoạn **[158_2024_nđ-cp.chuong_ii.muc_3.dieu_18]** mô tả chi tiết các điều kiện và yêu cầu đối với đơn vị kinh doanh vận tải khi sử dụng hợp đồng điện tử. Đoạn này bắt đầu bằng “Điều 18. Quy định về thực hiện hợp đồng vận tải bằng hợp đồng điện tử” và trong mục 2 của Điều 18, được liệt kê các điều kiện cụ thể (có giao diện phần mềm, gửi nội dung hợp đồng, lưu trữ dữ liệu, v.v.).  \n\nVì vậy, điều kiện được đề cập trong câu hỏi chính là “Khoản 2 Điều 18 Nghị định 158/2024/NĐ-CP”.  \n\nCác lựa chọn khác (Khoản 4 Điều 30 Nghị định 99/2024/NĐ-CP; Khoản 3 Điều 22 Nghị định 55/2021/NĐ-CP; Khoản 1 Điều 10 Nghị định 11/2020/NĐ-CP) không liên quan đến quy định về hợp đồng điện tử trong lĩnh vực vận tải đường bộ.  \n\nDo đó, đáp án đúng là C.  \n</think>\n<output>C</output>"
+        },
+        {
+            "id": 6,
+            "question": "Năm 2025, dữ liệu không gian đất đai nền được xây dựng theo phạm vi nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Trong Thông tư 25/2024/TT-BTNMT, Điều 8 Khoản 1 quy định rằng dữ liệu không gian đất đai nền được xây dựng theo phạm vi đơn vị hành chính cấp xã. Các lựa chọn khác không đề cập đến phạm vi này. Do đó đáp án đúng là Khoản 1 Điều 8.</think>\n<output>B</output>"
+        },
+        {
+            "id": 7,
+            "question": "Quyền và nghĩa vụ của Hội đồng thẩm định giá như thế nào?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Question asks about the rights and duties of the valuation council. According to the provided context, these are detailed in Article 62 of the 2023 Price Law, which enumerates the council’s rights and obligations. Therefore the correct reference is Article 62. The other article numbers (20, 10, 30) are not relevant to this topic. Hence the correct answer is A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 8,
+            "question": "Điều kiện để Ủy ban nhân dân ủy quyền cho Chủ tịch Ủy ban nhân dân thực hiện nhiệm vụ là gì?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Điều 14 Khoản 2 của Luật Tổ chức chính quyền địa phương 2025 quy định Ủy ban nhân dân ủy quyền cho Chủ tịch Ủy ban nhân dân, người đứng đầu cơ quan chuyên môn, tổ chức hành chính khác, đơn vị sự nghiệp công lập thuộc Ủy ban nhân dân cấp mình hoặc Ủy ban nhân dân, Chủ tịch Ủy ban nhân dân cấp dưới; điều kiện là thời gian xác định kèm theo các điều kiện cụ thể. Do đó đáp án đúng là Khoản 2 Điều 14.</think>\n<output>A</output>"
+        },
+        {
+            "id": 9,
+            "question": "Chính sách bố trí, sử dụng đối với cán bộ, công chức, viên chức có tài năng như thế nào?",
+            "predicted": "A",
+            "ground_truth": "C",
+            "is_correct": false,
+            "raw_response": "<think>Chính sách bố trí, sử dụng cán bộ, công chức, viên chức có tài năng thường được quy định trong Nghị định 100/2023/NĐ-CP, vì đây là văn bản hiện hành liên quan đến quản lý nhân sự và phát triển tài năng. Các nghị định khác (85/2022, 179/2024, 45/2021) không tập trung vào vấn đề này. Do đó đáp án đúng là A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 10,
+            "question": "Đất nông nghiệp có được sử dụng kết hợp với nhiều mục đích không?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Đất nông nghiệp có được sử dụng kết hợp với nhiều mục đích không?”, ta cần xác định điều khoản pháp luật quy định về việc sử dụng đất nông nghiệp kết hợp đa mục đích.  \nTrong ngữ cảnh pháp lý được cung cấp, có một điều khoản cụ thể: **Điều 218 Luật Đất đai 2024** (được trích trong “[31_2024_qh15.chuong_xiii.muc_2.dieu_218]”) nêu rõ rằng đất nông nghiệp được sử dụng kết hợp với mục đích thương mại, dịch vụ, chăn nuôi, trồng cây dược liệu, v.v. Điều này chính xác trả lời câu hỏi: đất nông nghiệp có thể được sử dụng kết hợp với nhiều mục đích.  \nCác lựa chọn khác (Điều 180 Luật Đất đai 2021, Điều 200 Luật Đất đai 2023, Điều 150 Luật Đất đai 2022) không liên quan đến quy định về sử dụng đất nông nghiệp kết hợp đa mục đích. Do đó, đáp án đúng là **C**.</think>\n<output>C</output>"
+        },
+        {
+            "id": 11,
+            "question": "Xác định chủ sở hữu của tài sản bị chôn, giấu, bị vùi lấp, chìm đắm được tìm thấy như thế nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Question asks how to determine owner of buried, hidden, buried, submerged assets found. The provided context shows that Điều 73 of Nghị định 77/2025/NĐ-CP specifically deals with determining the owner of such assets. Therefore the correct answer is the article that matches this reference, which is Điều 73 Nghị định 77/2025/NĐ-CP. The other options refer to different articles or different decrees. Hence the correct choice is C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 12,
+            "question": "Bệnh viện có thuộc đối tượng được giao đất không thu tiền sử dụng đất không?",
+            "predicted": "D",
+            "ground_truth": "C",
+            "is_correct": false,
+            "raw_response": "<think>Để xác định xem bệnh viện có thuộc đối tượng được giao đất không thu tiền sử dụng đất hay không, ta cần tìm quy định pháp luật liên quan đến “đơn vị sự nghiệp công lập sử dụng đất xây dựng công trình sự nghiệp”. Trong các văn bản pháp luật được liệt kê trong ngữ cảnh, điều này được nêu trong Khoản 4 của Điều 118 Luật Đất đai 2024 (được trích dẫn trong ngữ cảnh). Tuy nhiên, trong danh sách đáp án, không có đề cập trực tiếp đến Luật Đất đai 2024. Thay vào đó, các đáp án đề cập đến các khoản trong các Luật Đất đai khác nhau (2025, 2023, 2024, 2022). \n\nTa cần xác định đáp án nào có thể chứa quy định tương tự như Khoản 4 Điều 118 Luật Đất đai 2024. Trong các lựa chọn, Khoản 4 của Điều 20 Luật Đất đai 2022 (đáp án D) là lựa chọn có khả năng nhất chứa quy định về “đơn vị sự nghiệp công lập sử dụng đất xây dựng công trình sự nghiệp”, vì đây là một khoản thường được dùng để liệt kê các đối tượng được giao đất không thu tiền sử dụng đất. Các lựa chọn khác (Khoản 2 Điều 15 Luật Đất đai 2025, Khoản 1 Điều 5 Luật Đất đai 2023, Khoản 3 Điều 9 Luật Đất đai 2024) không liên quan đến quy định về đơn vị sự nghiệp công lập. \n\nVì vậy, đáp án đúng là đáp án D. \n</think>\n<output>D</output>"
+        },
+        {
+            "id": 13,
+            "question": "Từ 1/10/2025 thanh toán ủy quyền qua bên thứ 3 được khấu trừ thuế GTGT trong trường hợp nào?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Trong câu hỏi được đặt ra, “từ 1/10/2025 thanh toán ủy quyền qua bên thứ 3 được khấu trừ thuế GTGT trong trường hợp nào?” đề cập đến quy định về khấu trừ thuế GTGT khi thanh toán ủy quyền qua bên thứ ba. Theo nội dung ngữ cảnh, điều này được quy định trong Điều 26 của Nghị định 181/2025/NĐ-CP, cụ thể là khoản 2 của Điều 26, nơi liệt kê các trường hợp thanh toán ủy quyền qua bên thứ ba và điều kiện khấu trừ thuế. Các lựa chọn khác (Khoản 4 Điều 28 Nghị định 183/2025/NĐ-CP; Khoản 1 Điều 25 Nghị định 180/2025/NĐ-CP; Khoản 3 Điều 27 Nghị định 182/2025/NĐ-CP) không liên quan đến nội dung thanh toán ủy quyền qua bên thứ ba. Do đó, đáp án đúng là Khoản 2 Điều 26 Nghị định 181/2025/NĐ-CP.</think>\n<output>D</output>"
+        },
+        {
+            "id": 14,
+            "question": "Chủ đầu tư dự án bất động sản có trách nhiệm gì?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Chủ đầu tư dự án bất động sản có trách nhiệm được quy định trong Điều 17 của Luật Kinh doanh bất động sản 2023. Các lựa chọn khác (Điều 25 Luật Xây dựng 2014, Điều 22 Luật Đất đai 2013, Điều 20 Luật Đầu tư 2020) không liên quan trực tiếp đến trách nhiệm của chủ đầu tư bất động sản. Do đó đáp án đúng là D.</think>\n<output>D</output>"
+        },
+        {
+            "id": 15,
+            "question": "Các trường hợp nào miễn nhiệm công chứng viên?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Trong Luật Công chứng 2024, Điều 16 quy định về miễn nhiệm công chứng viên. Khoản 2 của Điều 16 liệt kê các trường hợp miễn nhiệm, trong khi các khoản khác (4, 3, 1) không liên quan đến vấn đề này. Do đó, đáp án đúng là Khoản 2 Điều 16.</think>\n<output>D</output>"
+        },
+        {
+            "id": 16,
+            "question": "Nội dung phương án sử dụng tầng đất mặt khi xây dựng công trình trên đất được chuyển đổi từ đất chuyên trồng lúa sang mục đích phi nông nghiệp gồm những gì?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Phân tích: Theo Điều 10 Nghị định 112/2024/NĐ-CP, nội dung phương án sử dụng tầng đất mặt khi xây dựng công trình trên đất chuyển đổi từ đất chuyên trồng lúa sang mục đích phi nông nghiệp bao gồm: thông tin người được giao/cho thuê, diện tích đất, khối lượng tầng đất mặt sau khi bóc tách, và phương án, vị trí, mục đích sử dụng khối lượng đất mặt được bóc tách. Trong các lựa chọn, chỉ Khoản 2 Điều 10 Nghị định 112/2024/NĐ-CP đề cập đến nội dung này. Do đó đáp án đúng là B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 17,
+            "question": "Trường hợp nào công trình quốc phòng và khu quân sự được chuyển mục đích sử dụng?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Trường hợp chuyển mục đích sử dụng công trình quốc phòng và khu quân sự được quy định trong Điều 12 của Luật Quản lý, bảo vệ công trình quốc phòng và khu quân sự năm 2023. Các điều luật khác không liên quan đến vấn đề này. Do đó đáp án đúng là A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 18,
+            "question": "Việc điều chỉnh thời hạn sử dụng đất của dự án đầu tư được thực hiện như thế nào?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Trong câu hỏi được đặt ra, yêu cầu là xác định văn bản pháp luật nào quy định về việc điều chỉnh thời hạn sử dụng đất của dự án đầu tư. Theo nội dung đã được cung cấp trong ngữ cảnh, điều này được quy định tại Điều 175 của Luật Đất đai 2024. Các lựa chọn khác (Điều 150, 190, 180 của Luật Đất đai 2013) không liên quan đến vấn đề điều chỉnh thời hạn sử dụng đất của dự án đầu tư. Do đó, đáp án đúng là lựa chọn D.</think>\n<output>D</output>"
+        },
+        {
+            "id": 19,
+            "question": "Tư vấn bất động sản là gì?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Định nghĩa “Tư vấn bất động sản” được nêu trong Luật Kinh doanh bất động sản 2023, cụ thể là Điều 3 Khoản 12. Do đó đáp án đúng là Khoản 12 Điều 3 Luật Kinh doanh bất động sản 2023.</think>\n<output>D</output>"
+        },
+        {
+            "id": 20,
+            "question": "Hợp tác xã là gì? Hệ thống thông tin quốc gia về hợp tác xã bao gồm những gì?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi, ta cần tìm văn bản pháp luật quy định về “hợp tác xã” và “hệ thống thông tin quốc gia về hợp tác xã”.  \n- “Hợp tác xã” được định nghĩa trong **Điều 4 Khoản 7** của **Luật Hợp tác xã 2023**.  \n- “Hệ thống thông tin quốc gia về hợp tác xã” được mô tả trong **Điều 13** của cùng một luật.  \nVì vậy, văn bản pháp luật phù hợp nhất là **Khoản 7 Điều 4 Luật Hợp tác xã 2023**.  \nCác lựa chọn khác (Luật Hợp đồng 2020, Luật Đầu tư 2021, Luật Doanh nghiệp 2022) không liên quan đến nội dung được yêu cầu.  \nDo đó đáp án đúng là D.</think>\n<output>D</output>"
+        },
+        {
+            "id": 21,
+            "question": "Phân loại tài sản kết cấu hạ tầng thủy lợi như thế nào?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Phân loại tài sản kết cấu hạ tầng thủy lợi được quy định trong Điều 5 của Nghị định 08/2025/NĐ-CP, vì trong nội dung đã nêu rõ “Điều 5. Phân loại tài sản kết cấu hạ tầng thủy lợi”. Các lựa chọn khác (Điều 25 Nghị định 30/2022/NĐ-CP, Điều 20 Nghị định 15/2021/NĐ-CP, Điều 10 Nghị định 12/2020/NĐ-CP) không liên quan đến việc phân loại tài sản kết cấu hạ tầng thủy lợi. Do đó đáp án đúng là D.</think>\n<output>D</output>"
+        },
+        {
+            "id": 22,
+            "question": "Việc tiết kiệm điện trong sử dụng điện được quy định như thế nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Việc tiết kiệm điện trong sử dụng điện được quy định trong Điều 55 Luật Điện lực 2024, cụ thể là Khoản 3 của Điều 55. Các lựa chọn khác không liên quan đến nội dung này. Do đó đáp án đúng là Khoản 3 Điều 55 Luật Điện lực 2024.</think>\n<output>B</output>"
+        },
+        {
+            "id": 23,
+            "question": "Người dân được xem thông tin dữ liệu đất đai nào?",
+            "predicted": "B",
+            "ground_truth": "A",
+            "is_correct": false,
+            "raw_response": "<think>Câu hỏi yêu cầu xác định thông tin dữ liệu đất đai mà người dân được xem. Trong ngữ cảnh được cung cấp, điều 61 của Nghị định 101/2024/NĐ-CP quy định rằng thông tin về người sử dụng đất, chủ sở hữu tài sản gắn liền với đất không được cung cấp nếu chưa có sự đồng ý của người sử dụng đất, chủ sở hữu, trừ các trường hợp đặc biệt. Điều này ngụ ý rằng người dân chỉ được xem những thông tin không liên quan đến dữ liệu cá nhân của người sử dụng đất. Trong danh sách đáp án, không có điều nào được nêu trong ngữ cảnh, nhưng điều 22 của Nghị định 55/2021/NĐ-CP thường liên quan đến quyền truy cập thông tin công khai. Do đó, đáp án phù hợp nhất là B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 24,
+            "question": "Quy định về tiết kiệm trong phát điện, truyền tải điện, phân phối điện và sử dụng điện như thế nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Question asks about regulations on saving in power generation, transmission, distribution and use of electricity. The provided context lists Article 55 of the 2024 Electricity Law, which specifically addresses savings in these areas. None of the other options correspond to this content. Therefore the correct answer is Article 55 of the 2024 Electricity Law, option C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 25,
+            "question": "Trước khi bán nhà ở hình thành trong tương lai thì chủ đầu tư cần thông báo với ai?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Trước khi bán nhà ở hình thành trong tương lai, theo Điều 24 Khoản 4 Luật Kinh doanh bất động sản 2023, chủ đầu tư phải có văn bản thông báo cho cơ quan quản lý nhà nước về kinh doanh bất động sản cấp tỉnh. Do đó, đáp án liên quan nhất đến yêu cầu thông báo là Khoản 4 Điều 24 Luật Kinh doanh bất động sản 2023.</think>\n<output>A</output>"
+        },
+        {
+            "id": 26,
+            "question": "Việc định giá đất phải bảo đảm nguyên tắc nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Việc định giá đất phải bảo đảm nguyên tắc nào?” ta cần tìm văn bản quy định các nguyên tắc của việc định giá đất. Trong ngữ cảnh pháp lý được cung cấp, có một đoạn trích từ Luật Đất đai 2024, cụ thể là Điều 158, Khoản 1, liệt kê các nguyên tắc mà việc định giá đất phải tuân thủ: nguyên tắc thị trường, tuân thủ phương pháp, trung thực, khách quan, công khai, minh bạch, độc lập giữa các tổ chức và cân bằng lợi ích. Đây chính là nội dung câu hỏi đang yêu cầu. Các lựa chọn khác (Khoản 2 Điều 25 Luật Đất đai 2023; Khoản 3 Điều 45 Luật Đất đai 2025; Khoản 4 Điều 60 Luật Đất đai 2022) không đề cập đến nguyên tắc định giá đất. Do đó, đáp án đúng là Khoản 1 Điều 158 Luật Đất đai 2024. </think>\n<output>C</output>"
+        },
+        {
+            "id": 27,
+            "question": "Cơ quan nào có trách nhiệm giải quyết khiếu nại liên quan đến cưỡng chế đất?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Trong các văn bản được cung cấp, chỉ có Khoản 5 của Điều 89 Luật Đất đai 2024 (đoạn 5a) nêu rõ trách nhiệm của Ủy ban nhân dân cấp huyện trong việc tổ chức thực hiện cưỡng chế và giải quyết khiếu nại liên quan đến cưỡng chế. Các khoản khác (15, 30, 20) không liên quan đến vấn đề cưỡng chế đất. Do đó đáp án đúng là Khoản 5 Điều 89 Luật Đất đai 2024.</think>\n<output>C</output>"
+        },
+        {
+            "id": 28,
+            "question": "Nguyên tắc lập kế hoạch lựa chọn nhà thầu là gì?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Nguyên tắc lập kế hoạch lựa chọn nhà thầu được quy định trong Điều 37 của Luật Đấu thầu 2023. Các lựa chọn còn lại đề cập đến các luật khác không liên quan. Do đó đáp án đúng là B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 29,
+            "question": "06 hành vi vi phạm về tài chính về đất đai khi thi hành công vụ là gì?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Question asks for the clause that lists the financial violations in land law during public service. The provided context shows that “Điều 109, Khoản 7” of Nghị định 102/2024/NĐ-CP enumerates the financial violations. Therefore the correct answer is the clause “Khoản 7 Điều 109 Nghị định 102/2024/NĐ-CP.”</think>\n<output>D</output>"
+        },
+        {
+            "id": 30,
+            "question": "Thực hiện tập trung đất nông nghiệp phải lập phương án sử dụng đất gồm những nội dung nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Question asks which article specifies the contents of the land use plan for agricultural land concentration. The provided context shows that Nghị định 102/2024/NĐ-CP, Điều 77 Khoản 2 lists the required contents. Therefore the correct answer is the article from Nghị định 102/2024/NĐ-CP, Khoản 2, which corresponds to option B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 31,
+            "question": "Chi phí phát hành hồ sơ mời sơ tuyển trong lựa chọn nhà thầu trên Hệ thống mạng đấu thầu là bao nhiêu?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Chi phí phát hành hồ sơ mời sơ tuyển được quy định trong Điều 15 Luật Đấu thầu 2023, khoản 1: “Hồ sơ mời thầu đối với đấu thầu trong nước, hồ sơ mời quan tâm, hồ sơ mời sơ tuyển được phát hành miễn phí trên Hệ thống mạng đấu thầu quốc gia.” Do đó chi phí là 0 đồng. Đáp án tương ứng là Khoản 1 Điều 15 Luật Đấu thầu 2023.</think>\n<output>C</output>"
+        },
+        {
+            "id": 32,
+            "question": "Tổng hợp các hành vi nghiêm cấm công chứng viên thực hiện từ 1/7/2025 chi tiết thế nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Trong ngữ cảnh pháp lý được cung cấp, các hành vi nghiêm cấm của công chứng viên được quy định trong Điều 9 của Luật Công chứng 2024. Cụ thể, “Điều 9. Các hành vi bị nghiêm cấm” có Khoản 1 dành riêng cho công chứng viên, liệt kê các hành vi mà họ không được thực hiện. Các lựa chọn khác (Khoản 4 Điều 15 Luật Thương mại 2025, Khoản 3 Điều 12 Luật Dân sự 2023, Khoản 2 Điều 10 Luật Công chứng 2024) không đề cập đến danh sách hành vi nghiêm cấm của công chứng viên. Do đó, đáp án đúng là Khoản 1 Điều 9 Luật Công chứng 2024.</think>\n<output>C</output>"
+        },
+        {
+            "id": 33,
+            "question": "Việc quản lý, sử dụng, khai thác tài sản công đoàn được thực hiện như thế nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>The question asks about the management, use, and exploitation of union assets. In Vietnam, the relevant legal framework is the Law on Trade Unions (Luật Công đoàn). The specific provision that deals with the management, use, and exploitation of union assets is found in Article 32, Clause 1 of the Law on Trade Unions 2024. Therefore, the correct answer is the one that references this clause: “Khoản 1 Điều 32 Luật Công đoàn 2024.”</think>\n<output>B</output>"
+        },
+        {
+            "id": 34,
+            "question": "Đối tượng nào được phép trang bị vũ khí thể thao?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Đối tượng nào được phép trang bị vũ khí thể thao?” ta cần xác định văn bản pháp luật nào quy định về đối tượng trang bị vũ khí thể thao.  \nTrong ngữ cảnh đã được cung cấp, có một đoạn trích từ “Điều 24 Luật Quản lý, sử dụng vũ khí, vật liệu nổ và công cụ hỗ trợ 2024” (được ghi trong phần “NGỮ CẢNH PHÁP LÝ” và “NGỮ CẢNH TÌM KIẾM”). Điều 24 này liệt kê các đối tượng được phép trang bị vũ khí thể thao (Quân đội nhân dân, Dân quân tự vệ, Cảnh sát biển, Công an nhân dân, câu lạc bộ, cơ sở đào tạo, huấn luyện thể thao có giấy phép hoạt động, Trung tâm giáo dục quốc phòng và an ninh, v.v.).  \n\nCác lựa chọn khác (Điều 15 Luật Bảo vệ môi trường 2022, Điều 30 Luật Giao thông đường bộ 2020, Điều 45 Luật Phòng chống cháy nổ 2021) không liên quan đến vấn đề trang bị vũ khí thể thao.  \n\nVì vậy, đáp án đúng là lựa chọn A, tức là “Điều 24 Luật Quản lý, sử dụng vũ khí, vật liệu nổ và công cụ hỗ trợ 2024”.  \n</think>\n<output>A</output>"
+        },
+        {
+            "id": 35,
+            "question": "Thiết bị dùng để giảng dạy và học tập nào áp dụng thuế suất GTGT 5% từ 1/7/2025?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Trong Luật Thuế giá trị gia tăng 2024, Điều 9 quy định các mặt hàng áp dụng thuế suất 5%. Khoản 2 của Điều 9 liệt kê các thiết bị dùng để giảng dạy và học tập, bao gồm sách giáo khoa, giáo trình, thiết bị học tập, v.v. Do đó, đáp án đúng là Khoản 2 Điều 9 Luật Thuế giá trị gia tăng 2024.</think>\n<output>D</output>"
+        },
+        {
+            "id": 36,
+            "question": "Đất ở có nguy cơ sạt lở có bị thu hồi đất hay không?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Trong Luật Đất đai 2024, Điều 82 quy định về thu hồi đất do chấm dứt việc sử dụng đất theo pháp luật, tự nguyện trả lại đất, có nguy cơ đe dọa tính mạng con người. Trong phần 3 của Điều 82, cụ thể ghi: “đất ở có nguy cơ sạt lở, sụt lún, bị ảnh hưởng bởi hiện tượng thiên tai khác đe dọa tính mạng con người; đất khác bị sạt lở, sụt lún, bị ảnh hưởng bởi hiện tượng thiên tai khác mà không còn khả năng tiếp tục sử dụng.” Do đó, câu hỏi “Đất ở có nguy cơ sạt lở có bị thu hồi đất hay không?” được trả lời dựa trên Điều 82 của Luật Đất đai 2024. Các lựa chọn khác (Nghị định 11/2020, Nghị định 55/2021, Nghị định 99/2024) không liên quan trực tiếp đến vấn đề thu hồi đất do nguy cơ sạt lở. Vì vậy đáp án đúng là Khoản 3 Điều 82 Luật Đất đai 2024. </think>\n<output>D</output>"
+        },
+        {
+            "id": 37,
+            "question": "Đơn vị nào là đại diện chủ sở hữu nhà ở thuộc tài sản công?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Để xác định đơn vị là đại diện chủ sở hữu nhà ở thuộc tài sản công, ta cần tham khảo nội dung pháp luật liên quan. Trong “NGỮ CẢNH PHÁP LÝ” có đoạn mô tả chi tiết về Điều 14 của Luật Nhà ở 2023, trong đó quy định rõ Bộ Xây dựng, Bộ Quốc phòng, Ủy ban nhân dân cấp tỉnh và các cơ quan trung ương khác là đại diện chủ sở hữu đối với các loại nhà ở công vụ, sinh viên, v.v. Điều này chính xác khớp với yêu cầu câu hỏi: “Đơn vị nào là đại diện chủ sở hữu nhà ở thuộc tài sản công?”. Các lựa chọn khác (Điều 25 Luật Xây dựng 2020, Điều 20 Luật Đất đai 2013, Điều 30 Luật Kinh tế 2021) không liên quan đến vấn đề đại diện chủ sở hữu nhà ở thuộc tài sản công. Do đó, đáp án đúng là C: Điều 14 Luật Nhà ở 2023.</think>\n<output>C</output>"
+        },
+        {
+            "id": 38,
+            "question": "Trường hợp nào phải phá dỡ nhà chung cư 2025?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Trong văn bản pháp luật được cung cấp, điều quy định về việc phá dỡ nhà chung cư được nêu trong Luật Nhà ở 2023, cụ thể là Điều 59, mục 2. Điều này liệt kê các trường hợp phải phá dỡ nhà chung cư, bao gồm các tình huống hư hỏng nặng, nguy cơ sập đổ, v.v. Các lựa chọn khác (Khoản 1 Điều 10 Nghị định 11/2020/NĐ-CP; Khoản 3 Điều 22 Nghị định 55/2021/NĐ-CP; Khoản 4 Điều 30 Nghị định 99/2024/NĐ-CP) không liên quan đến quy định về phá dỡ nhà chung cư. Do đó, đáp án đúng là Khoản 2 Điều 59 Luật Nhà ở 2023.</think>\n<output>C</output>"
+        },
+        {
+            "id": 39,
+            "question": "Hồ sơ chuyển đổi Văn phòng công chứng theo loại hình doanh nghiệp tư nhân thành Văn phòng công chứng theo loại hình công ty hợp danh gồm những gì?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi, ta cần xác định đoạn văn bản quy định về hồ sơ chuyển đổi từ loại hình doanh nghiệp tư nhân sang công ty hợp danh. Trong nội dung đã được cung cấp, có một đoạn cụ thể: “Khoản 4 Điều 17 Nghị định 104/2025/NĐ-CP” liệt kê các giấy tờ cần nộp (đơn đề nghị, quyết định bổ nhiệm, dự thảo điều lệ, văn bản cam kết, v.v.). Các lựa chọn khác (Khoản 5 Điều 18, Khoản 2 Điều 19, Khoản 1 Điều 20) không đề cập đến danh sách hồ sơ chuyển đổi. Do đó, đáp án đúng là Khoản 4 Điều 17.</think>\n<output>A</output>"
+        },
+        {
+            "id": 40,
+            "question": "Đơn vị hành chính - kinh tế đặc biệt là gì?",
+            "predicted": "D",
+            "ground_truth": "A",
+            "is_correct": false,
+            "raw_response": "<think>Đơn vị hành chính - kinh tế đặc biệt là khái niệm được quy định trong Luật Tổ chức chính quyền địa phương. Theo quy định, khái niệm này được nêu trong Khoản 1, Điều 3 của Luật Tổ chức chính quyền địa phương năm 2019. Các lựa chọn khác đề cập đến các luật khác (đất đai, đầu tư công, tổ chức chính quyền 2025) không liên quan đến khái niệm này. Do đó đáp án đúng là D.</think>\n<output>D</output>"
+        },
+        {
+            "id": 41,
+            "question": "Nhà ở xã hội là nhà chung cư được đầu tư xây dựng theo dự án phải đảm bảo diện tích tối thiểu bao nhiêu m2?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi, ta cần xác định tiêu chuẩn diện tích tối thiểu của căn hộ trong nhà chung cư xã hội. Theo Điều 27, Khoản 1 của Nghị định 100/2024/NĐ-CP, tiêu chuẩn diện tích sử dụng mỗi căn hộ tối thiểu là 25 m². Do đó, đáp án đúng là Khoản 1, Điều 27 của Nghị định 100/2024/NĐ-CP. </think>\n<output>C</output>"
+        },
+        {
+            "id": 42,
+            "question": "Quản lý đầu tư công cần phải tuân thủ những nguyên tắc nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Trong ngữ cảnh được cung cấp, các nguyên tắc quản lý đầu tư công được nêu rõ trong Điều 13 của Luật Đầu tư công 2024. Các lựa chọn khác (Điều 9 Luật Đất đai 2013, Điều 22 Luật Ngân sách nhà nước 2015, Điều 35 Luật Bảo vệ môi trường 2020) không liên quan đến nguyên tắc quản lý đầu tư công. Do đó, đáp án đúng là B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 43,
+            "question": "Chính quyền địa phương ở nông thôn bao gồm những gì?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Chính quyền địa phương ở nông thôn được quy định trong Luật Tổ chức chính quyền địa phương 2025. Theo Điều 2 Khoản 1, chính quyền địa phương ở các đơn vị hành chính (xã, phường, đặc khu) là cấp chính quyền địa phương gồm có Hội đồng nhân dân và Ủy ban nhân dân. Do đó, câu trả lời đúng là Khoản 2 Điều 2 Luật Tổ chức chính quyền địa phương 2025, tương ứng với đáp án C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 44,
+            "question": "Thời điểm đóng thầu là thời điểm nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Định nghĩa “thời điểm đóng thầu” được nêu trong Khoản 31 của Điều 4 Luật Đấu thầu 2023: “Thời điểm đóng thầu là thời điểm hết hạn nhận hồ sơ quan tâm, hồ sơ dự sơ tuyển, hồ sơ dự thầu, hồ sơ đề xuất.” Các lựa chọn khác không liên quan đến định nghĩa này. Do đó đáp án đúng là Khoản 31 Điều 4 Luật Đấu thầu 2023.</think>\n<output>B</output>"
+        },
+        {
+            "id": 45,
+            "question": "Thời gian đào tạo nghề công chứng là mấy tháng từ ngày 1/7/2025?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Để xác định thời gian đào tạo nghề công chứng, ta cần tham khảo nội dung của Luật Công chứng 2024. Theo Điều 11, khoản 2, thời gian đào tạo nghề công chứng là 12 tháng (trừ trường hợp quy định tại khoản 3). Do đó, câu trả lời đúng là liên quan đến Điều 11. Trong danh sách đáp án, chỉ có đáp án B đề cập đến Khoản 1 Điều 11 Luật Công chứng 2024, vì vậy đáp án đúng là B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 46,
+            "question": "Cơ quan nào có thẩm quyền quyết định và chi trả bồi thường cho hộ gia đình, cá nhân có đất nông nghiệp đã sử dụng trước 1/7/2004?",
+            "predicted": "A",
+            "ground_truth": "B",
+            "is_correct": false,
+            "raw_response": "<think>Trong Luật Đất đai 2024, các điều 90–92 quy định về bồi thường khi Nhà nước thu hồi đất nông nghiệp.  \n- Điều 90: “Bồi thường về đất nông nghiệp đã sử dụng trước ngày 01/07/2004” – quy định thẩm quyền quyết định và chi trả bồi thường cho hộ gia đình, cá nhân.  \n- Điều 91: “Bồi thường về đất nông nghiệp đã sử dụng sau ngày 01/07/2004” – quy định khác.  \n- Điều 92: “Bồi thường về đất nông nghiệp đã sử dụng trước ngày 01/07/2004” nhưng dành cho trường hợp có giấy chứng nhận quyền sử dụng đất.  \n\nVì câu hỏi yêu cầu thẩm quyền quyết định và chi trả bồi thường cho hộ gia đình, cá nhân có đất nông nghiệp đã sử dụng trước 1/7/2004, điều 90 là điều phù hợp nhất.  \nDo đó đáp án đúng là A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 47,
+            "question": "Thẻ công chứng viên bị thu hồi trong trường hợp nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Thẻ công chứng viên bị thu hồi được quy định trong Điều 38 của Luật Công chứng 2024. Điều này nêu rõ các trường hợp thu hồi thẻ: khi công chứng viên bị miễn nhiệm, khi công chứng viên không còn hành nghề tại tổ chức hành nghề công chứng mà thẻ được cấp, khi tổ chức hành nghề công chứng giải thể, chấm dứt hoạt động hoặc thay đổi tên. Các lựa chọn khác (Điều 12 Luật Công chứng 2022, Điều 28 Luật Công chứng 2025, Điều 45 Luật Công chứng 2023) không liên quan đến quy định thu hồi thẻ công chứng viên. Do đó đáp án đúng là lựa chọn B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 48,
+            "question": "Nhóm đất nông nghiệp gồm các loại đất nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Nhóm đất nông nghiệp được quy định trong Điều 9 Luật Đất đai 2024 (được tham chiếu trong các văn bản nguồn như [31_2024_qh15] và [45_2013_qh13] với nội dung tương tự). Các lựa chọn khác (Điều 5, 12, 18) không liên quan đến việc phân loại nhóm đất nông nghiệp. Do đó đáp án đúng là C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 49,
+            "question": "Tín hiệu được sử dụng đối với thiết bị phát tín hiệu của xe ưu tiên như thế nào?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Trong văn bản Nghị định 151/2024/NĐ-CP, Điều 19 quy định về tín hiệu, yêu cầu kỹ thuật đối với thiết bị phát tín hiệu của xe ưu tiên. Phần 2 của Điều 19 liệt kê chi tiết các tín hiệu được sử dụng cho các loại xe ưu tiên khác nhau (đèn nhấp nháy màu đỏ, xanh, đỏ-xanh, còi, cờ, v.v.). Do đó, câu hỏi “Tín hiệu được sử dụng đối với thiết bị phát tín hiệu của xe ưu tiên như thế nào?” được trả lời trong Khoản 2 của Điều 19 của Nghị định 151/2024/NĐ-CP. Các lựa chọn khác đề cập đến các khoản, điều khác hoặc nghị định khác không liên quan. Vì vậy đáp án đúng là Khoản 2 Điều 19 Nghị định 151/2024/NĐ-CP.</think>\n<output>A</output>"
+        },
+        {
+            "id": 50,
+            "question": "Chỉ tiêu sử dụng đất là gì?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Định nghĩa “chỉ tiêu sử dụng đất” được nêu trong Luật Đất đai 2024, Điều 3, Khoản 8: “Chỉ tiêu sử dụng đất là diện tích đất của từng loại đất được xác định trong quy hoạch, kế hoạch sử dụng đất các cấp”. Do đó đáp án đúng là Khoản 8 Điều 3 Luật Đất đai 2024.</think>\n<output>C</output>"
+        },
+        {
+            "id": 51,
+            "question": "Tổ chức kinh tế có vốn đầu tư nước ngoài có được nhận góp vốn bằng quyền sử dụng đất tại khu vực hạn chế tiếp cận đất đai không?",
+            "predicted": "B",
+            "ground_truth": "D",
+            "is_correct": false,
+            "raw_response": "<think>Để trả lời câu hỏi, ta cần xác định điều khoản nào trong các nghị định được liệt kê có quy định về việc tổ chức kinh tế có vốn đầu tư nước ngoài có thể nhận góp vốn bằng quyền sử dụng đất, đặc biệt trong khu vực hạn chế tiếp cận đất đai.  \n\n- **Nghị định 150/2023/NĐ-CP**: Thường liên quan đến quy định chung về đất đai, nhưng không tập trung vào quyền góp vốn bằng quyền sử dụng đất cho tổ chức kinh tế nước ngoài.  \n- **Nghị định 210/2025/NĐ-CP**: Đây là nghị định mới nhất trong danh sách và thường được dùng để điều chỉnh các quy định liên quan đến đầu tư nước ngoài, bao gồm cả việc nhận góp vốn bằng quyền sử dụng đất.  \n- **Nghị định 200/2022/NĐ-CP**: Chủ yếu quy định về các thủ tục cấp giấy chứng nhận quyền sử dụng đất, không đặc biệt nhấn mạnh tới tổ chức kinh tế nước ngoài.  \n- **Nghị định 102/2024/NĐ-CP**: Thường liên quan đến quy định về đất nông nghiệp, không tập trung vào quyền góp vốn bằng quyền sử dụng đất cho tổ chức kinh tế nước ngoài.  \n\nDựa vào phân tích trên, **Nghị định 210/2025/NĐ-CP** là điều khoản có khả năng chứa quy định cho câu hỏi.  \n\nVì vậy, đáp án đúng là B.  \n</think>\n<output>B</output>"
+        },
+        {
+            "id": 52,
+            "question": "Có mấy phương thức thanh toán tiền sử dụng đường bộ?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Phân tích nội bộ...</think>\n<output>D</output>"
+        },
+        {
+            "id": 53,
+            "question": "Phương thức chuyển đổi Phòng công chứng được quy định như thế nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Phương thức chuyển đổi Phòng công chứng được quy định trong Điều 10 của Nghị định 104/2025/NĐ-CP, như được nêu trong ngữ cảnh. Các lựa chọn khác không liên quan đến nội dung này. Do đó đáp án đúng là C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 54,
+            "question": "Điều tra cơ bản tài nguyên nước bao gồm các hoạt động nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Question asks: \"Điều tra cơ bản tài nguyên nước bao gồm các hoạt động nào?\" The relevant text in the context shows that Article 9 of the 2023 Water Resources Law defines the activities of basic water resources survey. Therefore the correct reference is Article 9 of the 2023 Water Resources Law. Among the options, only option B matches this. Hence the answer is B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 55,
+            "question": "Quy định về bồi thường khi nhà nước thu hồi tài nguyên Internet Việt Nam từ 20/7/2025 như thế nào?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Để xác định quy định về bồi thường khi nhà nước thu hồi tài nguyên Internet, ta cần tìm văn bản pháp luật liên quan đến lĩnh vực viễn thông và thu hồi tài nguyên. Trong danh sách các đáp án, các lựa chọn liên quan đến Luật Viễn thông (2021, 2022, 2023) và Nghị định 120/2024/NĐ-CP. Việc thu hồi tài nguyên Internet thường được quy định trong Luật Viễn thông, vì đây là lĩnh vực quản lý tài nguyên mạng. Trong Luật Viễn thông 2023, có một điều 53, trong đó có các khoản quy định về bồi thường khi thu hồi tài nguyên. Khoản 2 của Điều 53 đề cập đến bồi thường cho các bên bị ảnh hưởng khi nhà nước thu hồi tài nguyên Internet. Do đó, đáp án phù hợp nhất là D: Khoản 2 Điều 53 Luật Viễn thông 2023.</think>\n<output>D</output>"
+        },
+        {
+            "id": 56,
+            "question": "Người có bằng cử nhân luật có được đăng ký tham dự khóa đào tạo nghề công chứng không?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi, ta cần xác định trong các văn bản luật công chứng nào quy định điều kiện đăng ký tham gia khóa đào tạo nghề công chứng. Theo quy định hiện hành, người có bằng cử nhân luật được coi là đủ điều kiện để đăng ký tham gia khóa đào tạo nghề công chứng. Điều này được nêu trong **Điều 11 của Luật Công chứng năm 2024**. Các điều khác (Điều 25 năm 2027, Điều 20 năm 2026, Điều 15 năm 2025) không liên quan đến điều kiện này. Do đó đáp án đúng là A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 57,
+            "question": "Tiêu chuẩn bổ nhiệm công chứng viên là gì?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Tiêu chuẩn bổ nhiệm công chứng viên được quy định trong Điều 10 của Luật Công chứng 2024. Các lựa chọn khác (Điều 15 năm 2023, Điều 20 năm 2022, Điều 25 năm 2025) không liên quan. Do đó đáp án đúng là A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 58,
+            "question": "Đăng ký đất đai, tài sản gắn liền với đất lần đầu gồm những nội dung gì?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Question asks: “Đăng ký đất đai, tài sản gắn liền với đất lần đầu gồm những nội dung gì?” According to the provided legal context, specifically the excerpt from Nghị định 101/2024/NĐ-CP, Điều 18, Khoản 1 enumerates the contents of the first registration. Therefore the correct reference is Khoản 1 Điều 18 of Nghị định 101/2024/NĐ-CP, which corresponds to option B. </think>\n<output>B</output>"
+        },
+        {
+            "id": 59,
+            "question": "Hoạt động kiểm kê đất đai được thực hiện như thế nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Trong văn bản 31_2024_qh15, Điều 58, mục 5 mô tả chi tiết các bước thực hiện hoạt động kiểm kê đất đai: thu thập hồ sơ, điều tra, rà soát, xử lý dữ liệu, lập bản đồ và báo cáo. Các lựa chọn khác không đề cập đến nội dung này. Do đó đáp án đúng là Khoản 5 Điều 58 Luật Đất đai 2024.</think>\n<output>C</output>"
+        },
+        {
+            "id": 60,
+            "question": "Đăng ký biến động đất đai bằng phương tiện điện tử như thế nào?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Đăng ký biến động đất đai bằng phương tiện điện tử được quy định trong Điều 49 của Nghị định 101/2024/NĐ-CP. Các lựa chọn khác không liên quan đến nội dung này. Do đó đáp án đúng là A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 61,
+            "question": "Tổ chức đề nghị cấp chứng chỉ năng lực xây dựng có quyền và nghĩa vụ gì?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Tổ chức đề nghị cấp chứng chỉ năng lực xây dựng có quyền và nghĩa vụ gì?”, ta cần xác định văn bản pháp luật quy định về quyền và nghĩa vụ của tổ chức đề nghị cấp chứng chỉ năng lực. Trong ngữ cảnh đã cung cấp, có hai văn bản liên quan: Nghị định 15/2021/NĐ-CP (Điều 85) và Nghị định 175/2024/NĐ-CP (Điều 101). Cả hai đều đề cập đến quyền và nghĩa vụ của tổ chức đề nghị cấp chứng chỉ năng lực, nhưng trong danh sách đáp án chỉ có một văn bản phù hợp với nội dung này. Đáp án A, C, D đề cập đến các nghị định khác (180/2025, 155/2023, 190/2026) mà không liên quan đến quyền và nghĩa vụ của tổ chức đề nghị cấp chứng chỉ năng lực. Do đó, đáp án đúng là Nghị định 175/2024/NĐ-CP, cụ thể là Điều 101.  \n</think>\n<output>B</output>"
+        },
+        {
+            "id": 62,
+            "question": "Công trình xây dựng có sẵn nào được đưa vào kinh doanh?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Trong văn bản pháp luật được cung cấp, “Công trình xây dựng có sẵn” được quy định trong Chương II, Điều 12 của Luật Kinh doanh bất động sản 2023. Điều 12 này liệt kê các loại công trình xây dựng có sẵn được đưa vào kinh doanh và tham chiếu đến Khoản 2 của Điều 5. Do đó, đáp án đúng là Khoản 2 Điều 12 Luật Kinh doanh bất động sản 2023.</think>\n<output>D</output>"
+        },
+        {
+            "id": 63,
+            "question": "Nguyên tắc tổ chức và hoạt động của Tòa án nhân dân là gì?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Nguyên tắc tổ chức và hoạt động của Tòa án nhân dân được quy định trong Điều 5 của Luật Tổ chức Tòa án nhân dân năm 2024. Các lựa chọn còn lại đề cập đến các luật khác không liên quan. Do đó đáp án đúng là B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 64,
+            "question": "Thời hiệu xử phạt vi phạm hành chính trong lĩnh vực đất đai là bao nhiêu năm?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Trong ngữ cảnh pháp lý được cung cấp, có một đoạn trích từ Nghị định 123/2024/NĐ-CP, cụ thể là Điều 3, Khoản 1, ghi rõ: “Thời hiệu xử phạt vi phạm hành chính trong lĩnh vực đất đai là 02 năm.” Điều này xác định thời hiệu là 2 năm. Các lựa chọn khác (Nghị định 45/2021/NĐ-CP, Nghị định 33/2019/NĐ-CP, Nghị định 99/2020/NĐ-CP) không được đề cập trong văn bản và không chứa thông tin về thời hiệu xử phạt trong lĩnh vực đất đai. Do đó, đáp án đúng là lựa chọn liên quan đến Nghị định 123/2024/NĐ-CP, tức là Khoản 3 Điều 3 của Nghị định 123/2024/NĐ-CP. \n</think>\n<output>A</output>"
+        },
+        {
+            "id": 65,
+            "question": "Thành viên Ban kiểm soát của tổ chức tín dụng là hợp tác xã có quyền và nghĩa vụ gì?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Question asks: \"Thành viên Ban kiểm soát của tổ chức tín dụng là hợp tác xã có quyền và nghĩa vụ gì?\" The relevant law is Law on Credit Institutions 2024, specifically Article 94. Other options refer to unrelated laws. Therefore correct answer is A."
+        },
+        {
+            "id": 66,
+            "question": "Khi nào được áp dụng bảng giá đất?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Để xác định thời điểm áp dụng bảng giá đất, ta cần tham khảo nội dung của Luật Đất đai. Trong Luật Đất đai 2024, Điều 159 Khoản 1 quy định rõ ràng rằng “Bảng giá đất được áp dụng cho các trường hợp sau đây”. Đây là điều khoản chính xác liên quan đến việc áp dụng bảng giá đất. Các lựa chọn khác (Khoản 4 Điều 25 Luật Thuế 2026, Khoản 2 Điều 30 Luật Quản lý đất đai 2023, Khoản 3 Điều 20 Luật Bất động sản 2025) không đề cập đến bảng giá đất. Do đó, đáp án đúng là Khoản 1 Điều 159 Luật Đất đai 2024.</think>\n<output>D</output>"
+        },
+        {
+            "id": 67,
+            "question": "Chế độ bảo mật thông tin, dữ liệu đất đai phải được thực hiện như thế nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Trong các văn bản được liệt kê, Điều 57 của Nghị định 101/2024/NĐ-CP có Khoản 5 quy định “Chế độ bảo mật thông tin, dữ liệu đất đai phải thực hiện theo quy định của pháp luật về bảo vệ bí mật nhà nước.” Điều này chính xác phản ánh nội dung câu hỏi. Các khoản khác (Khoản 3 Điều 42, Khoản 1 Điều 58, Khoản 4 Điều 66) không đề cập đến chế độ bảo mật thông tin, dữ liệu đất đai. Do đó đáp án đúng là Khoản 5 Điều 57 của Nghị định 101/2024/NĐ-CP.</think>\n<output>C</output>"
+        },
+        {
+            "id": 68,
+            "question": "Đối tượng nào không thu tiền sử dụng dịch vụ vận chuyển hàng không nội địa?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Để xác định đối tượng không thu tiền khi sử dụng dịch vụ vận chuyển hàng không nội địa, ta cần tìm đoạn văn quy định “đối tượng không thu tiền sử dụng dịch vụ”. Trong ngữ cảnh đã cung cấp, các điều khoản liên quan đến việc miễn phí dịch vụ được ghi trong Thông tư 44/2024/TT‑BGTVT, cụ thể là Điều 9. Điều này liệt kê các đối tượng không phải trả tiền, trong đó có “hành khách quá cảnh trong vòng 24 giờ” và các trường hợp khác. Các thông tư khác (55/2023, 33/2025, 88/2022) không nêu rõ điều này. Do đó, đáp án đúng là Điều 9 Thông tư 44/2024/TT‑BGTVT.</think>\n<output>C</output>"
+        },
+        {
+            "id": 69,
+            "question": "Phí bảo hiểm và trách nhiệm mua bảo hiểm trách nhiệm nghề nghiệp của công chứng viên được quy định như thế nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Phí bảo hiểm và trách nhiệm mua bảo hiểm trách nhiệm nghề nghiệp của công chứng viên được quy định trong Điều 30 của Nghị định 104/2025/NĐ-CP, như đã nêu trong ngữ cảnh. Các lựa chọn khác không liên quan. Do đó đáp án đúng là C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 70,
+            "question": "Đất tôn giáo có được sử dụng cho mục đích khác không?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Đất tôn giáo được quy định có thể được sử dụng kết hợp với mục đích thương mại, dịch vụ theo Điều 218 Khoản e. Tuy nhiên, việc sử dụng đất tôn giáo kết hợp với thương mại, dịch vụ phải tuân thủ các yêu cầu quy định tại Khoản 5 Điều 213 Luật Đất đai 2024. Do đó, đáp án đúng là Khoản 5 Điều 213.</think>\n<output>B</output>"
+        },
+        {
+            "id": 71,
+            "question": "Công chứng là gì? Hành nghề công chứng phải tuân thủ theo nguyên tắc nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Công chứng là gì? Hành nghề công chứng phải tuân thủ theo nguyên tắc nào?” ta cần tham khảo văn bản pháp luật liên quan đến công chứng. Trong ngữ cảnh đã cung cấp, có các đoạn trích từ Luật Công chứng 2024:\n\n- Điều 2 Khoản 1: Định nghĩa “Công chứng” là dịch vụ công do công chứng viên thực hiện để chứng nhận tính xác thực, hợp pháp của giao dịch.\n- Điều 5: Nguyên tắc hành nghề công chứng, bao gồm tuân thủ Hiến pháp, pháp luật, khách quan, trung thực, tuân thủ quy tắc đạo đức, chịu trách nhiệm trước pháp luật.\n\nVì vậy, câu trả lời đúng phải trỏ tới Khoản 1 của Điều 2 Luật Công chứng 2024, vì đây là văn bản định nghĩa công chứng và liên quan đến nguyên tắc hành nghề. Các lựa chọn khác (A, C, D) không liên quan đến Luật Công chứng 2024. Do đó đáp án là B."
+        },
+        {
+            "id": 72,
+            "question": "Có được sử dụng tiếng Anh là ngôn ngữ trong đấu thầu?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Question asks whether English can be used as language in bidding. According to Article 12 of the 2023 Law on Bidding, for international bidding the language can be English or Vietnamese and English. Therefore the correct reference is Article 12 of the 2023 Bidding Law. The only option that matches is D.</think>\n<output>D</output>"
+        },
+        {
+            "id": 73,
+            "question": "Quốc hội có thẩm quyền ban hành những văn bản quy phạm pháp luật nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Quốc hội có thẩm quyền ban hành những văn bản quy phạm pháp luật nào?”, ta cần xác định văn bản pháp luật quy định thẩm quyền của Quốc hội trong việc ban hành luật, nghị quyết, pháp lệnh, v.v. Trong các lựa chọn được đưa ra, chỉ có “Điều 4 Luật Ban hành văn bản quy phạm pháp luật 2025” (đáp án C) là một văn bản pháp luật có nội dung liên quan đến thẩm quyền của Quốc hội trong việc ban hành các văn bản quy phạm pháp luật. Các văn bản khác (Điều 15 Luật Đất đai 2019, Điều 10 Luật Đầu tư công 2023, Điều 20 Luật Tố tụng hành chính 2022) không đề cập đến thẩm quyền của Quốc hội trong việc ban hành văn bản quy phạm pháp luật. Do đó, đáp án đúng là C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 74,
+            "question": "Lộ trình hoàn thành việc chuyển đổi, giải thể các Phòng công chứng tới khi nào?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>The question asks for the timeline for completing the conversion and dissolution of notary public offices. According to the provided context, the relevant provision is in Article 15 of Decree 104/2025/ND‑CP, which specifies the deadlines (31 Dec 2026, 2027, 2028). Therefore the correct answer is the one that references this article. The options list Article 15 of Decree 104/2025/ND‑CP as option D. Hence the answer is D.</think>\n<output>D</output>"
+        },
+        {
+            "id": 75,
+            "question": "Có được cho thuê quyền khai thác tài sản kết cấu hạ tầng đường sắt quốc gia không?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Question asks whether leasing of exploitation rights of national railway infrastructure assets is allowed. The provided context includes the text of Nghị định 15/2025/NĐ-CP, specifically Điều 17 which deals with the leasing of exploitation rights of national railway infrastructure assets. This indicates that the relevant legal provision is indeed Điều 17 of Nghị định 15/2025/NĐ-CP. Among the answer choices, option D corresponds to this provision. Therefore, the correct answer is D.</think>\n<output>D</output>"
+        },
+        {
+            "id": 76,
+            "question": "Phương pháp lập giá điều độ vận hành hệ thống điện và điều hành giao dịch thị trường điện lực được quy định như thế nào?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Trong ngữ cảnh được cung cấp, có nhiều đề cập đến “Điều 4 Thông tư 15/2025/TT-BCT” với tiêu đề “Phương pháp lập giá điều độ vận hành hệ thống điện và điều hành giao dịch thị trường điện lực”. Các đoạn văn mô tả công thức và quy trình tính giá đều nằm trong Điều 4 của Thông tư này. Các lựa chọn khác (Điều 6, Điều 10, Điều 8 của các Thông tư khác) không được đề cập trong nội dung. Do đó, phương pháp lập giá được quy định trong Điều 4 Thông tư 15/2025/TT-BCT.</think>\n<output>D</output>"
+        },
+        {
+            "id": 77,
+            "question": "Từ 1/7/2025 cơ quan nào có trách nhiệm ban hành Đề án quản lý, phát triển tổ chức hành nghề công chứng?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Để xác định cơ quan có trách nhiệm ban hành Đề án quản lý, phát triển tổ chức hành nghề công chứng từ ngày 1/7/2025, ta cần xem xét các điều khoản liên quan trong Luật Công chứng và các văn bản pháp luật liên quan.  \n\n1. **Điều 19 Khoản 3 Luật Công chứng 2024**:  \n   - Nêu rõ “Ủy ban nhân dân cấp tỉnh có trách nhiệm ban hành Đề án quản lý, phát triển các tổ chức hành nghề công chứng”.  \n   - Đây là điều khoản trực tiếp chỉ định cơ quan có trách nhiệm ban hành đề án.\n\n2. **Điều 63 Khoản 1 Điểm b Luật Công chứng 2025**:  \n   - Xác nhận lại vai trò của Ủy ban nhân dân cấp tỉnh trong việc “Ban hành và triển khai thực hiện Đề án quản lý, phát triển tổ chức hành nghề công chứng tại địa phương”.  \n   - Điều này củng cố thông tin từ Luật 2024.\n\n3. Các điều khoản khác (điều 19 Khoản 2, điều 62 Khoản 1 Điểm e) đề cập đến vai trò của Bộ Tư pháp trong việc hướng dẫn xây dựng đề án, nhưng không trực tiếp chịu trách nhiệm ban hành đề án tại địa phương.\n\nVì vậy, cơ quan có trách nhiệm ban hành Đề án quản lý, phát triển tổ chức hành nghề công chứng từ ngày 1/7/2025 là **Ủy ban nhân dân cấp tỉnh**. Điều này được ghi rõ trong Khoản 3 Điều 19 Luật Công chứng 2024.  \n\nDo đó, đáp án đúng là: A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 78,
+            "question": "Nhóm đất phi nông nghiệp bao gồm các loại đất nào?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Nhóm đất phi nông nghiệp được quy định trong Khoản 3 của Điều 9 Luật Đất đai 2024, vì trong các tài liệu tham khảo đã nêu rõ “Nhóm đất phi nông nghiệp bao gồm các loại đất sau đây” nằm trong Khoản 3 Điều 9. Các lựa chọn khác (Khoản 1 Điều 20, Khoản 4 Điều 12, Khoản 2 Điều 18) không liên quan đến nội dung này. Do đó đáp án đúng là Khoản 3 Điều 9.</think>\n<output>D</output>"
+        },
+        {
+            "id": 79,
+            "question": "Suy thoái nguồn nước là gì?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Định nghĩa “suy thoái nguồn nước” được nêu trong Luật Tài nguyên nước 2023, Khoản 14, Điều 2. Các lựa chọn khác đề cập đến các luật khác (Đất đai, Nhập cảnh, Bảo vệ môi trường) và không liên quan đến định nghĩa này. Do đó đáp án đúng là C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 80,
+            "question": "Tiêu chuẩn xác định tài sản kết cấu hạ tầng thủy lợi được quy định ra sao?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Tiêu chuẩn xác định tài sản kết cấu hạ tầng thủy lợi được nêu trong Điều 3 của Thông tư 24/2025/TT-BTC, trong khi các lựa chọn khác đề cập đến các điều khác của nghị định hoặc thông tư không liên quan trực tiếp đến tiêu chuẩn xác định tài sản. Do đó đáp án đúng là C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 81,
+            "question": "Chứng chỉ hành nghề môi giới bất động sản có giá trị sử dụng bao lâu?",
+            "predicted": "A",
+            "ground_truth": "D",
+            "is_correct": false,
+            "raw_response": "<think>Chứng chỉ hành nghề môi giới bất động sản được quy định trong Nghị định 88/2022/NĐ-CP. Theo khoản 1 Điều 15 của nghị định này, thời hạn sử dụng của chứng chỉ là 5 năm tính từ ngày cấp. Các nghị định khác (11/2023, 77/2021, 96/2024) không liên quan đến thời hạn sử dụng của chứng chỉ môi giới. Do đó đáp án đúng là lựa chọn A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 82,
+            "question": "Đối tượng nào được Nhà nước cho thuê đất rừng sản xuất để thực hiện dự án trồng rừng sản xuất?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Đối tượng được Nhà nước cho thuê đất rừng sản xuất để thực hiện dự án trồng rừng sản xuất được quy định trong Điều 184 Luật Đất đai 2024, khoản 5: “Nhà nước cho tổ chức kinh tế có vốn đầu tư nước ngoài thuê đất rừng sản xuất để thực hiện dự án trồng rừng sản xuất.” Do đó đáp án đúng là Khoản 5 Điều 184 Luật Đất đai 2024.</think>\n<output>B</output>"
+        },
+        {
+            "id": 83,
+            "question": "Tài sản nào được chuyển giao cho Bảo tàng Lịch sử Quốc gia bảo quản?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Trong văn bản pháp luật được cung cấp, có đoạn “Các tài sản sau đây được chuyển giao cho cơ quan quản lý chuyên ngành để bảo quản: a) Tài sản là bảo vật quốc gia, di vật, cổ vật và vật khác có giá trị lịch sử, văn hóa, khoa học theo quy định của pháp luật về di sản văn hóa được chuyển giao cho: Bảo tàng Lịch sử Quốc gia;”. Đây là nội dung của Khoản 2 Điều 7 Nghị định 77/2025/NĐ-CP. Do đó, tài sản được chuyển giao cho Bảo tàng Lịch sử Quốc gia là quy định trong Khoản 2 Điều 7 Nghị định 77/2025/NĐ-CP. Các lựa chọn còn lại không liên quan. Vì vậy đáp án đúng là C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 84,
+            "question": "Người sử dụng dịch vụ viễn thông có những quyền nào?",
+            "predicted": "C",
+            "ground_truth": "C",
+            "is_correct": true,
+            "raw_response": "<think>Trong ngữ cảnh pháp luật được cung cấp, quyền của người sử dụng dịch vụ viễn thông được nêu rõ trong Điều 15 của Luật Viễn thông 2023. Các lựa chọn khác đề cập đến các văn bản khác (Nghị định 81/2019, Nghị định 120/2022, Luật Bưu chính 2020) mà không liên quan đến quyền của người sử dụng dịch vụ viễn thông. Do đó, đáp án đúng là lựa chọn C.</think>\n<output>C</output>"
+        },
+        {
+            "id": 85,
+            "question": "Thời hiệu xử phạt vi phạm hành chính về trật tự, an toàn giao thông trong đường bộ là mấy năm?",
+            "predicted": "D",
+            "ground_truth": "D",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Thời hiệu xử phạt vi phạm hành chính về trật tự, an toàn giao thông trong đường bộ là mấy năm?” ta cần tìm văn bản quy định thời hiệu này. Trong ngữ cảnh đã cung cấp, có một đoạn trích từ Nghị định 168/2024/NĐ-CP, Chương I, Điều 4, Khoản 1: “Thời hiệu xử phạt vi phạm hành chính về trật tự, an toàn giao thông trong lĩnh vực giao thông đường bộ là 01 năm.” Điều này rõ ràng xác định thời hiệu là một năm. Trong danh sách đáp án, chỉ có đáp án D (Khoản 1 Điều 4 Nghị định 168/2024/NĐ-CP) trùng khớp với văn bản đã nêu. Các đáp án còn lại đề cập đến các nghị định khác (88/2022, 130/2023, 99/2021) mà không có thông tin về thời hiệu trong ngữ cảnh đã cung cấp. Do đó, đáp án đúng là D. \n</think>\n<output>D</output>"
+        },
+        {
+            "id": 86,
+            "question": "Hình thức phát triển nhà ở xã hội là gì?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Hình thức phát triển nhà ở xã hội là gì?”, ta cần xác định văn bản pháp luật nào quy định các hình thức phát triển nhà ở xã hội. Trong ngữ cảnh đã cung cấp, các điều luật liên quan là:\n\n- **Điều 53** của Luật Nhà ở 2014 (định nghĩa các hình thức phát triển nhà ở xã hội).\n- **Điều 80** của Luật Nhà ở 2023 (cũng liệt kê các hình thức phát triển nhà ở xã hội).\n\nTrong các điều luật này, **Khoản 1** của **Điều 77** trong Luật Nhà ở 2023 thường được dùng để chỉ định các đối tượng được hưởng chính sách nhà ở xã hội, và các khoản khác trong cùng điều luật (đặc biệt là Khoản 1) thường được trích dẫn khi đề cập đến hình thức phát triển nhà ở xã hội. Các lựa chọn khác (Khoản 4 Điều 88 Luật Kinh doanh 2023, Khoản 2 Điều 10 Luật Đất đai 2023, Khoản 3 Điều 45 Luật Bất động sản 2023) không liên quan đến việc quy định hình thức phát triển nhà ở xã hội.\n\nVì vậy, đáp án phù hợp nhất là **Khoản 1 Điều 77 Luật Nhà ở 2023**.\n\n</think>\n<output>B</output>"
+        },
+        {
+            "id": 87,
+            "question": "Bên cho thuê công trình xây dựng có sẵn có quyền như thế nào?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Để xác định quyền của bên cho thuê công trình xây dựng có sẵn, ta cần tham khảo nội dung của Luật Kinh doanh bất động sản 2023. Trong Luật, quyền của bên cho thuê (bên cho thuê công trình xây dựng có sẵn) được quy định tại Điều 18, khoản 2. Điều này liệt kê các quyền như: yêu cầu nhận, thanh toán, bảo quản, bồi thường, cải tạo, giao lại, chấm dứt hợp đồng, v.v. Do đó, đáp án đúng là khoản 2 của Điều 18. Các lựa chọn khác (Điều 22, 24, 20) không liên quan đến quyền của bên cho thuê công trình xây dựng có sẵn. Vì vậy, đáp án là B.</think>\n<output>B</output>"
+        },
+        {
+            "id": 88,
+            "question": "Diện tích đất tính tiền sử dụng đất được quy định ra sao?",
+            "predicted": "A",
+            "ground_truth": "A",
+            "is_correct": true,
+            "raw_response": "<think>Diện tích đất tính tiền sử dụng đất được quy định trong Điều 4 của Nghị định 103/2024/NĐ-CP, như đã nêu trong ngữ cảnh pháp lý. Các lựa chọn khác không liên quan đến nội dung này. Do đó đáp án đúng là A.</think>\n<output>A</output>"
+        },
+        {
+            "id": 89,
+            "question": "Sở thuộc UBND cấp tỉnh có tư cách pháp nhân không?",
+            "predicted": "B",
+            "ground_truth": "B",
+            "is_correct": true,
+            "raw_response": "<think>Để trả lời câu hỏi “Sở thuộc UBND cấp tỉnh có tư cách pháp nhân không?”, ta cần tìm quy định pháp luật quy định về tư cách pháp nhân của sở. Trong ngữ cảnh đã cung cấp, có một đoạn trích từ “Điều 3 Nghị định 150/2025/NĐ-CP” (Chương II: Quy định về cơ quan chuyên môn thuộc UBND cấp tỉnh) ghi rõ: “Sở là cơ quan chuyên môn thuộc Ủy ban nhân dân cấp tỉnh. Sở có tư cách pháp nhân, có con dấu và tài khoản riêng theo quy định của pháp luật; thực hiện chức năng tham mưu, giúp Ủy ban nhân dân cấp tỉnh quản lý nhà nước về ngành, lĩnh vực ở địa phương theo quy định của pháp luật.” Điều này khẳng định rõ ràng rằng sở thuộc UBND cấp tỉnh có tư cách pháp nhân. Do đó, đáp án đúng là lựa chọn B, vì nó trích dẫn chính xác điều luật có nội dung này. Các lựa chọn khác (A, C, D) không liên quan đến nội dung về tư cách pháp nhân của sở. \n\nVì vậy, đáp án là B. \n</think>\n<output>B</output>"
+        }
+    ]
+}
