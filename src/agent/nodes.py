@@ -257,11 +257,20 @@ def make_doc_relation_node(retriever: Any, llm_client: Any) -> Callable[[AgentSt
                     print(f"[Doc Relation Node] Tra cứu quan hệ cho số hiệu: {sh}")
                     t_out = retriever.doc_relation_search(so_hieu=sh)
                     all_tool_outputs.append(t_out)
+                    
+                    # DEBUG: In ra toàn bộ display_text
+                    print(f"[DEBUG Doc Relation] Doc relation search result for {sh}:")
+                    print(f"  success: {t_out.success}")
+                    print(f"  display_text length: {len(t_out.display_text) if t_out.display_text else 0}")
+                    if t_out.display_text:
+                        print(f"[DEBUG Doc Relation] Display text:\n{t_out.display_text}\n")
+                    
                     if t_out.success and t_out.display_text:
                         combined_texts.append(t_out.display_text)
                 
                 if combined_texts:
                     context_str = f"--- QUAN HỆ VĂN BẢN CHO: '{query}' ---\n" + "\n\n".join(combined_texts)
+                    print(f"[Doc Relation Node] Combined context length: {len(context_str)} ký tự")
                 else:
                     context_str = f"--- KHÔNG TÌM THẤY THÔNG TIN VỀ QUAN HỆ VĂN BẢN CHO '{query}' ---\n"
             else:
@@ -471,6 +480,12 @@ def make_generate_response_node(retriever: Any, llm_client: Any) -> Callable[[Ag
                     sq_context_text = sq_ctx_data.get("context_text", [])
                     final_context = "\n\n".join(sq_context_text) if sq_context_text else ""
                     print(f"[Generate Response] SQ{sq_idx}: Không có chunks, dùng text ({len(final_context)} ký tự)")
+                    
+                    # DEBUG: In ra chính xác context_text
+                    if final_context:
+                        print(f"[DEBUG Generate Response] SQ{sq_idx} Context text content:\n{final_context}\n")
+                    else:
+                        print(f"[DEBUG Generate Response] SQ{sq_idx} Context text rỗng!\n")
                 else:
                     # Có chunks → gọi _evaluate_refs cho mỗi chunk
                     print(f"[Generate Response] SQ{sq_idx}: Đánh giá refs cho {len(sq_chunks)} chunks...")

@@ -152,11 +152,14 @@ DOC_RELATION_PROMPT="""
 Bạn là máy trích xuất thông tin tham chiếu pháp luật Việt Nam.
 Nhiệm vụ: đọc CÂU HỎI của người dùng và trích xuất ra văn bản pháp luật chính mà người dùng đang thắc mắc về mối quan hệ (hiệu lực, sửa đổi, thay thế) hoặc yêu cầu cung cấp thông tin chung về văn bản đó.
 
-### QUY TẮC TRÍCH XUẤT:
-- Chỉ lấy các thông tin xác định danh tính của văn bản.
+### QUY TẮC TRÍCH XUẤT - RẤT QUAN TRỌNG
+- Chỉ lấy các thông tin XUẤT HIỆN TRỰC TIẾP trong CÂU HỎI.
+- KHÔNG ĐƯỢC suy luận hay nhớ lại số hiệu từ kiến thức của bạn.
+- Nếu câu hỏi chỉ nhắc TÊN văn bản mà KHÔNG nhắc SỐ HIỆU → để so_hieu = null.
+- Nếu câu hỏi chỉ nhắc SỐ HIỆU mà KHÔNG nhắc TÊN → để ten_van_ban = null.
 - Bỏ qua Điều/Khoản/Điểm nếu không quan trọng.
-- `so_hieu`: Số hiệu văn bản nếu xuất hiện (vd: 45/2019/QH14).
-- `ten_van_ban`: Tên văn bản nếu xuất hiện (vd: Luật Đất đai, Bộ luật Dân sự).
+- `so_hieu`: Số hiệu văn bản nếu XUẤT HIỆN RÕ RÀNG (vd: 45/2019/QH14).
+- `ten_van_ban`: Tên văn bản nếu XUẤT HIỆN RÕ RÀNG (vd: Luật Đất đai, Bộ luật Dân sự).
 
 ### ĐỊNH DẠNG ĐẦU RA (JSON)
 Bạn PHẢI trả về một JSON Object chứa các trường sau (nếu không có thì để null). KHÔNG giải thích thêm:
@@ -171,7 +174,7 @@ Bạn PHẢI trả về một JSON Object chứa các trường sau (nếu khôn
   "diem": null
 }
 
-### VÍ DỤ 1
+### VÍ DỤ 1 - Chỉ có TÊN, không có số hiệu
 CÂU HỎI: "Luật Đất đai năm 2013 hiện còn hiệu lực không?"
 OUTPUT:
 {
@@ -185,12 +188,41 @@ OUTPUT:
   "diem": null
 }
 
-### VÍ DỤ 2
+### VÍ DỤ 2 - Chỉ có số hiệu, không có tên
 CÂU HỎI: "Nghị định 100/2019/NĐ-CP thay thế cho văn bản nào?"
 OUTPUT:
 {
   "so_hieu": "100/2019/NĐ-CP",
   "ten_van_ban": null,
+  "phan": null,
+  "chuong": null,
+  "muc": null,
+  "dieu": null,
+  "khoan": null,
+  "diem": null
+}
+
+### VÍ DỤ 3 - Chỉ có TÊN chung chung, không có số hiệu
+CÂU HỎI: "Cho tôi thông tin về Nghị định về kinh doanh rượu."
+OUTPUT:
+{
+  "so_hieu": null,
+  "ten_van_ban": "Nghị định về kinh doanh rượu",
+  "phan": null,
+  "chuong": null,
+  "muc": null,
+  "dieu": null,
+  "khoan": null,
+  "diem": null
+}
+⚠️ LƯU Ý: Dù bạn "biết" số hiệu của Nghị định này là 26/2017/NĐ-CP, NHƯNG câu hỏi không nhắc nó → PHẢI để so_hieu = null!
+
+### VÍ DỤ 4 - Có CẢ tên VÀ số hiệu
+CÂU HỎI: "Luật Lao động 2012 (hay Luật 10/2012/QH13) còn áp dụng được không?"
+OUTPUT:
+{
+  "so_hieu": "10/2012/QH13",
+  "ten_van_ban": "Luật Lao động 2012",
   "phan": null,
   "chuong": null,
   "muc": null,

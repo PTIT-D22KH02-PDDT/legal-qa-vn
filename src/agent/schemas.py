@@ -93,8 +93,10 @@ class DocumentItem(BaseModel):
         parts = [
             f"Văn bản: {self.ten_van_ban or 'Không rõ tên'} (Số hiệu: {self.so_hieu})",
             f"Loại: {self.loai or 'Không rõ'} | Lĩnh vực: {self.linh_vuc or 'Không rõ'}",
+            f"Cơ quan ban hành: {self.co_quan_ban_hanh or 'Không rõ'}",
             f"Ngày ban hành: {self.ngay_ban_hanh or 'Chưa rõ'} | Hiệu lực: {self.ngay_co_hieu_luc or 'Chưa rõ'}",
-            f"Trạng thái: {status}"
+            f"Trạng thái: {status}",
+            f"Số Điều: {self.so_dieu if self.so_dieu else 'Không rõ'}"
         ]
         return "\n".join(parts)
 
