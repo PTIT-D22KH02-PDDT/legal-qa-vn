@@ -86,3 +86,24 @@ class ChromaStore:
             records[chunk_id] for chunk_id in chunk_ids if chunk_id in records
         ]
 
+    def get_by_metadata(self, metadata_filter: dict, limit: int = 10) -> List[ChromaQueryResult]:
+        """
+        Tìm kiếm chính xác bằng metadata filter (không dùng vector similarity).
+        """
+        raw = self.collection.get(
+            where=metadata_filter,
+            limit=limit,
+            include=['documents', 'metadatas']
+        )
+        if not raw or not raw.get('ids'):
+            return []
+            
+        return [
+            ChromaQueryResult(
+                chunk_id=chunk_id,
+                text=doc,
+                metadata=meta or {},
+                distance=0.0
+            )
+            for chunk_id, doc, meta in zip(raw['ids'], raw['documents'], raw['metadatas'])
+        ]

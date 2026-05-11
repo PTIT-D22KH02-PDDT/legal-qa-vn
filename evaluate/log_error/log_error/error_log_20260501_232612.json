@@ -1,0 +1,14 @@
+[
+  {
+    "file": "data\\vbpl_3_1\\20_4\\88_2023_ND-CP_590103.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":27,\"token_length\":3465,\"max_length\":2046,\"text_preview\":\"Điều 5. Trách nhiệm thi hành\\nCác Bộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chính phủ, Chủ tịch Ủy ban nhân dân tỉnh, thành phố trực thuộc trung ương và các tổ chức, cá nhân có l\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T23:26:12.162720"
+  }
+]

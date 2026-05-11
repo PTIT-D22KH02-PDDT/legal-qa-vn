@@ -1,0 +1,32 @@
+Số Tài lieu bị dài không index được
+-1.4: 19/65
+-3.1 : 22/123
+
+Kết quả
+-accuary 1_4: 48%
+-accuary 3_1: 41,86%
+
+rag_answer_prompt.txt
+-HƯỚNG DẪN TRẢ LỜI: Bạn là một trợ lý ảo chuyên giải đáp văn bản pháp luật. Nhiệm vụ: Chọn đáp án đúng nhất (A, B, C, hoặc D) dựa trên tài liệu pháp luật liên quan. Quy tắc bắt buộc: Chỉ trả lời duy nhất 1 ký tự: A hoặc B hoặc C hoặc D. Không giải thích, không lặp lại câu hỏi. Ví dụ: Câu hỏi: 1 + 1 bằng mấy? A: 2, B: 3. Trả lời: A
+- Có sử dụng 1 vài prompt khác nhưng cho kết quả thấp hơn hẳn ~20% 
+
+Nhận xét từ việc xem log câu trả lời
+- vẫn trả lời lan man, dài dòng dù trong prompt đã hạn chế như trên (vẫn giải thích, lưu ý,...)
+- chạy 2-3 lần, có lúc đáp án này, đáp án kia, độ chính xác cũng thay đổi
+- Câu đúng:
+        + đáp án trả về giải thích và trích xuất thấy khá đúng
+	+ tuy nhiên vẫn có những câu giải thích linh tinh nhưng vẫn trả đáp án đúng
+	+ trả lời đúng, giải thích đúng nhưng trả lời 1 lúc lại sinh ra văn bản rác, ngôn ngữ tiếng anh,..
+- Câu sai: Các lỗi phổ biến thấy nhiều nhất
+	+ Do thiếu luật từ bước tải tài liệu (VD: 92/2015/QH13) dẫn đến trả lời không chính xác, hoặc trả lời linh tinh lặp lại không đúng theo hướng dẫn => Không đưa ra đáp án => bắt predict sai 
+	+ Do văn bản có dính indexing dài (82/2020/NĐ-CP, 133/2025/NĐ-CP, 17/2023/NĐ-CP... ) => không indexing thành công => thiếu tài lieu => trả lời sai
+	+ 1 vài: Giải thích theo tài lieu cung cấp đúng nhưng suy luận sai (giải thích 1 kiểu xong đáp án 1 kiểu)
+	+ Its: Nhầm câu trả lời: (Ví dụ: đáp án A:2, B:3 nhưng trả lời là B:2)
+	+ Khá nhiều: Sinh câu trả lời lung tung, lan man, trả lời lạc đề sang chủ đề khác, câu hỏi khác, ngôn ngữ khác
+	+ Trích dẫn và giải thích sai nội dung văn bản trong câu hỏi
+	+ Sai khá nhiều với câu hỏi dạng: Nghị dinh ABC quy định nội dung gì?
+	+ 1 vài lỗi sai do sinh đáp an lan man => bắt predict sai  VD: "predict": "_": đã check lại nhưng mà hầu hết những câu trả lời đó cũng sinh lung tung sai với ground_truth
+	+ Câu hỏi 4 đáp an deu la 1 luật nhưng 4 mốc thời gian khác nhau
+
+
+

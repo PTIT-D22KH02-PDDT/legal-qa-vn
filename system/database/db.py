@@ -29,6 +29,7 @@ class DocumentMetadataDB(Base):
     ngay_ban_hanh = Column(String(20), nullable=True)
     ngay_co_hieu_luc = Column(String(20), nullable=True)
     so_dieu = Column(Integer, default=0)
+    linh_vuc = Column(String(255), nullable=True)
     
     # File tracking
     file_path = Column(String(500), nullable=True)
@@ -37,7 +38,10 @@ class DocumentMetadataDB(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     indexed = Column(Integer, default=0)
-    
+
+    # Trạng thái hiệu lực: 1 = Còn hiệu lực, 0 = Hết hiệu lực
+    trang_thai = Column(Integer, default=1, nullable=True)
+
     def __repr__(self):
         return f"<DocumentMetadata({self.so_hieu}, {self.ten_van_ban})>"
 
@@ -66,3 +70,18 @@ class DocumentLegacyDB(Base):
     
     def __repr__(self):
         return f"<DocumentLegacy({self.so_hieu}, {self.ten_van_ban})>"
+
+class DocumentRelationDB(Base):
+    """ORM model cho DocumentRelation (Quan hệ giữa các văn bản)"""
+    __tablename__ = 'document_relation'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    entity_start = Column(String(255), nullable=True)
+    entity_end = Column(String(255), nullable=True)
+    relation_type = Column(String(100), nullable=True)
+    description = Column(String(1000), nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<DocumentRelation({self.entity_start} -> {self.entity_end})>"

@@ -82,8 +82,35 @@ class Extractor:
 
         return "unknown"
 
+    def _slug_so_hieu(self, raw: str) -> str:
+        """Chuẩn hóa số hiệu để làm khóa (lowercase, ký tự an toàn)."""
+        compact = re.sub(r"\s+", "", raw.strip())
+        s = re.sub(r"[^a-zA-Z0-9đĐ\-]+", "_", compact)
+        return s.lower().strip("_")
+
     def _extract_so_hieu(self, text: str) -> str:
-        """Lấy số hiệu thuần: '91/2015/QH13', '78/2015/NĐ-CP', '01/2020/TT-BTC'"""
+        """Lấy số hiệu: VBHN (hợp nhất), luật/NĐ dạng n/nnnn/..., hoặc mẫu số đầu tiên khớp."""
+        head = text[:1000]
+
+        # VBHN / VPQH — văn bản hợp nhất (vd. "Số: 135/VBHN-VPQH" ở đầu file).
+        # Không dùng mẫu \d+/\d{4}/... vì giữa hai dấu / không phải năm 4 chữ số.
+        vbhn = re.search(
+            r"Số\s*[:\-]?\s*(\d+\s*/\s*VBHN\s*[-–‑]\s*VPQH)",
+            head,
+            re.IGNORECASE,
+        )
+        if vbhn:
+            return self._slug_so_hieu(vbhn.group(1))
+
+        vbhn_loose = re.search(
+            r"\b(\d+\s*/\s*VBHN\s*[-–‑]\s*VPQH)\b",
+            head,
+            re.IGNORECASE,
+        )
+        if vbhn_loose:
+            return self._slug_so_hieu(vbhn_loose.group(1))
+
+        # Luật / NĐ / TT ... dạng số/năm/mã (ưu tiên có nhãn "Luật số", "Số", ...)
         m = re.search(
             r"(?:Luật\s+số|Nghị\s+định\s+số|Thông\s+tư\s+số|Nghị\s+quyết\s+số"
             r"|Quyết\s+định\s+số|Chỉ\s+thị\s+số|Số)\s*[:\-]?\s*"
@@ -92,15 +119,11 @@ class Extractor:
             re.IGNORECASE,
         )
         if m:
-            x = m.group(1)
-            s = re.sub(r"[^a-zA-Z0-9đĐ\-]+", "_", x)
-            return s.lower().strip("_")
+            return self._slug_so_hieu(m.group(1))
 
         m = re.search(r"\b(\d+/\d{4}/[\w\-]+)\b", text[:3000])
         if m:
-            x = m.group(1)
-            s = re.sub(r"[^a-zA-Z0-9đĐ\-]+", "_", x)
-            return s.lower().strip("_")
+            return self._slug_so_hieu(m.group(1))
 
         return ""
 

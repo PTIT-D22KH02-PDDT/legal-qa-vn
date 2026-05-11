@@ -1,0 +1,74 @@
+[
+  {
+    "file": "data\\vbpl_1_4\\20_3\\Thong-tu-108-2020-TT-BTC.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":17,\"token_length\":2760,\"max_length\":2046,\"text_preview\":\"Điều 2. Tổ chức thực hiện\\n4. Trong quá trình thực hiện nếu có vướng mắc, đề nghị các cơ quan, đơn vị phản ánh về Bộ Tài chính để xem xét, giải quyết./.. Nơi nhận:. - Ban bí thư Trung ương Đảng;. - Thủ\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:16:28.357898"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_3\\Thong-tu-21-2019-TT-BTC.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":7,\"token_length\":2930,\"max_length\":2046,\"text_preview\":\"Chương II : QUY ĐỊNH CỤ THỂ\\nĐiều 24. Hiệu lực thi hành\\nQuy chế này có hiệu lực thi hành kể từ ngày ký./.. …, ngày … tháng … năm …. Nơi nhận:. NGƯỜI CÓ THẨM QUYỀN BAN HÀNH QUY CHẾ. (ký tên, đóng dấu). \"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:18:15.323202"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_3\\Thong-tu-22-2014-TT-BCA.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":11,\"token_length\":3580,\"max_length\":2046,\"text_preview\":\"Điều 3. Tổ chức thực hiện\\n2. Tổng cục Cảnh sát phòng, chống tội phạm chủ trì, phối hợp với các đơn vị có liên quan hướng dẫn và kiểm tra việc thực hiện Thông tư này.. Trong quá trình thực hiện Thông t\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:18:16.487858"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_3\\Thong-tu-40-2021-TT-BTC.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":21,\"token_length\":4584,\"max_length\":2046,\"text_preview\":\"Chương V : TỔ CHỨC THỰC HIỆN\\nĐiều 20. Hiệu lực thi hành\\n4.. Hoạt động kinh doanh khác. - Hoạt động sản xuất các sản phẩm thuộc đối tượng tính thuế GTGT theo phương pháp khấu trừ với mức thuế suất thuế\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:21:36.098623"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_3\\Thong-tu-49-2018-TT-BTC.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":5,\"token_length\":2243,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nĐiều 20. Tổ chức thực hiện\\nThông tư này có hiệu lực thi hành kể từ ngày 06 tháng 7 năm 2018 và thay thế Thông tư liên tịch số 55/2014/TTLT-BTC-BGTVT ngày 25 tháng 4 năm \"},{\"index\":6,\"token_length\":2251,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nĐiều 20. Tổ chức thực hiện\\nThông tư này có hiệu lực thi hành kể từ ngày 06 tháng 7 năm 2018 và thay thế Thông tư liên tịch số 55/2014/TTLT-BTC-BGTVT ngày 25 tháng 4 năm \"},{\"index\":7,\"token_length\":2251,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nĐiều 20. Tổ chức thực hiện\\nThông tư này có hiệu lực thi hành kể từ ngày 06 tháng 7 năm 2018 và thay thế Thông tư liên tịch số 55/2014/TTLT-BTC-BGTVT ngày 25 tháng 4 năm \"},{\"index\":8,\"token_length\":2251,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nĐiều 20. Tổ chức thực hiện\\nThông tư này có hiệu lực thi hành kể từ ngày 06 tháng 7 năm 2018 và thay thế Thông tư liên tịch số 55/2014/TTLT-BTC-BGTVT ngày 25 tháng 4 năm \"},{\"index\":9,\"token_length\":2330,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nĐiều 20. Tổ chức thực hiện\\nThông tư này có hiệu lực thi hành kể từ ngày 06 tháng 7 năm 2018 và thay thế Thông tư liên tịch số 55/2014/TTLT-BTC-BGTVT ngày 25 tháng 4 năm \"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:22:40.535583"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_3\\Thong-tu-50-2017-TT-BTC.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":16,\"token_length\":2394,\"max_length\":2046,\"text_preview\":\"Chương III : CHẾ ĐỘ TÀI CHÍNH CỦA DOANH NGHIỆP BẢO HIỂM, CHI NHÁNH NƯỚC NGOÀI, DOANH NGHIỆP MÔI GIỚI BẢO HIỂM\\nMục 2. DỰ PHÒNG NGHIỆP VỤ\\nĐiều 17. Dự phòng nghiệp vụ bảo hiểm phi nhân thọ\\n3. Phương pháp\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:22:57.111502"
+  }
+]

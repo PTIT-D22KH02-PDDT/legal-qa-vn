@@ -72,4 +72,7 @@ chunk/
 json/
 mark_down/
 models/
+*.vite/
+
+**/node_modules
 database/legal_documents.db

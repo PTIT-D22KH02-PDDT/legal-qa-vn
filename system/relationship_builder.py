@@ -2,11 +2,13 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Tuple
 
-from src.core.models import DocumentRelation, DocumentMetadata
+from src.core.models import DocumentRelation
 from src.core.enums import RelationType
-from .enums import FolderType
-from .schemas import DocumentInfo, FolderTypeDetector, RelationTypeDeterminer
-
+from src.indexing.vector_store import ChromaStore
+from system.enums import FolderType
+from system.schemas import DocumentInfo, FolderTypeDetector, RelationTypeDeterminer
+from system.indexing_100file import Indexing 
+from system.database.db_service import DocumentDatabaseService
 logger = logging.getLogger(__name__)
 
 
@@ -17,7 +19,8 @@ class DocumentRelationshipBuilder:
         self,
         extract_metadata: bool = True,
         index_documents: bool = True,
-        use_remote_api: bool = False
+        use_remote_api: bool = True, 
+        chroma_store: ChromaStore = None
     ):  
         self.documents: Dict[FolderType, List[DocumentInfo]] = {}
         self.relations: List[DocumentRelation] = []
@@ -31,39 +34,41 @@ class DocumentRelationshipBuilder:
         self.extract_metadata = extract_metadata
         self.index_documents = index_documents
         self.use_remote_api = use_remote_api
-    
+        self.chroma_store = chroma_store
+        # Khởi tạo API Client 1 lần duy nhất để tái sử dụng connection pool
+        # self.api_client = None
+        # if self.use_remote_api:
+        #     from src.api import RemoteAPIClient
+        #     self.api_client = RemoteAPIClient()
+        if self.index_documents:
+            self.indexing = Indexing(chroma_store=self.chroma_store)
     def _index_document(self, file_path: Path) -> Dict:
-        """
-        Index một document: chunk + embed + save to ChromaDB
-        
-        Sử dụng pipeline từ src.indexing.indexing
-        
-        Args:
-            file_path: Đường dẫn file
-        
-        Returns:
-            Dict với stats {success, chunks_count, embeddings_count, message}
-        """
         try:
-            from src.indexing.indexing import process_document
-            from src.indexing.config import IndexingConfig
+            # from src.indexing.indexing import process_document
             
-            logger.info(f"[Indexing] Processing: {file_path.name}")
+            # logger.info(f"[Indexing] Processing: {file_path.name}")
             
-            # Reuse process_document từ indexing.py
-            config = IndexingConfig.get_default_config()
-            result = process_document(
-                file_path=str(file_path),
-                config=config,
-                use_remote_api=self.use_remote_api
-            )
-            
+            # # Truyền llm_client xuống cho hierarchical chunker để nó dùng LLM trích xuất reference
+            # chunker_params = {}
+            # if self.use_remote_api and self.api_client:
+            #     chunker_params = {
+            #         'use_llm_refs': True,
+            #         'llm_client': self.api_client
+            #     }
+                
+            # result = process_document(
+            #     file_path=str(file_path),
+            #     use_remote_api=self.use_remote_api,
+            #     chunker_params=chunker_params,
+            #     api_client=self.api_client
+            # )
+            result=self.indexing.run_single_file(str(file_path))
+
             if not result['success']:
-                logger.error(f"[Indexing] Failed to process {file_path.name}: {result['message']}")
                 self.indexing_stats['failed_files'] += 1
                 return {
                     'success': False,
-                    'error': result['message'],
+                    'error': 'Lỗi xử lý tài liệu',
                     'chunks_count': result.get('chunks_count', 0),
                     'embeddings_count': result.get('embeddings_count', 0),
                 }
@@ -133,15 +138,13 @@ class DocumentRelationshipBuilder:
                         metadata={}
                     )
                     if self.extract_metadata:
-                        # Extract metadata
+                        # Extract metadata bằng LLM nếu được bật
                         from src.indexing.parsing.extract_metadata import Extractor
-                        extractor=Extractor()
+                        extractor = Extractor()
                         rs=extractor.process_document(str(file_path))
                         doc_info.metadata = rs.metadata.model_dump() if rs.metadata else {}
                         logger.info(f"Extracted metadata for {file_path.name}: {doc_info.metadata.get('so_hieu')}")
                     if self.index_documents:
-                    # Extract metadata
-                    #Pipeline xử lý dữ liệu : chunking-->embedding-->save to DB
                         result=self._index_document(file_path)
                         doc_info.metadata = result.get('metadata', {})
                         logger.info(f"Process file {doc_info.file_path.name}: {doc_info.metadata.get('so_hieu')}")
@@ -261,7 +264,8 @@ def build_relationships(
     parent_folder: Path,
     extract_metadata: bool = True,
     index_documents: bool = False,
-    use_remote_api: bool = False
+    use_remote_api: bool = False,
+    chroma_store: ChromaStore = None
 ) -> Tuple[List[DocumentInfo], List[DocumentRelation]]:
     """
     Hàm tiện lợi để xây dựng quan hệ giữa các tài liệu
@@ -275,6 +279,7 @@ def build_relationships(
     builder = DocumentRelationshipBuilder(
         extract_metadata=extract_metadata,
         index_documents=index_documents,
-        use_remote_api=use_remote_api
+        use_remote_api=use_remote_api,
+        chroma_store=chroma_store
     )
     return builder.run(parent_folder)

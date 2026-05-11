@@ -1,0 +1,38 @@
+[
+  {
+    "file": "data\\vbpl_3_1\\20_2\\30_2024_TT-BTNMT_635572.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":26,\"token_length\":2935,\"max_length\":2046,\"text_preview\":\"Điều 3. Điều khoản thi hành\\n3. Bộ trưởng, Thủ trưởng cơ quan ngang Bộ, cơ quan thuộc Chính phủ, Chủ tịch Ủy ban nhân dân tỉnh, thành phố trực thuộc Trung ương và các tổ chức, cá nhân có liên quan chị\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T22:37:48.860947"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_2\\33_2019_ND-CP_412265.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":18,\"token_length\":3130,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nĐiều 30. Hiệu lực thi hành\\n4. Ý kiến của các bên tham gia bàn giao, tiếp nhận:.............................................................. ĐẠI DIỆN BÊN NHẬN. (Ký, ghi \"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T22:45:40.307437"
+  },
+  {
+    "file": "data\\vbpl_3_1\\20_2\\40_2024_TT-BTNMT_643516.doc",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":4,\"token_length\":3242,\"max_length\":2046,\"text_preview\":\"PHẦN I : QUY ĐỊNH CHUNG\\nĐịnh mức kinh tế - kỹ thuật này quy định mức lao động, thiết bị, nhiên liệu, năng lượng, công cụ, dụng cụ, vật liệu tiêu hao áp dụng cho một số hạng mục công việc trong công tá\"},{\"index\":6,\"token_length\":8011,\"max_length\":2046,\"text_preview\":\"PHẦN II : ĐỊNH MỨC KINH TẾ - KỸ THUẬT\\nChương I : CÔNG TÁC ĐỊA CHẤT\\n- Thi công thực địa theo mạng lưới thiết kế bao gồm: lấy mẫu trầm tích bằng cuốc, ống phóng; mô tả, sơ bộ xác định đặc điểm, thành ph\"},{\"index\":7,\"token_length\":6422,\"max_length\":2046,\"text_preview\":\"PHẦN II : ĐỊNH MỨC KINH TẾ - KỸ THUẬT\\nChương II : CÔNG TÁC ĐIỀU TRA HIỆN TRẠNG ĐỊA CHẤT MÔI TRƯỜNG, TAI BIẾN ĐỊA CHẤT PHỤC VỤ DỰ BÁO TÁC ĐỘNG CỦA HOẠT ĐỘNG KHAI THÁC\\n- Khảo sát thu thập thông tin về t\"},{\"index\":8,\"token_length\":8786,\"max_length\":2046,\"text_preview\":\"PHẦN II : ĐỊNH MỨC KINH TẾ - KỸ THUẬT\\nChương III : CÔNG TÁC TRẮC ĐỊA\\n- Tiến hành công việc trắc địa định vị dẫn tuyến, đo sâu theo tuyến bằng máy đo sâu hồi âm, xác định tọa độ và độ sâu điểm lấy mẫu,\"},{\"index\":9,\"token_length\":7849,\"max_length\":2046,\"text_preview\":\"PHẦN II : ĐỊNH MỨC KINH TẾ - KỸ THUẬT\\nChương IV : CÔNG TÁC ĐỊA VẬT LÝ\\n- Tiến hành đo địa chấn nông phân giải cao thực hiện theo quy định tại điểm b khoản 1 Điều 13 Thông tư số 32/2024/TT-BTNMT;. - Ghi\"},{\"index\":10,\"token_length\":13310,\"max_length\":2046,\"text_preview\":\"PHẦN II : ĐỊNH MỨC KINH TẾ - KỸ THUẬT\\nChương V : THI CÔNG CÔNG TRÌNH ĐÁNH GIÁ, LẤY MẪU TRONG CÔNG TRÌNH ĐÁNH GIÁ\\n- Lắp đặt thân giàn khoan: dùng cẩu >15 tấn cẩu thả từng poton (phao nổi) xuống nước; l\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-01T22:47:22.720178"
+  }
+]

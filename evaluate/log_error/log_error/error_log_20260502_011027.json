@@ -1,0 +1,86 @@
+[
+  {
+    "file": "data\\vbpl_1_4\\20_2\\Nghi-dinh-105-2017-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":29,\"token_length\":3320,\"max_length\":2046,\"text_preview\":\"Chương V : ĐIỀU KHOẢN THI HÀNH\\nĐiều 41. Tổ chức thực hiện và trách nhiệm thi hành\\n2. Các Bộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chính phủ, Chủ tịch Ủy ban nhân dân tỉnh, thàn\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T00:58:53.642898"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_2\\Nghi-dinh-105-2025-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":17,\"token_length\":2967,\"max_length\":2046,\"text_preview\":\"Chương VIII : ĐIỀU KHOẢN THI HÀNH\\nĐiều 47. Trách nhiệm thi hành\\nBộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chính phủ, Chủ tịch Ủy ban nhân dân các cấp và các tổ chức, cá nhân có \"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:00:06.175388"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_2\\Nghi-dinh-133-2025-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":4,\"token_length\":2215,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":5,\"token_length\":2345,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":6,\"token_length\":2276,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":7,\"token_length\":2756,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":8,\"token_length\":2341,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":9,\"token_length\":2404,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":10,\"token_length\":2217,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":11,\"token_length\":2805,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":12,\"token_length\":2365,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":13,\"token_length\":2425,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":14,\"token_length\":2808,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":15,\"token_length\":2341,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":16,\"token_length\":2396,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":17,\"token_length\":2614,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":18,\"token_length\":2369,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":19,\"token_length\":2335,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":20,\"token_length\":2871,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":29,\"token_length\":2064,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":30,\"token_length\":2195,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"},{\"index\":31,\"token_length\":2103,\"max_length\":2046,\"text_preview\":\"Phần 3. Cam kết : (Tên doanh nghiệp) xin cam kết:\\nNơi nhận:. - Như trên;. -……. NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT CỦA DOANH NGHIỆP. (Ký, ghi rõ họ tên, chức danh và đóng dấu/ký số). \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_. 7Trường\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:03:06.313479"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_2\\Nghi-dinh-99-2022-ND-CP.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":27,\"token_length\":2357,\"max_length\":2046,\"text_preview\":\"Chương IV : QUẢN LÝ NHÀ NƯỚC VỀ ĐĂNG KÝ BIỆN PHÁP BẢO ĐẢM\\nĐiều 58. Tổ chức thực hiện\\n3. Các Bộ trưởng, Thủ trưởng cơ quan ngang bộ, Thủ trưởng cơ quan thuộc Chính phủ, Chủ tịch Ủy ban nhân dân tỉnh, t\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:06:00.878374"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_2\\Thong-tu-03-2021-TT-BNV.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: [WinError 10054] An existing connection was forcibly closed by the remote host",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:08:31.873307"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_2\\Thong-tu-06-2022-TT-BKHDT.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":24,\"token_length\":2156,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nMục 7\\nĐÀO TẠO TƯ VẤN VIÊN. Thực hiện như quy định tại Mục 1 Phụ lục 3.2 Thông tư này.. PHỤ LỤC 3.3: MẪU HỒ SƠ KHÓA ĐÀO TẠO. (Ban hành kèm Thông tư số 06/2022/TT-BKHĐT ng\"},{\"index\":25,\"token_length\":2255,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nMục 7\\nĐÀO TẠO TƯ VẤN VIÊN. Thực hiện như quy định tại Mục 1 Phụ lục 3.2 Thông tư này.. PHỤ LỤC 3.3: MẪU HỒ SƠ KHÓA ĐÀO TẠO. (Ban hành kèm Thông tư số 06/2022/TT-BKHĐT ng\"},{\"index\":26,\"token_length\":2210,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nMục 7\\nĐÀO TẠO TƯ VẤN VIÊN. Thực hiện như quy định tại Mục 1 Phụ lục 3.2 Thông tư này.. PHỤ LỤC 3.3: MẪU HỒ SƠ KHÓA ĐÀO TẠO. (Ban hành kèm Thông tư số 06/2022/TT-BKHĐT ng\"},{\"index\":27,\"token_length\":2556,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nMục 7\\nĐÀO TẠO TƯ VẤN VIÊN. Thực hiện như quy định tại Mục 1 Phụ lục 3.2 Thông tư này.. PHỤ LỤC 3.3: MẪU HỒ SƠ KHÓA ĐÀO TẠO. (Ban hành kèm Thông tư số 06/2022/TT-BKHĐT ng\"},{\"index\":28,\"token_length\":2632,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nMục 7\\nĐÀO TẠO TƯ VẤN VIÊN. Thực hiện như quy định tại Mục 1 Phụ lục 3.2 Thông tư này.. PHỤ LỤC 3.3: MẪU HỒ SƠ KHÓA ĐÀO TẠO. (Ban hành kèm Thông tư số 06/2022/TT-BKHĐT ng\"},{\"index\":29,\"token_length\":2686,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nMục 7\\nĐÀO TẠO TƯ VẤN VIÊN. Thực hiện như quy định tại Mục 1 Phụ lục 3.2 Thông tư này.. PHỤ LỤC 3.3: MẪU HỒ SƠ KHÓA ĐÀO TẠO. (Ban hành kèm Thông tư số 06/2022/TT-BKHĐT ng\"},{\"index\":30,\"token_length\":2558,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nMục 7\\nĐÀO TẠO TƯ VẤN VIÊN. Thực hiện như quy định tại Mục 1 Phụ lục 3.2 Thông tư này.. PHỤ LỤC 3.3: MẪU HỒ SƠ KHÓA ĐÀO TẠO. (Ban hành kèm Thông tư số 06/2022/TT-BKHĐT ng\"},{\"index\":31,\"token_length\":2188,\"max_length\":2046,\"text_preview\":\"Chương III : TỔ CHỨC THỰC HIỆN\\nMục 7\\nĐÀO TẠO TƯ VẤN VIÊN. Thực hiện như quy định tại Mục 1 Phụ lục 3.2 Thông tư này.. PHỤ LỤC 3.3: MẪU HỒ SƠ KHÓA ĐÀO TẠO. (Ban hành kèm Thông tư số 06/2022/TT-BKHĐT ng\"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:10:11.530832"
+  },
+  {
+    "file": "data\\vbpl_1_4\\20_2\\Thong-tu-07-2022-TT-BTC.docx",
+    "error": {
+      "success": false,
+      "message": "Error processing document: API Error (embed): 422 - {\"detail\":{\"message\":\"Embedding input is too long and would be truncated.\",\"max_length\":2046,\"too_long_items\":[{\"index\":9,\"token_length\":2082,\"max_length\":2046,\"text_preview\":\"Điều 16. Hiệu lực thi hành\\n1. Vật tư hàng hoá, công cụ dụng cụ tồn kho. 2……………. B. Tài sản chờ thanh lý. I. Tài sản cố định. II. Tài sản lưu động (Vật tư hàng hoá). C. Tài sản thừa so với giá trị DN. \"}]}}",
+      "collection": null,
+      "chunks_count": 0,
+      "embeddings_count": 0,
+      "metadata": null
+    },
+    "timestamp": "2026-05-02T01:10:27.640724"
+  }
+]
