@@ -26,6 +26,7 @@ export const useChat = () => {
   const [activeSessionId, setActiveSessionId] = useState<string>('1');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState<number>(5); // Default to RAG mode (5)
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
@@ -93,6 +94,7 @@ export const useChat = () => {
         },
         body: JSON.stringify({
           query: currentInput,
+          mode: mode,
           use_remote_embedding: true,
           use_remote_rerank: true
         }),
@@ -162,6 +164,8 @@ export const useChat = () => {
     isLoading,
     sendMessage,
     handleKeyPress,
-    messagesEndRef
+    messagesEndRef,
+    mode,
+    setMode
   };
 };

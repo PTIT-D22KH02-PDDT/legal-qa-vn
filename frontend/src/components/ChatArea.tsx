@@ -8,7 +8,7 @@ interface ChatAreaProps {
 }
 
 const ChatArea: React.FC<ChatAreaProps> = ({ chatContext }) => {
-  const { messages, input, setInput, isLoading, sendMessage, handleKeyPress, messagesEndRef, activeSession } = chatContext;
+  const { messages, input, setInput, isLoading, sendMessage, handleKeyPress, messagesEndRef, activeSession, mode, setMode } = chatContext;
 
   const currentTitle = activeSession?.title || 'Cuộc trò chuyện mới';
 
@@ -43,9 +43,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({ chatContext }) => {
 
       <div className="chat-input-wrapper">
         <div className="chat-input-container">
-          <button className="advanced-ai-btn">
-            <Zap size={14} className="btn-icon" />
-            AI nâng cao
+          <button 
+            className={`advanced-ai-btn ${mode === 6 ? 'active' : ''}`}
+            onClick={() => setMode(mode === 5 ? 6 : 5)}
+            title={mode === 6 ? "Đang dùng Agent" : "Dùng RAG thường"}
+          >
+            <Zap size={14} className={`btn-icon ${mode === 6 ? 'active' : ''}`} />
+            {mode === 6 ? 'Agent Mode' : 'AI nâng cao'}
           </button>
           
           <input

@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from main import build_search_service
+from main import build_search_service, setup_workflow_dependencies, run_workflow_query
 from src.api import RemoteAPIClient
 from src.rag import RAGService
 from fastapi import UploadFile, File, Form
@@ -26,6 +26,7 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     query: str
+    mode: int = 5
     top_k_retrieve: int = 10
     top_k_rerank: int = 5
     use_remote_embedding: bool = True
@@ -40,6 +41,7 @@ class ChatResponse(BaseModel):
 search_service = None
 api_client = None
 rag_service = None
+workflow_deps = None
 
 def init_services(req: ChatRequest):
     global search_service, api_client, rag_service
@@ -62,20 +64,47 @@ def init_services(req: ChatRequest):
 
 @app.post("/api/chat", response_model=ChatResponse)
 def chat_endpoint(req: ChatRequest):
+    global workflow_deps
     try:
-        init_services(req)
-        result = rag_service.answer(query=req.query)
-        
-        # Trích xuất các source documents để làm citation
-        context = ""
-        if result.context:
-            context = result.context
+        if req.mode == 6:
+            # Agent Mode (Workflow)
+            if not workflow_deps:
+                workflow_deps = setup_workflow_dependencies()
             
-        return ChatResponse(
-            query=result.query,
-            answer=result.answer,
-            context=context
-        )
+            result = run_workflow_query(req.query, workflow_deps)
+            
+            if not result:
+                return ChatResponse(
+                    query=req.query,
+                    answer="Xin lỗi, tôi gặp lỗi khi xử lý yêu cầu của bạn qua Agent.",
+                    context=""
+                )
+            
+            # Trích xuất context từ agent results
+            context = ""
+            if result.get("context_text"):
+                # context_text là List[str] tích lũy từ các tool
+                context = "\n---\n".join(result["context_text"])
+                
+            return ChatResponse(
+                query=req.query,
+                answer=result.get("answer", "Không tìm thấy câu trả lời."),
+                context=context
+            )
+        else:
+            # Default RAG Mode
+            init_services(req)
+            result = rag_service.answer(query=req.query)
+            
+            context = ""
+            if result.context:
+                context = result.context
+                
+            return ChatResponse(
+                query=result.query,
+                answer=result.answer,
+                context=context
+            )
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))

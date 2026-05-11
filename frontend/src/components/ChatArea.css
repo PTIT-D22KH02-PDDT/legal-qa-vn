@@ -81,6 +81,21 @@
   cursor: pointer;
   margin-right: 16px;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.advanced-ai-btn.active {
+  background-color: #8b5cf6;
+  color: white;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+}
+
+.btn-icon {
+  margin-right: 4px;
+}
+
+.btn-icon.active {
+  fill: currentColor;
 }
 
 .chat-input {
