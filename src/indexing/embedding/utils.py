@@ -206,3 +206,25 @@ def create_embedding_request(
         metadata=metadata or {},
     )
 
+
+if __name__ == "__main__":
+    # Test decode_section_id với nhiều dạng chunk_id khác nhau
+    test_chunk_ids = [
+        "91_2015_qh13.dieu_6.khoan_1.diem_a",
+        "42_2022_tt-bct.phan_2.chuong_3.dieu_5.khoan_1",
+        "123_2020_luat.modau",
+        "456_2019_ngd.chinh",
+        "789_2018_vb.muc_4",
+        "321_2017_vb.phu_luc.phan_1",
+        "654_2016_vb.phu_luc_phan.2",
+        "111_2021_vb.dieu_10__dup_0.khoan_2__dup_0",
+        "100_2015_qh13.phan_1.chuong_i"
+    ]
+
+    for chunk_id in test_chunk_ids:
+        try:
+            metadata = decode_section_id(chunk_id)
+            print(f"Chunk ID: {chunk_id}")
+            print(f"Decoded Metadata: {metadata}\n")
+        except ValueError as e:
+            print(f"Error decoding chunk_id '{chunk_id}': {e}\n")

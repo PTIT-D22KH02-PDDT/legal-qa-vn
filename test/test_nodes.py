@@ -122,8 +122,8 @@ def test_legal_query(llm, tools):
     legal_query_node = make_legal_query_node(tools, llm)
     
     state = {
-        "question": "Khoản 1 Điều 16 nghị định 15/2025/NĐ-CP",
-        "current_sub_question": SubQuestion(query="Khoản 1 Điều 16 nghị định 15/2025/NĐ-CP", intent=Intent.LEGAL_QUERY),
+        "question": "Điều 5 Chương II Thông tư số 42/2022/TT-BCT quy định về vấn đề gì?",
+        "current_sub_question": SubQuestion(query="Điều 5 Chương II Thông tư số 42/2022/TT-BCT quy định về vấn đề gì?", intent=Intent.LEGAL_QUERY),
         "context_text": [],
         "tool_outputs": [],
         "messages": []

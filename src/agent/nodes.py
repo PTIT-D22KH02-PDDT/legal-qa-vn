@@ -112,13 +112,28 @@ def make_legal_query_node(retriever: Any, llm_client: Any) -> Callable[[AgentSta
         prompt = LEGAL_QUERY_PROMPT + f"\n\nCâu hỏi: {query}"
         try:
             raw_response = llm_client.generate(prompt=prompt)
+            print(f"\n[DEBUG Legal Query] Raw LLM Response:\n{raw_response}\n")
+            
             clean_json = raw_response
             match = re.search(r"```(?:json)?(.*?)```", raw_response, re.DOTALL)
             if match:
                 clean_json = match.group(1).strip()
+            
+            print(f"[DEBUG Legal Query] Cleaned JSON:\n{clean_json}\n")
                 
             json_dict = json.loads(clean_json)
             citation = LegalCitation.model_validate(json_dict)
+            
+            print(f"[DEBUG Legal Query] Parsed Citation:")
+            print(f"  - so_hieu: {citation.so_hieu}")
+            print(f"  - ten_van_ban: {citation.ten_van_ban}")
+            print(f"  - phan: {citation.phan}")
+            print(f"  - chuong: {citation.chuong}")
+            print(f"  - muc: {citation.muc}")
+            print(f"  - dieu: {citation.dieu}")
+            print(f"  - khoan: {citation.khoan}")
+            print(f"  - diem: {citation.diem}")
+            print()
             
             so_hieu_to_search = citation.so_hieu
             
@@ -136,7 +151,15 @@ def make_legal_query_node(retriever: Any, llm_client: Any) -> Callable[[AgentSta
                     print(f"[Legal Query Node] Không tìm thấy văn bản nào có tên '{citation.ten_van_ban}'")
             
             # 2. Gọi tool tìm kiếm chính xác
-            print(f"[Legal Query Node] Tìm metadata: so_hieu={so_hieu_to_search}, dieu={citation.dieu}, khoan={citation.khoan}")
+            print(f"[Legal Query Node] Gọi chunk_metadata_search với:")
+            print(f"  - so_hieu: {so_hieu_to_search}")
+            print(f"  - phan: {citation.phan}")
+            print(f"  - chuong: {citation.chuong}")
+            print(f"  - muc: {citation.muc}")
+            print(f"  - dieu: {citation.dieu}")
+            print(f"  - khoan: {citation.khoan}")
+            print(f"  - diem: {citation.diem}")
+            
             tool_output = retriever.chunk_metadata_search(
                 so_hieu=so_hieu_to_search,
                 phan=citation.phan,
@@ -147,6 +170,18 @@ def make_legal_query_node(retriever: Any, llm_client: Any) -> Callable[[AgentSta
                 diem=citation.diem,
                 top_k=5 # Lấy 5 chunk nếu có trùng lặp hoặc lấy các chunk con
             )
+            
+            # DEBUG: In ra kết quả từ chunk_metadata_search
+            print(f"\n[DEBUG Legal Query] chunk_metadata_search result:")
+            print(f"  - success: {tool_output.success}")
+            print(f"  - chunks count: {len(tool_output.chunks) if tool_output.chunks else 0}")
+            if tool_output.chunks:
+                for i, chunk in enumerate(tool_output.chunks, 1):
+                    print(f"    [{i}] ID={chunk.chunk_id}, text_len={len(chunk.text)}")
+            print(f"  - display_text length: {len(tool_output.display_text) if tool_output.display_text else 0}")
+            if tool_output.display_text:
+                print(f"  - display_text (first 200 chars):\n{tool_output.display_text[:200]}...\n")
+            print()
             
             # 3. Trả về context và tool_output
             if tool_output.success and tool_output.display_text:
@@ -161,6 +196,8 @@ def make_legal_query_node(retriever: Any, llm_client: Any) -> Callable[[AgentSta
             
         except Exception as e:
             print(f"[Legal Query Error] {e}")
+            import traceback
+            traceback.print_exc()
             # Fallback về text trống nếu lỗi
             return {"context_text": [f"--- LỖI TRÍCH XUẤT CHO: '{query}' ---"]}
         

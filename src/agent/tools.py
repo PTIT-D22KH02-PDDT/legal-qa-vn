@@ -57,6 +57,89 @@ def _fuzzy_score(a: str, b: str) -> float:
     return SequenceMatcher(None, na, nb).ratio()
 
 
+# === Normalization helpers cho "Chương" ===
+
+_NUM_TO_ROMAN_LOWER = {
+    1: "i", 2: "ii", 3: "iii", 4: "iv", 5: "v",
+    6: "vi", 7: "vii", 8: "viii", 9: "ix", 10: "x",
+    11: "xi", 12: "xii", 13: "xiii", 14: "xiv", 15: "xv",
+    20: "xx", 30: "xxx", 40: "xl", 50: "l", 100: "c"
+}
+
+_ROMAN_TO_ROMAN_LOWER = {
+    "i": "i", "I": "i",
+    "ii": "ii", "II": "ii",
+    "iii": "iii", "III": "iii",
+    "iv": "iv", "IV": "iv",
+    "v": "v", "V": "v",
+    "vi": "vi", "VI": "vi",
+    "vii": "vii", "VII": "vii",
+    "viii": "viii", "VIII": "viii",
+    "ix": "ix", "IX": "ix",
+    "x": "x", "X": "x",
+    "xi": "xi", "XI": "xi",
+    "xii": "xii", "XII": "xii",
+    "xiii": "xiii", "XIII": "xiii",
+    "xiv": "xiv", "XIV": "xiv",
+    "xv": "xv", "XV": "xv",
+    "xx": "xx", "XX": "xx",
+    "xxx": "xxx", "XXX": "xxx",
+    "xl": "xl", "XL": "xl",
+    "l": "l", "L": "l",
+    "c": "c", "C": "c"
+}
+
+def _convert_to_roman_lower(value: str) -> str:
+    """Convert số hoặc chữ La Mã → chữ La Mã viết thường."""
+    value = value.strip()
+    
+    # Thử convert từ số
+    try:
+        num = int(value)
+        if num in _NUM_TO_ROMAN_LOWER:
+            return _NUM_TO_ROMAN_LOWER[num]
+        else:
+            # Số lớn: chuyển đổi theo quy tắc
+            if num <= 0:
+                return str(num)
+            val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+            syms = ["m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i"]
+            roman = ''
+            i = 0
+            while num > 0:
+                for _ in range(num // val[i]):
+                    roman += syms[i]
+                    num -= val[i]
+                i += 1
+            return roman
+    except ValueError:
+        pass
+    
+    # Thử convert từ chữ La Mã
+    if value in _ROMAN_TO_ROMAN_LOWER:
+        return _ROMAN_TO_ROMAN_LOWER[value]
+    
+    # Fallback
+    return value.lower()
+
+
+def _normalize_section_label(label: str) -> str:
+    """Normalize "Chương 6" → "Chương vi". Database lưu chương dưới dạng La Mã."""
+    match_obj = re.match(r"^(.+?)\s+(.+)$", label.strip())
+    if not match_obj:
+        return label
+    
+    title = match_obj.group(1)  # "Chương"
+    value = match_obj.group(2)  # "6", "VI", "vi"
+    
+    # Chỉ normalize "Chương" thành chữ La Mã viết thường
+    if title == "Chương":
+        normalized_value = _convert_to_roman_lower(value)
+        return f"{title} {normalized_value}"
+    
+    return label
+
+
 def _get_base_chunk_id(chunk_id: str) -> str:
     """Chuẩn hóa chunk_id bằng cách loại bỏ hậu tố __dup_N ở từng segment.
 
@@ -279,7 +362,7 @@ class LegalAgentTools:
         Format metadata lưu trong ChromaDB (theo decode_section_id trong utils.py):
             so_hieu      → "91_2015_qh13"      (dấu '_', lowercase)
             phan         → "Phần 1"
-            chuong       → "Chương 2"
+            chuong       → "Chương vi"
             muc          → "Mục 3"
             dieu         → "Điều 6"
             khoan        → "Khoản 1"
@@ -321,7 +404,11 @@ class LegalAgentTools:
             # Các field số nguyên: int → "Nhãn N"
             for field, (label, value) in _LABELED_INT_FIELDS.items():
                 if value is not None:
-                    conditions.append({field: {"$eq": f"{label} {value}"}})
+                    section_str = f"{label} {value}"
+                    # Normalize "Chương" và "Phần" thành chữ La Mã viết thường
+                    if field in {"chuong"}:
+                        section_str = _normalize_section_label(section_str)
+                    conditions.append({field: {"$eq": section_str}})
 
             # Các field chuỗi: "x" → "Nhãn x"
             for field, (label, value) in _LABELED_STR_FIELDS.items():
