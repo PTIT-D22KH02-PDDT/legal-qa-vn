@@ -143,6 +143,10 @@ def list_documents():
 @app.get("/api/documents/search")
 def search_documents(query: str = ""):
     """Tìm kiếm văn bản theo số hiệu hoặc tên để chọn quan hệ."""
+    from src.indexing.parsing.extract_metadata import Extractor
+    extractor = Extractor()
+    so_hieu = extractor._slug_so_hieu(query)
+    
     db_service = None
     try:
         db_service = DocumentDatabaseService()
@@ -153,7 +157,7 @@ def search_documents(query: str = ""):
         session = db_service.metadata_repo.session
         results = session.query(DocumentMetadataDB).filter(
             or_(
-                DocumentMetadataDB.so_hieu.ilike(f"%{query}%"),
+                DocumentMetadataDB.so_hieu.ilike(f"%{so_hieu}%"),
                 DocumentMetadataDB.ten_van_ban.ilike(f"%{query}%")
             )
         ).limit(20).all()
