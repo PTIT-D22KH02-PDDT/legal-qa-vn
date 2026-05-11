@@ -19,6 +19,7 @@ class RelationType(str, Enum):
     lien_quan          = "lien_quan"            # tham chiếu nhau, không trực tiếp
     #Quan he giua cac dieu/khoan trong van ban
     tham_chieu         = "tham_chieu"
+    can_cu             = "can_cu"
 
 class ChunkType(str, Enum):
     """

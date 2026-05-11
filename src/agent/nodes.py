@@ -185,9 +185,27 @@ def make_legal_query_node(retriever: Any, llm_client: Any) -> Callable[[AgentSta
             
             # 3. Trả về context và tool_output
             if tool_output.success and tool_output.display_text:
-                context_str = f"--- TRÍCH XUẤT CHÍNH XÁC CHO: '{query}' ---\n{tool_output.display_text}"
+                # Build citations từ chunks
+                citations = []
+                if tool_output.chunks:
+                    for i, chunk in enumerate(tool_output.chunks, 1):
+                        so_hieu = chunk.metadata.get("so_hieu", "N/A")
+                        dieu = chunk.metadata.get("dieu", "")
+                        khoan = chunk.metadata.get("khoan", "")
+                        
+                        location = []
+                        if dieu:
+                            location.append(dieu)
+                        if khoan:
+                            location.append(khoan)
+                        location_str = ", ".join(location) if location else "N/A"
+                        
+                        citations.append(f"[{i}] {so_hieu} - {location_str}")
+                
+                citations_str = "\n**Trích nguồn:**\n" + "\n".join(citations) if citations else ""
+                context_str = f"### Trích xuất chính xác: {query}\n\n{tool_output.display_text}{citations_str}"
             else:
-                context_str = f"--- KHÔNG TÌM THẤY ĐIỀU LUẬT CHÍNH XÁC CHO: '{query}' ---\n{tool_output.display_text or ''}"
+                context_str = f"### Không tìm thấy: {query}\n\n{tool_output.display_text or 'Không có kết quả phù hợp.'}"
                 
             return {
                 "context_text": [context_str],
@@ -586,26 +604,49 @@ def make_generate_response_node(retriever: Any, llm_client: Any) -> Callable[[Ag
                 
                 try:
                     print(f"[Generate Response] SQ{sq_idx}: Gọi LLM sinh answer...")
-                    # sq_answer = llm.generate(
-                    #     prompt=answer_prompt,
-                    #     max_length=512,
-                    #     temperature=0.1
-                    # )
-                    sq_answer = llm_client.generate(
-                        prompt=answer_prompt)
+                    sq_answer = llm_client.generate(prompt=answer_prompt)
                     if not sq_answer or sq_answer.strip() == "":
                         sq_answer = f"[SQ{sq_idx}] Không thể sinh câu trả lời."
                     
                     sq_answer = sq_answer.strip()
                     print(f"[Generate Response] SQ{sq_idx}: Sinh answer thành công ({len(sq_answer)} ký tự)")
                     
-                    # Format answer với header SQ
-                    formatted_answer = f"\n{'='*80}\n[Câu hỏi con {sq_idx}] {sq_query}\n{'='*80}\n{sq_answer}"
-                    all_answers.append(formatted_answer)
+                    # --- Tạo Citations từ context_chunks ---
+                    citations = []
+                    sq_ctx = sub_question_contexts.get(sq_query, {})
+                    sq_chunks = sq_ctx.get("context_chunks", [])
+                    
+                    if sq_chunks:
+                        for i, chunk in enumerate(sq_chunks, 1):
+                            chunk_id = chunk.chunk_id
+                            so_hieu = chunk.metadata.get("so_hieu", "N/A")
+                            dieu = chunk.metadata.get("dieu", "")
+                            khoan = chunk.metadata.get("khoan", "")
+                            
+                            # Build citation label
+                            location = []
+                            if dieu:
+                                location.append(dieu)
+                            if khoan:
+                                location.append(khoan)
+                            location_str = ", ".join(location) if location else "N/A"
+                            
+                            citations.append(f"[{i}] {so_hieu} - {location_str}")
+                    
+                    # Format answer với header đẹp
+                    header = f"\n### Câu hỏi con {sq_idx}: {sq_query}"
+                    answer_section = f"{header}\n\n{sq_answer}"
+                    
+                    # Thêm citations nếu có
+                    if citations:
+                        citations_section = f"\n\n**Trích nguồn:**\n" + "\n".join(citations)
+                        answer_section += citations_section
+                    
+                    all_answers.append(answer_section)
                     
                 except Exception as e:
                     logger.exception("[Generate Response] SQ%d Lỗi sinh answer: %s", sq_idx, e)
-                    all_answers.append(f"\n[Câu hỏi con {sq_idx}] {sq_query}\n[LỖI] {str(e)}")
+                    all_answers.append(f"\n### Câu hỏi con {sq_idx}: {sq_query}\n\n**[LỖI]** {str(e)}")
             
             # --- Merge tất cả answers ---
             final_answer = "\n\n".join(all_answers)

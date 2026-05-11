@@ -10,6 +10,7 @@ from src.rag import RAGService
 from fastapi import UploadFile, File, Form
 from system.replace_file_service import ReplaceFileService
 from system.database.db_service import DocumentDatabaseService
+from src.core.enums import RelationType
 import shutil
 import os
 from sqlalchemy import text
@@ -33,13 +34,13 @@ class ChatRequest(BaseModel):
     
     Parameters:
         query: Câu hỏi/tin nhắn từ user
-        top_k_retrieve: Số chunks để lấy từ vector search (default=10)
+        top_k_retrieve: Số chunks để lấy từ vector search (default=50)
         top_k_rerank: Số chunks sau khi rerank (default=5)
         use_remote_embedding: Dùng remote API cho embedding (default=True)
         use_remote_rerank: Dùng remote API cho rerank (default=True)
     """
     query: str
-    top_k_retrieve: int = 10
+    top_k_retrieve: int = 30
     top_k_rerank: int = 5
     use_remote_embedding: bool = True
     use_remote_rerank: bool = True
@@ -170,37 +171,20 @@ def search_documents(query: str = ""):
 
 @app.get("/api/relation-types")
 def get_relation_types():
-    """Lấy danh sách các loại quan hệ hiện có trong DB."""
-    db_service = None
+    """Lấy danh sách 3 loại quan hệ chính từ enum."""
     try:
-        db_service = DocumentDatabaseService()
-        session = db_service.metadata_repo.session
-        from system.database.db import DocumentRelationDB
-        from sqlalchemy import func
+        # Ánh xạ từ enum value → display text
+        type_mappings = {
+            RelationType.huong_dan_thi_hanh: "Hướng dẫn thi hành",
+            RelationType.thay_the: "Thay thế",
+            RelationType.can_cu: "Căn cứ",
+        }
         
-        # Lấy các loại mặc định
-        default_types = ["Thay thế", "Sửa đổi, bổ sung", "Hướng dẫn", "Căn cứ"]
-        
-        # Lấy distinct relation_type từ DB
-        db_results = session.query(DocumentRelationDB.relation_type).distinct().all()
-        db_types = [r[0] for r in db_results if r[0]]
-        
-        # Hợp nhất và loại bỏ trùng lặp
-        all_types = list(set(default_types + db_types))
-        
-        # Sắp xếp để "Thay thế" luôn ở đầu hoặc theo bảng chữ cái
-        all_types.sort()
-        if "Thay thế" in all_types:
-            all_types.remove("Thay thế")
-            all_types.insert(0, "Thay thế")
-            
-        return all_types
+        # Trả về danh sách 3 loại này (đã sắp xếp)
+        return list(type_mappings.values())
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        if db_service:
-            db_service.close()
 
 @app.post("/api/replace-document")
 async def replace_document(
