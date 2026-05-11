@@ -1,7 +1,7 @@
 from src.core.models import DocumentMetadata
 from typing import List, Optional
 from pathlib import Path
-from sqlalchemy import create_engine, or_
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 import logging
 from datetime import datetime
@@ -88,10 +88,32 @@ class DocumentMetadataRepository:
         return self.session.query(DocumentMetadataDB).filter_by(so_hieu=so_hieu).first()
     
     def search_by_name(self, name: str, limit: int = 10) -> List[DocumentMetadataDB]:
-        """Tìm kiếm văn bản theo tên (sử dụng LIKE)."""
-        return self.session.query(DocumentMetadataDB).filter(
+        """Tìm kiếm văn bản theo tên (sử dụng LIKE). Bổ sung fallback upper/lower cho tiếng Việt."""
+        # Query 1: ilike mặc định
+        results = self.session.query(DocumentMetadataDB).filter(
             DocumentMetadataDB.ten_van_ban.ilike(f"%{name}%")
         ).limit(limit).all()
+        
+        # Nếu không có kết quả, thử chuyển toàn bộ sang chữ in hoa 
+        # (do SQLite ilike không hỗ trợ case-insensitive tiếng Việt có dấu)
+        if not results:
+            results = self.session.query(DocumentMetadataDB).filter(
+                DocumentMetadataDB.ten_van_ban.like(f"%{name.upper()}%")
+            ).limit(limit).all()
+            
+        # Thử chuyển toàn bộ sang chữ thường
+        if not results:
+            results = self.session.query(DocumentMetadataDB).filter(
+                DocumentMetadataDB.ten_van_ban.like(f"%{name.lower()}%")
+            ).limit(limit).all()
+            
+        # Thử viết hoa chữ cái đầu (Title Case)
+        if not results:
+            results = self.session.query(DocumentMetadataDB).filter(
+                DocumentMetadataDB.ten_van_ban.like(f"%{name.title()}%")
+            ).limit(limit).all()
+            
+        return results
 
     def get_by_loai(self, loai: str) -> List[DocumentMetadataDB]:
         """Lấy danh sách văn bản theo loại."""
@@ -224,6 +246,12 @@ class DocumentRelationRepository:
         )
         self.session.commit()
         return deleted
+
+    def get_relations_by_entity(self, so_hieu: str):
+        """Lấy tất cả các quan hệ mà văn bản tham gia (cả start và end)."""
+        relations_start = self.session.query(DocumentRelationDB).filter(DocumentRelationDB.entity_start == so_hieu).all()
+        relations_end = self.session.query(DocumentRelationDB).filter(DocumentRelationDB.entity_end == so_hieu).all()
+        return relations_start, relations_end
 
 class DocumentContentRepository:
     """CRUD operations for DocumentContent"""

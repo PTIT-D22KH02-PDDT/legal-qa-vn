@@ -140,8 +140,10 @@ def test_doc_metadata_by_so_hieu(tools: LegalAgentTools):
 
 def test_doc_metadata_by_ten_van_ban(tools: LegalAgentTools):
     """TC6: Tìm văn bản theo tên (fuzzy)."""
-    out = tools.doc_metadata_search(ten_van_ban="Luật Phòng cháy, chữa cháy và cứu nạn, cứu hộ", limit=5)
-    print_result("doc_metadata_search — ten_van_ban='Luật Phòng cháy, chữa cháy và cứu nạn, cứu hộ'", out)
+    # out = tools.doc_metadata_search(ten_van_ban="Luật Phòng cháy, chữa cháy và cứu nạn, cứu hộ", limit=5)
+    # print_result("doc_metadata_search — ten_van_ban='Luật Phòng cháy, chữa cháy và cứu nạn, cứu hộ'", out)
+    out = tools.doc_metadata_search(ten_van_ban="Bộ luật hình sự", limit=5)
+    print_result("doc_metadata_search — ten_van_ban='Bộ luật hình sự'", out)
     assert out.tool_name == "doc_metadata_search"
 
 
@@ -169,7 +171,7 @@ if __name__ == "__main__":
     print("OK\n")
 
     tests = [
-        test_vector_search,
+        # test_vector_search,
         test_chunk_metadata_search_by_so_hieu_and_dieu,
         # test_chunk_metadata_search_by_dieu_khoan,
         # test_chunk_metadata_search_no_criteria,

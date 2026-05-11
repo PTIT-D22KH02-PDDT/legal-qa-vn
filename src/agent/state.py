@@ -11,36 +11,34 @@ Các trường dùng `Annotated[List, operator.add]` sẽ được LangGraph
 from __future__ import annotations
 
 import operator
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Dict, Any
 
 from typing_extensions import TypedDict
 
-from .schemas import Intent, ToolOutput
+from .schemas import Intent, ToolOutput, SubQuestion
+from src.indexing.vector_store import ChromaQueryResult
 
 
 class AgentState(TypedDict, total=False):
     """
     Trạng thái Agent chạy qua LangGraph.
-
-    Lifecycle:
-        1. `question` được set từ đầu vào người dùng.
-        2. Node `analyze` điền intent, sub_questions, linh_vuc, keywords.
-        3. Router phân nhánh theo intent.
-        4. Các node tool tích lũy vào `tool_outputs` và `context_chunks`.
-        5. Node `generate` đọc context và tạo `answer`.
+    - `question` được set từ đầu vào người dùng.
+    - Node `analyze` điền intent, sub_questions, linh_vuc, keywords.
+    - Router phân nhánh theo intent.
+    - Các node tool tích lũy vào `tool_outputs` và `context_chunks`.
+    - Node `generate` đọc context và tạo `answer`.
     """
 
     question: str
     """Câu hỏi gốc của người dùng, không được sửa đổi."""
 
 
-    intent: Optional[Intent]
-    """Intent được phân loại. Dùng để router quyết định nhánh."""
+    current_sub_question: Optional[SubQuestion]
+    """Câu hỏi con hiện tại đang được xử lý bởi một nhánh cụ thể (dành cho Send API)."""
 
-    sub_questions: List[str]
+    sub_questions: List[SubQuestion]
     """
-    Câu hỏi sau khi phân rã (decompose). Nếu câu hỏi đơn giản,
-    list này chứa đúng 1 phần tử là câu hỏi gốc.
+    Danh sách các câu hỏi con sau khi phân rã (decompose).
     """
 
     linh_vuc: Optional[str]
@@ -64,13 +62,23 @@ class AgentState(TypedDict, total=False):
     Danh sách các đoạn context text đã format, tích lũy từ tool_outputs.
     Node generate sẽ join list này để tạo context đầy đủ cho LLM.
     """
-
-    iteration: int
-    """Số vòng lặp search đã thực hiện. Dùng để tránh loop vô tận."""
-
-    max_iterations: int
-    """Số vòng lặp tối đa cho phép (mặc định: 2)."""
-
+    
+    context_chunks: Annotated[List[ChromaQueryResult], operator.add]
+    """
+    Danh sách chunks đã được đánh giá và lọc từ evaluate_chunks_node.
+    Dùng trong generate_response_node để gọi _evaluate_refs và mở rộng context.
+    """
+    
+    sub_question_contexts: Optional[Dict[str, Dict[str, Any]]]
+    """
+    Mapping từ mỗi sub_question query → context riêng của nó.
+    Được tạo bởi merge_results_node.
+    Cấu trúc: {
+        "câu hỏi con 1": {"context_text": [...], "context_chunks": [...]},
+        "câu hỏi con 2": {"context_text": [...], "context_chunks": [...]}
+    }
+    """
+    
     answer: Optional[str]
     """Câu trả lời cuối cùng được tạo ra bởi LLM."""
 
@@ -91,14 +99,14 @@ def initial_state(question: str, max_iterations: int = 2) -> AgentState:
     """
     return AgentState(
         question=question,
-        intent=None,
+        current_sub_question=None,
         sub_questions=[],
         linh_vuc=None,
         keywords=[],
         tool_outputs=[],
         context_text=[],
-        iteration=0,
-        max_iterations=max_iterations,
+        context_chunks=[],
+        sub_question_contexts=None,
         answer=None,
         error=None,
     )
